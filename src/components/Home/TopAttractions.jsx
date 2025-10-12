@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const attractions = [
@@ -37,6 +37,8 @@ const attractions = [
 export default function TopAttractionsCarousel() {
   const [current, setCurrent] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
 
   // Responsive cards per view
   useEffect(() => {
@@ -62,6 +64,28 @@ export default function TopAttractionsCarousel() {
     return visible;
   };
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const diff = touchStartX.current - touchEndX.current;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) next(); // swipe left
+      else prev(); // swipe right
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   const visibleAttractions = getVisible();
 
   return (
@@ -74,11 +98,16 @@ export default function TopAttractionsCarousel() {
           Top Attractions
         </h2>
 
-        <div className="relative flex items-center">
+        <div
+          className="relative flex items-center"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Left Button */}
           <button
             onClick={prev}
-            className="absolute left-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition"
+            className="absolute left-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:flex"
           >
             <FiChevronLeft size={22} />
           </button>
@@ -111,7 +140,7 @@ export default function TopAttractionsCarousel() {
           {/* Right Button */}
           <button
             onClick={next}
-            className="absolute right-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition"
+            className="absolute right-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:flex"
           >
             <FiChevronRight size={22} />
           </button>
