@@ -10,6 +10,7 @@ export default function Navbar() {
   const navLinks = [
     {
       title: "Tours",
+      path: "/tours",
       subLinks: [
         { name: "Dubai City Tour", path: "/dubai" },
         { name: "Desert Safari", path: "/desert-safari" },
@@ -59,9 +60,14 @@ export default function Navbar() {
           {navLinks.map((link, i) =>
             link.subLinks ? (
               <div key={i} className="relative group">
-                <button className="flex items-center gap-1 font-medium text-[#404041] hover:text-[#e82429] transition-colors duration-300">
+                {/* Updated: Wrap main link with Link */}
+                <Link
+                  to={link.path}
+                  className="flex items-center gap-1 font-medium text-[#404041] hover:text-[#e82429] transition-colors duration-300"
+                >
                   {link.title} <FiChevronDown size={16} />
-                </button>
+                </Link>
+
                 {/* Dropdown */}
                 <div className="absolute left-0 top-full mt-2 w-60 bg-white rounded-lg shadow-xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-50">
                   <ul className="py-3">
