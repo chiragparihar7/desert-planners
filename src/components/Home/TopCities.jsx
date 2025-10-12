@@ -2,26 +2,11 @@ import React, { useState, useEffect } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const cities = [
-  {
-    name: "Dubai",
-    img: "https://images.unsplash.com/flagged/photo-1559717865-a99cac1c95d8?auto=format&fit=crop&q=80&w=1171",
-  },
-  {
-    name: "Abu Dhabi",
-    img: "https://images.unsplash.com/photo-1603565095944-2a6f33bb517c?auto=format&fit=crop&q=80&w=1171",
-  },
-  {
-    name: "Ajman",
-    img: "https://images.unsplash.com/photo-1557678493-c54624d611fc?auto=format&fit=crop&q=80&w=687",
-  },
-  {
-    name: "Sharjah",
-    img: "https://plus.unsplash.com/premium_photo-1697730012360-d49e7ca1a776?auto=format&fit=crop&q=80&w=1192",
-  },
-  {
-    name: "Paris",
-    img: "https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&w=800&q=80",
-  },
+  { name: "Dubai", img: "https://images.unsplash.com/flagged/photo-1559717865-a99cac1c95d8?auto=format&fit=crop&q=80&w=1171" },
+  { name: "Abu Dhabi", img: "https://images.unsplash.com/photo-1603565095944-2a6f33bb517c?auto=format&fit=crop&q=80&w=1171" },
+  { name: "Ajman", img: "https://images.unsplash.com/photo-1557678493-c54624d611fc?auto=format&fit=crop&q=80&w=687" },
+  { name: "Sharjah", img: "https://plus.unsplash.com/premium_photo-1697730012360-d49e7ca1a776?auto=format&fit=crop&q=80&w=1192" },
+  { name: "Paris", img: "https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&w=800&q=80" },
 ];
 
 export default function TopCitiesSlider() {
@@ -44,30 +29,20 @@ export default function TopCitiesSlider() {
 
   // next and previous functions
   const nextSlide = () => setCurrent((prev) => (prev + 1) % cities.length);
-  const prevSlide = () =>
-    setCurrent((prev) => (prev - 1 + cities.length) % cities.length);
+  const prevSlide = () => setCurrent((prev) => (prev - 1 + cities.length) % cities.length);
 
-  // ✅ Swipe functionality
+  // Swipe functionality
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
-
+  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientX);
+  const handleTouchMove = (e) => setTouchEnd(e.touches[0].clientX);
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
-    const swipeThreshold = 40; // minimum distance to detect swipe
-    if (distance > swipeThreshold) {
-      nextSlide(); // swipe left
-    } else if (distance < -swipeThreshold) {
-      prevSlide(); // swipe right
-    }
+    const swipeThreshold = 40;
+    if (distance > swipeThreshold) nextSlide();
+    else if (distance < -swipeThreshold) prevSlide();
     setTouchStart(null);
     setTouchEnd(null);
   };
@@ -82,18 +57,18 @@ export default function TopCitiesSlider() {
 
   const visibleCities = getVisibleCities();
 
+  // total pages for dots
+  const totalPages = Math.ceil(cities.length / visibleCards);
+
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-10 bg-gray-50">
       <div className="max-w-[1200px] mx-auto relative px-4">
-        <h2
-          className="text-3xl sm:text-4xl font-bold mb-10 text-left"
-          style={{ color: "#404041" }}
-        >
+        <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-left" style={{ color: "#404041" }}>
           Top Cities to Visit
         </h2>
 
         <div className="relative flex items-center justify-center">
-          {/* Left Button (hidden on mobile) */}
+          {/* Left Button (Desktop) */}
           <button
             onClick={prevSlide}
             className="absolute left-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:block"
@@ -113,12 +88,7 @@ export default function TopCitiesSlider() {
                 key={index}
                 className="flex-shrink-0 transition-transform duration-700 ease-in-out"
                 style={{
-                  width:
-                    visibleCards === 4
-                      ? "23%"
-                      : visibleCards === 2
-                      ? "48%"
-                      : "100%",
+                  width: visibleCards === 4 ? "23%" : visibleCards === 2 ? "48%" : "100%",
                 }}
               >
                 <div className="relative overflow-hidden rounded-xl shadow-lg group select-none">
@@ -137,13 +107,26 @@ export default function TopCitiesSlider() {
             ))}
           </div>
 
-          {/* Right Button (hidden on mobile) */}
+          {/* Right Button (Desktop) */}
           <button
             onClick={nextSlide}
             className="absolute right-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:block"
           >
             <FiChevronRight size={22} />
           </button>
+        </div>
+
+        {/* Pagination Dots (Mobile & Tablet) */}
+        <div className="flex justify-center mt-6 gap-2 sm:hidden">
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrent(idx * visibleCards)}
+              className={`w-3 h-3 rounded-full transition ${
+                idx === Math.floor(current / visibleCards) ? "bg-[#e82429]" : "bg-gray-300"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>

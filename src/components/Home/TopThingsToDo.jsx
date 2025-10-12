@@ -48,14 +48,14 @@ const thingsToDo = [
 
 export default function TopThingsToDoDubai() {
   return (
-    <section className="py-20 bg-[#f8fafc]">
+    <section className="py-10 bg-[#f8fafc]">
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#404041] mb-3">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl sm:text-4xl text-left font-bold text-[#404041] mb-3">
             Top Things to Do in Dubai
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 text-left max-w-2xl ">
             Discover Dubai’s must-do experiences — from iconic landmarks to thrilling adventures.
           </p>
         </div>

@@ -13,12 +13,10 @@ const visaServices = [
 export default function UAEVisaServicesSlider() {
   const [current, setCurrent] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
-
-  // Swipe touch positions
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
 
-  // Responsive cardsPerView
+  // Responsive cards per view
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setCardsPerView(4);
@@ -33,11 +31,12 @@ export default function UAEVisaServicesSlider() {
   const nextSlide = () => setCurrent((prev) => (prev + 1) % visaServices.length);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + visaServices.length) % visaServices.length);
 
+  // Swipe handlers
   const handleTouchStart = (e) => setTouchStartX(e.touches[0].clientX);
   const handleTouchMove = (e) => setTouchEndX(e.touches[0].clientX);
   const handleTouchEnd = () => {
-    if (touchStartX - touchEndX > 50) nextSlide(); // swipe left
-    if (touchEndX - touchStartX > 50) prevSlide(); // swipe right
+    if (touchStartX - touchEndX > 50) nextSlide();
+    if (touchEndX - touchStartX > 50) prevSlide();
   };
 
   const getVisible = () => {
@@ -50,14 +49,21 @@ export default function UAEVisaServicesSlider() {
 
   const visibleVisas = getVisible();
 
+  const totalPages = Math.ceil(visaServices.length / cardsPerView);
+
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-10 bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-4 relative">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-10 text-left" style={{ color: "#404041" }}>
+        <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-left" style={{ color: "#404041" }}>
           UAE Visa Services
         </h2>
 
-        <div className="relative flex items-center">
+        <div
+          className="relative flex items-center"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Left Button */}
           <button
             onClick={prevSlide}
@@ -67,21 +73,12 @@ export default function UAEVisaServicesSlider() {
           </button>
 
           {/* Cards */}
-          <div
-            className="flex gap-6 overflow-hidden w-full"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+          <div className="flex gap-6 overflow-hidden w-full">
             {visibleVisas.map((visa, idx) => (
               <div
                 key={idx}
                 className={`relative flex-shrink-0 rounded-xl shadow-lg bg-white transition-transform duration-500 flex flex-col justify-between ${
-                  cardsPerView === 4
-                    ? "w-[23%]"
-                    : cardsPerView === 2
-                    ? "w-[48%]"
-                    : "w-full"
+                  cardsPerView === 4 ? "w-[23%]" : cardsPerView === 2 ? "w-[48%]" : "w-full"
                 }`}
               >
                 <div className="overflow-hidden rounded-t-xl">
@@ -113,6 +110,19 @@ export default function UAEVisaServicesSlider() {
           >
             <FiChevronRight size={24} />
           </button>
+        </div>
+
+        {/* Dots for Mobile/Tablet */}
+        <div className="flex justify-center mt-6 gap-2 sm:hidden">
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrent(idx * cardsPerView)}
+              className={`w-3 h-3 rounded-full transition ${
+                idx === Math.floor(current / cardsPerView) ? "bg-[#e82429]" : "bg-gray-300"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
