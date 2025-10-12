@@ -26,28 +26,50 @@ const cities = [
 
 export default function TopCitiesSlider() {
   const [current, setCurrent] = useState(0);
+  const [visibleCards, setVisibleCards] = useState(4);
 
-  // ✅ Adjust visible cards based on screen width
+  // responsive visible card count
   const getVisibleCards = () => {
-    if (window.innerWidth < 640) return 1; // mobile
-    if (window.innerWidth < 1024) return 2; // tablet
-    return 4; // desktop
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 4;
   };
-
-  const [visibleCards, setVisibleCards] = useState(getVisibleCards());
 
   useEffect(() => {
     const handleResize = () => setVisibleCards(getVisibleCards());
     window.addEventListener("resize", handleResize);
+    setVisibleCards(getVisibleCards());
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const nextSlide = () => {
+  // next and previous functions
+  const nextSlide = () => setCurrent((prev) => (prev + 1) % cities.length);
+  const prevSlide = () =>
     setCurrent((prev) => (prev - 1 + cities.length) % cities.length);
+
+  // ✅ Swipe functionality
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
   };
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev + 1) % cities.length);
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const swipeThreshold = 40; // minimum distance to detect swipe
+    if (distance > swipeThreshold) {
+      nextSlide(); // swipe left
+    } else if (distance < -swipeThreshold) {
+      prevSlide(); // swipe right
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const getVisibleCities = () => {
@@ -71,16 +93,21 @@ export default function TopCitiesSlider() {
         </h2>
 
         <div className="relative flex items-center justify-center">
-          {/* Left Button */}
+          {/* Left Button (hidden on mobile) */}
           <button
             onClick={prevSlide}
-            className="absolute left-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition"
+            className="absolute left-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:block"
           >
             <FiChevronLeft size={22} />
           </button>
 
-          {/* Cards */}
-          <div className="flex justify-between gap-5 overflow-hidden w-full transition-transform duration-700 ease-in-out">
+          {/* Cards container with swipe */}
+          <div
+            className="flex justify-between gap-5 overflow-hidden w-full transition-transform duration-700 ease-in-out touch-pan-x"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             {visibleCities.map((city, index) => (
               <div
                 key={index}
@@ -94,11 +121,12 @@ export default function TopCitiesSlider() {
                       : "100%",
                 }}
               >
-                <div className="relative overflow-hidden rounded-xl shadow-lg group">
+                <div className="relative overflow-hidden rounded-xl shadow-lg group select-none">
                   <img
                     src={city.img}
                     alt={city.name}
                     className="w-full h-72 sm:h-80 object-cover transform group-hover:scale-105 transition duration-700 ease-in-out"
+                    draggable="false"
                   />
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition duration-300" />
                   <h3 className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-2xl font-semibold tracking-wide drop-shadow-lg">
@@ -109,10 +137,10 @@ export default function TopCitiesSlider() {
             ))}
           </div>
 
-          {/* Right Button */}
+          {/* Right Button (hidden on mobile) */}
           <button
             onClick={nextSlide}
-            className="absolute right-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition"
+            className="absolute right-0 z-10 bg-white bg-opacity-70 hover:bg-opacity-100 p-2 rounded-full shadow-md transition hidden sm:block"
           >
             <FiChevronRight size={22} />
           </button>
