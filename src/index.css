@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  /* Logo Colors */
+  --color-primary: #e82429; /* Bright Red - main color for buttons, highlights */
+  --color-primary-dark: #721011; /* Dark Red - hover, navbar hover, accents */
+  --color-neutral: #404041; /* Dark Gray - text, neutral elements */
+
+  /* Optional supporting colors */
+  --color-white: #ffffff; /* Background, text on red buttons */
+  --color-light-gray: #f4f4f4; /* Card backgrounds, dropdowns */
+  --color-accent: #ff6b6b; /* Accent for hover, badges */
+}
+
+/* Tailwind-friendly utility classes */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-primary-dark {
+  background-color: var(--color-primary-dark);
+}
+.bg-neutral {
+  background-color: var(--color-neutral);
+}
+.bg-white {
+  background-color: var(--color-white);
+}
+.bg-light-gray {
+  background-color: var(--color-light-gray);
+}
+.bg-accent {
+  background-color: var(--color-accent);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+.text-primary-dark {
+  color: var(--color-primary-dark);
+}
+.text-neutral {
+  color: var(--color-neutral);
+}
+.text-white {
+  color: var(--color-white);
+}
+.text-accent {
+  color: var(--color-accent);
+}
