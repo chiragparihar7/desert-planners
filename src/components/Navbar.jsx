@@ -268,49 +268,49 @@ export default function Navbar() {
       subLinks: [
         {
           name: "3 Nights - 4 Day Dubai Package",
-          path: "/holiday-packages/dubai",
+          path: "/holidays/3-nights-4-day-dubai-package",
         },
         {
           name: "5 Nights - 6 Day Dubai Package",
-          path: "/holiday-packages/abu-dhabi",
+          path: "/holidays/5-nights-6-day-dubai-package",
         },
         {
           name: "4 Nights - 5 Day Dubai Package",
-          path: "/holiday-packages/europe",
+          path: "/holidays/4-nights-5-day-dubai-package",
         },
       ],
     },
     {
       title: "Visa Services",
-      path: "/visa-services",
+      path: "/visa",
       subLinks: [
         {
           name: "30 Days Tourist Visa Single Entry",
-          path: "/visa-services/tourist-visa",
+          path: "/visa/30-days-tourist-visa-single-entry",
         },
         {
           name: "30 Days Business Visa Multiple Entry",
-          path: "/visa-services/business-visa",
+          path: "/visa/30-days-business-visa-multiple-entry",
         },
         {
           name: "60 Days A2A Visa Changes",
-          path: "/visa-services/transit-visa",
+          path: "/visa/60-days-a2a-visa-changes",
         },
         {
           name: "60 Days Tourist Visa Single Entry",
-          path: "/visa-services/transit-visa",
+          path: "/visa/60-days-tourist-visa-single-entry",
         },
         {
           name: "60 Days Tourist Visa Multiple Entry",
-          path: "/visa-services/transit-visa",
+          path: "/visa/60-days-tourist-visa-multiple-entry",
         },
         {
           name: "90 Days Leisure Visa Single Entry",
-          path: "/visa-services/transit-visa",
+          path: "/visa/90-days-leisure-visa-single-entry",
         },
         {
           name: "A2A 30 Days Visa Changes",
-          path: "/visa-services/transit-visa",
+          path: "/visa/a2a-30-days-visa-changes",
         },
       ],
     },
@@ -326,7 +326,13 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white shadow-md">
       <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4">
         {/* Logo */}
-        <Link to="/" onClick={() => setMenuOpen(false)}>
+        <Link
+          to="/"
+          onClick={() => {
+            setMenuOpen(false);
+            window.location.href = "/"; // Forces full reload and goes to home
+          }}
+        >
           <img
             src="/desertplanners_logo.png"
             alt="Logo"

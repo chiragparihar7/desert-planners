@@ -2,8 +2,8 @@
 const holidayData = [
   {
     id: 1,
-    title: "Dubai Adventure Package",
-    slug: "dubai-adventure-package",
+    title: "3 Nights - 4 Day Dubai Package",
+    slug: "3-nights-4-day-dubai-package",
     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
@@ -11,11 +11,13 @@ const holidayData = [
       "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=800&q=80"
     ],
+    location : "Dubai, UAE",
+    reviews: 150,
     price: "AED 450 / person",
     shortSummary: "Thrilling Dubai adventure with city tours, desert safari & more.",
     duration: "3 Days / 2 Nights",
     overview: "Explore Dubai's orem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiencesorem50 iconic attractions with exciting activities and luxury experiences lorem50 iconic attractions with exciting activities and luxury experiences.",
-    details: "Day 1: Dubai City Tour including Burj Khalifa & Dubai Marina.\nDay 2: Desert Safari with BBQ Dinner & dune bashing.\nDay 3: Leisure, shopping, and optional activities.",
+    details: "Day 1: Dubai City Tour including Burj Khalifa & Dubai Marina.\n Day 2: Desert Safari with BBQ Dinner & dune bashing.\nDay 3: Leisure, shopping, and optional activities.",
     inclusions: [
       "Hotel pick-up",
       "Transportation",
@@ -36,8 +38,8 @@ const holidayData = [
   },
   {
     id: 2,
-    title: "Abu Dhabi Luxury Package",
-    slug: "abu-dhabi-luxury-package",
+    title: "5 Nights - 6 Day Dubai Package",
+    slug: "5-nights-6-day-dubai-package",
     img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80",
@@ -69,8 +71,8 @@ const holidayData = [
   },
   {
     id: 3,
-    title: "Dubai & Abu Dhabi Combo Package",
-    slug: "dubai-abu-dhabi-combo-package",
+    title: "4 Nights - 5 Day Dubai Package",
+    slug: "4-nights-5-day-dubai-package",
     img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
