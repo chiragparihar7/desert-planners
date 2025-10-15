@@ -1,22 +1,39 @@
+import React, { useState } from "react";
+
 export default function Banner() {
+  const [videoError, setVideoError] = useState(false);
+
   const slide = {
     title: "Discover Dubai Like Never Before",
     subtitle: "Experience luxury tours and make unforgettable memories.",
-    video: "/desertbannervideo.mp4", // your video URL
+    video: "/desertbannervideo.mp4", // your optimized video
+    // poster: "/bannerposter.jpg", // fallback image (add one in public folder)
     cta: "Explore Tours",
     link: "/tours",
   };
 
   return (
     <div className="relative w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] overflow-hidden">
-      <video
-        src={slide.video}
-        className="w-full h-full object-cover"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
+      {/* Video Background */}
+      {!videoError ? (
+        <video
+          src={slide.video}
+          className="w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster={slide.poster}
+          onError={() => setVideoError(true)}
+        />
+      ) : (
+        <img
+          src={slide.poster}
+          alt="Banner background"
+          className="w-full h-full object-cover"
+        />
+      )}
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-black/60 flex justify-center items-center">
