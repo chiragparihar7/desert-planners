@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Add this
 import DataService from "../../../config/DataService";
 import { API } from "../../../config/API";
 
@@ -17,6 +18,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate(); // ✅ Hook for redirect
 
   const fetchAdmin = async () => {
     try {
@@ -58,6 +60,11 @@ export default function Settings() {
     fetchAdmin();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    navigate("/admin/login"); // ✅ Redirect to login page
+  };
+
   const theme = {
     primary: "from-red-600",
     secondary: "to-red-900",
@@ -77,8 +84,12 @@ export default function Settings() {
           {getInitials(adminData.name) || "A"}
         </div>
         <div className="text-center sm:text-left">
-          <h2 className="text-2xl sm:text-3xl font-bold">{adminData.name || "Admin"}</h2>
-          <p className="text-gray-500 text-sm sm:text-base">{adminData.email}</p>
+          <h2 className="text-2xl sm:text-3xl font-bold">
+            {adminData.name || "Admin"}
+          </h2>
+          <p className="text-gray-500 text-sm sm:text-base">
+            {adminData.email}
+          </p>
           <p className="text-gray-400 text-xs sm:text-sm mt-1">
             Last login: {new Date().toLocaleString()}
           </p>
@@ -89,8 +100,8 @@ export default function Settings() {
       {loading && <p className={`${theme.loading} mb-4`}>Loading...</p>}
       {error && <p className={`${theme.error} mb-4`}>{error}</p>}
       {success && <p className={`${theme.success} mb-4`}>{success}</p>}
-    
-      {/* Welcome / Tips Card */}
+
+      {/* Welcome Card */}
       <div className="p-4 mb-6 bg-red-50 rounded-lg border-l-4 border-red-600 text-center sm:text-left">
         <h3 className="font-semibold text-red-700 mb-1 text-sm sm:text-base">
           Welcome, {adminData.name || "Admin"}!
@@ -103,7 +114,9 @@ export default function Settings() {
       {/* Update Form */}
       <form onSubmit={handleUpdate} className="space-y-4">
         <div>
-          <label className="block font-semibold mb-1 text-sm sm:text-base">Name</label>
+          <label className="block font-semibold mb-1 text-sm sm:text-base">
+            Name
+          </label>
           <input
             type="text"
             value={adminData.name}
@@ -116,7 +129,9 @@ export default function Settings() {
         </div>
 
         <div>
-          <label className="block font-semibold mb-1 text-sm sm:text-base">Email</label>
+          <label className="block font-semibold mb-1 text-sm sm:text-base">
+            Email
+          </label>
           <input
             type="email"
             value={adminData.email}
@@ -126,7 +141,9 @@ export default function Settings() {
         </div>
 
         <div>
-          <label className="block font-semibold mb-1 text-sm sm:text-base">Password</label>
+          <label className="block font-semibold mb-1 text-sm sm:text-base">
+            Password
+          </label>
           <input
             type="password"
             placeholder="Leave blank to keep current"
@@ -153,10 +170,7 @@ export default function Settings() {
           Change Password
         </button>
         <button
-          onClick={() => {
-            localStorage.removeItem("adminToken");
-            window.location.reload();
-          }}
+          onClick={handleLogout} // ✅ Now redirects instead of reload
           className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90 transition"
         >
           Logout
