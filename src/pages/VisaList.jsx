@@ -1,16 +1,56 @@
 // src/pages/VisaList.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import visaData from "../data/visaData";
+import axios from "axios";
+import { API } from "../config/API";
+import DataService from "../config/DataService";
 import { FaClock, FaStar } from "react-icons/fa";
 
 export default function VisaList() {
+  const [visas, setVisas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const api = DataService();
+  // Fetch visas from backend
+  const fetchVisas = async () => {
+    try {
+      const res = await api.get(API.GET_VISAS);
+      // Backend may return array directly or inside { visas: [] }
+      const visaArray = Array.isArray(res.data) ? res.data : res.data.visas || [];
+      setVisas(visaArray);
+    } catch (err) {
+      console.error("Error fetching visas:", err);
+      setVisas([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVisas();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
+        Loading visas...
+      </div>
+    );
+  }
+
+  if (visas.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
+        No visas available.
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50">
       {/* Banner */}
       <div className="relative w-full h-64 md:h-96 overflow-hidden">
         <img
-          src="https://i.pinimg.com/736x/3e/2a/a5/3e2aa5d6ad915a7f64e2ce799a38de76.jpg" // replace with your banner image
+          src="https://i.pinimg.com/736x/3e/2a/a5/3e2aa5d6ad915a7f64e2ce799a38de76.jpg"
           alt="Visa Services Banner"
           className="w-full h-full object-cover brightness-75"
         />
@@ -21,29 +61,31 @@ export default function VisaList() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Visa Cards */}
       <div className="max-w-[1200px] mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {visaData.map((v) => (
+          {visas.map((v) => (
             <Link
-              key={v.id}
+              key={v._id}
               to={`/visa/${v.slug}`}
               className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2"
             >
               {/* Image with gradient overlay */}
               <div className="relative h-56 w-full overflow-hidden rounded-t-3xl">
                 <img
-                  src={v.img}
+                  src={v.gallery?.[0] || v.img} // first gallery image or fallback
                   alt={v.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
 
                 {/* Duration badge */}
-                <span className="absolute top-3 left-3 bg-[#e82429] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                  <FaClock className="inline-block mr-1 text-[10px]" />
-                  {v.duration}
-                </span>
+                {v.processingTime && (
+                  <span className="absolute top-3 left-3 bg-[#e82429] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                    <FaClock className="inline-block mr-1 text-[10px]" />
+                    {v.processingTime}
+                  </span>
+                )}
               </div>
 
               {/* Card Content */}
@@ -64,7 +106,9 @@ export default function VisaList() {
                   {[...Array(5)].map((_, idx) => (
                     <FaStar
                       key={idx}
-                      className={`text-yellow-400 ${idx < 4 ? "text-yellow-400" : "text-gray-300"}`}
+                      className={`${
+                        idx < 4 ? "text-yellow-400" : "text-gray-300"
+                      }`}
                     />
                   ))}
                   <span className="ml-2 text-gray-500 text-xs">(4.0)</span>

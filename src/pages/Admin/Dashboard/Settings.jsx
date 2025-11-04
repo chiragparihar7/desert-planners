@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Add this
+import { useNavigate } from "react-router-dom";
 import DataService from "../../../config/DataService";
 import { API } from "../../../config/API";
 
@@ -18,30 +18,30 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate(); // ✅ Hook for redirect
+  const navigate = useNavigate();
 
+  // ✅ Fetch logged-in admin profile
   const fetchAdmin = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      const api = DataService(token);
+      const api = DataService("admin"); // ✅ now passing "admin"
       const res = await api.get(API.ADMIN_PROFILE);
       setAdminData({ name: res.data.name, email: res.data.email });
-      setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch admin data");
+    } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Update admin profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      const api = DataService(token);
+      const api = DataService("admin"); // ✅ admin token used here too
       const res = await api.put(API.ADMIN_UPDATE_PROFILE, {
         name: adminData.name,
         password: password || undefined,
@@ -49,9 +49,9 @@ export default function Settings() {
       setAdminData({ name: res.data.name, email: res.data.email });
       setPassword("");
       setSuccess("Profile updated successfully!");
-      setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || "Update failed");
+    } finally {
       setLoading(false);
     }
   };
@@ -62,7 +62,7 @@ export default function Settings() {
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
-    navigate("/admin/login"); // ✅ Redirect to login page
+    navigate("/admin/login"); // ✅ Redirect to admin login
   };
 
   const theme = {
@@ -170,7 +170,7 @@ export default function Settings() {
           Change Password
         </button>
         <button
-          onClick={handleLogout} // ✅ Now redirects instead of reload
+          onClick={handleLogout}
           className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90 transition"
         >
           Logout

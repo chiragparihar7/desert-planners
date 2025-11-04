@@ -1,24 +1,30 @@
 import React from "react";
 import {
-  FaChartBar,
-  FaSuitcase,
-  FaUsers,
-  FaMoneyBill,
-  FaCalendarCheck,
-  FaEnvelope,
-  FaCogs,
-  FaBars,
-  FaTimes,
-} from "react-icons/fa";
+  LayoutDashboard,
+  Briefcase,
+  Plane,
+  Grid,
+  CalendarCheck,
+  CreditCard,
+  Users,
+  Mail,
+  Settings,
+  Menu,
+  X,
+  Layers,
+} from "lucide-react";
 
 const ITEMS = [
-  { tab: "overview", label: "Dashboard", icon: <FaChartBar /> },
-  { tab: "tours", label: "Tours", icon: <FaSuitcase /> },
-  { tab: "bookings", label: "Bookings", icon: <FaCalendarCheck /> },
-  { tab: "payments", label: "Payments", icon: <FaMoneyBill /> },
-  { tab: "users", label: "Users", icon: <FaUsers /> },
-  { tab: "enquiries", label: "Enquiries", icon: <FaEnvelope /> },
-  { tab: "settings", label: "Settings", icon: <FaCogs /> },
+  { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+  { tab: "tours", label: "Tours", icon: <Briefcase size={20} /> },
+  { tab: "visa", label: "Visa", icon: <Plane size={20} /> },
+  { tab: "category", label: "Category", icon: <Grid size={20} /> },
+    { tab: "sections", label: "Sections", icon: <Layers size={20} /> },
+  { tab: "bookings", label: "Bookings", icon: <CalendarCheck size={20} /> },
+  { tab: "payments", label: "Payments", icon: <CreditCard size={20} /> },
+  { tab: "users", label: "Users", icon: <Users size={20} /> },
+  { tab: "enquiries", label: "Enquiries", icon: <Mail size={20} /> },
+  { tab: "settings", label: "Settings", icon: <Settings size={20} /> },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) {
@@ -28,33 +34,66 @@ export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSideb
     <div
       className={`${
         sidebarOpen ? "w-64" : "w-20"
-      } bg-[var(--color-white)] shadow-lg transition-all duration-300`}
+      } bg-[#ffffff] shadow-lg border-r border-gray-100 transition-all duration-300 flex flex-col`}
     >
-      <div className="flex items-center justify-between p-4 border-b border-[var(--color-light-gray)]">
-        <h1 className={`font-bold text-lg text-[var(--color-primary)] ${sidebarOpen ? "block" : "hidden"}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <h1
+          className={`font-bold text-lg text-[#721011] tracking-wide ${
+            sidebarOpen ? "block" : "hidden"
+          }`}
+        >
           Admin Panel
         </h1>
-        <button onClick={toggleSidebar} className="text-[var(--color-neutral)]">
-          {sidebarOpen ? <FaTimes /> : <FaBars />}
+        <button
+          onClick={toggleSidebar}
+          className="text-[#404041] hover:text-[#e82429] transition-colors"
+        >
+          {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      <nav className="flex flex-col gap-2 mt-4">
+      {/* Nav Items */}
+      <nav className="flex flex-col gap-1 mt-4 px-2">
         {ITEMS.map((item) => (
           <button
             key={item.tab}
             onClick={() => setActiveTab(item.tab)}
-            className={`flex items-center gap-3 p-3 mx-2 rounded-md transition-all ${
+            className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
               activeTab === item.tab
-                ? "bg-[var(--color-primary)] text-[var(--color-white)]"
-                : "text-[var(--color-neutral)] hover:bg-[var(--color-light-gray)]"
+                ? "bg-[#721011] text-white shadow-md"
+                : "text-[#404041] hover:bg-[#e82429]/10"
             }`}
           >
-            {item.icon}
-            {sidebarOpen && <span>{item.label}</span>}
+            <div
+              className={`transition-colors duration-200 ${
+                activeTab === item.tab ? "text-white" : "text-[#e82429]"
+              }`}
+            >
+              {item.icon}
+            </div>
+            {sidebarOpen && (
+              <span
+                className={`text-sm font-medium ${
+                  activeTab === item.tab ? "text-white" : "text-[#404041]"
+                }`}
+              >
+                {item.label}
+              </span>
+            )}
           </button>
         ))}
       </nav>
+
+      {/* Footer / Branding */}
+      <div className="mt-auto text-center text-xs text-gray-400 p-3 border-t border-gray-200">
+        {sidebarOpen && (
+          <span>
+            Made with ❤️ by{" "}
+            <span className="text-[#721011] font-semibold">Desert Planners</span>
+          </span>
+        )}
+      </div>
     </div>
   );
 }

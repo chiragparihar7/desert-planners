@@ -1,47 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FiCalendar } from "react-icons/fi";
-import { useNavigate } from "react-router-dom"; // ✅ Added
-
-const packages = [
-  {
-    duration: "4 Days / 3 Nights",
-    title: "3 Nights - 4 Day Dubai Package",
-    price: "From AED 1010 / person",
-    label: "Senior Special",
-    img: "https://plus.unsplash.com/premium_photo-1661916762370-4768aa1fc4c4?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1170",
-    path: "holidays/3-nights-4-day-dubai-package",
-  },
-  {
-    duration: "6 Days / 5 Nights",
-    title: "5 Nights - 6 Day Dubai Package",
-    price: "From AED 1499 / person",
-    label: "Family Special",
-    img: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1074",
-  },
-  {
-    duration: "5 Days / 4 Nights",
-    title: "4 Nights - 5 Day Dubai Package",
-    price: "From AED 1299 / person",
-    label: "Family Special",
-    img: "https://images.unsplash.com/photo-1526495124232-a04e1849168c?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=687",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import DataService from "../../config/DataService";
+import { API } from "../../config/API";
 
 export default function HolidayPackages() {
-  const navigate = useNavigate(); // ✅ Initialize
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // ✅ Ye sectionId tumhare MongoDB me "Holiday Packages" ke liye hoga
+  const sectionId = "69084852dda693d673b55be3"; // <-- replace with actual section id
+
+  // ✅ Backend se data fetch
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const api = DataService();
+        const res = await api.get(API.GET_SECTION_ITEMS(sectionId));
+        setPackages(res.data || []);
+      } catch (error) {
+        console.error("Error fetching holiday packages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
 
   const handleEnquiry = () => {
-    navigate("/contact"); // ✅ Go to contact page
+    navigate("/contact");
   };
 
   const handleViewTrip = (title) => {
-  const slug = title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-") // non-alphanumeric characters ko hyphen me replace
-    .replace(/^-+|-+$/g, "");    // start/end ke extra hyphen remove
-  navigate(`/holidays/${slug}`);
-};
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    navigate(`/holidays/${slug}`);
+  };
+
+  // ✅ Loading / Empty state
+  if (loading) {
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        Loading Holiday Packages...
+      </div>
+    );
+  }
+
+  if (!packages.length) {
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        No holiday packages found.
+      </div>
+    );
+  }
+
+  // ✅ Same design, just dynamic data
   return (
     <section className="py-8 bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-4">
@@ -58,18 +75,19 @@ export default function HolidayPackages() {
               {/* Image with overlay */}
               <div
                 className="relative overflow-hidden h-64"
-                onClick={() => handleViewTrip(pkg.title)} // ✅ Click on image goes to details
+                onClick={() => handleViewTrip(pkg.name || pkg.title)}
               >
                 <img
                   src={pkg.img}
-                  alt={pkg.title}
+                  alt={pkg.name || pkg.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                {/* Label */}
-                <span className="absolute top-3 left-3 bg-[#e82429] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                  {pkg.label}
-                </span>
+                {pkg.label && (
+                  <span className="absolute top-3 left-3 bg-[#e82429] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                    {pkg.label}
+                  </span>
+                )}
               </div>
 
               {/* Content */}
@@ -80,22 +98,27 @@ export default function HolidayPackages() {
 
                 <h3
                   className="text-xl font-semibold text-gray-800 mb-3"
-                  onClick={() => handleViewTrip(pkg.title)} // ✅ Click on title goes to details
+                  onClick={() => handleViewTrip(pkg.name || pkg.title)}
                 >
-                  {pkg.title}
+                  {pkg.name || pkg.title}
                 </h3>
-                <p className="text-[#e82429] font-bold mb-5">{pkg.price}</p>
+                <p className="text-[#e82429] font-bold mb-5">
+                  {" "}
+                  From AED 
+                  {" "} 
+                  {pkg.price || "Contact for Price"} / Person
+                </p>
 
                 {/* Buttons */}
                 <div className="flex gap-4 mt-auto">
                   <button
-                    onClick={handleEnquiry} // ✅ Enquiry goes to contact
+                    onClick={handleEnquiry}
                     className="flex-1 py-3 rounded-lg font-semibold bg-gradient-to-r from-[#e82429] to-[#ff5a4d] text-white hover:opacity-90 transition duration-300"
                   >
                     Enquiry Now
                   </button>
                   <button
-                    onClick={() => handleViewTrip(pkg.title)} // ✅ View trip goes to details
+                    onClick={() => handleViewTrip(pkg.name || pkg.title)}
                     className="flex-1 py-3 rounded-lg font-semibold border-2 border-[#e82429] text-[#e82429] hover:bg-[#e82429] hover:text-white transition duration-300"
                   >
                     View Trip

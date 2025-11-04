@@ -1,20 +1,23 @@
-// src/pages/admin/ToursManagement.jsx
 import React, { useState, useEffect } from "react";
 import Section from "../Dashboard/Section";
 import AdminAddTour from "./AdminAddTour";
-import axios from "axios";
+import { API } from "../../../config/API";
+import DataService from "../../../config/DataService";
+import toast from "react-hot-toast";
 
 export default function ToursManagement() {
   const [open, setOpen] = useState(false);
   const [tours, setTours] = useState([]);
+  const [editTour, setEditTour] = useState(null); // For editing
 
   // Fetch all tours
   const fetchTours = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tours");
+      const api = DataService();
+      const res = await api.get(API.GET_TOURS);
       setTours(res.data);
     } catch (err) {
-      console.error("Error fetching tours:", err);
+      toast.error("Error fetching tours:", err);
     }
   };
 
@@ -24,70 +27,133 @@ export default function ToursManagement() {
 
   const handleSuccess = async () => {
     setOpen(false);
-    await fetchTours(); // refresh list after adding tour
+    setEditTour(null);
+    await fetchTours(); // refresh list after add/update
+  };
+
+  const handleEdit = (tour) => {
+    setEditTour(tour); // pass selected tour
+    setOpen(true); // open modal
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this tour?")) return;
+    try {
+      const api = DataService();
+      await api.delete(API.DELETE_TOUR(id));
+      toast("Tour deleted successfully!");
+      fetchTours();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error deleting tour");
+    }
   };
 
   return (
     <Section title="Manage Tours">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">All Tours</h2>
+        <h2 className="text-2xl font-bold text-[var(--color-neutral)]">
+          All Tours
+        </h2>
         <button
-          onClick={() => setOpen(true)}
-          className="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white px-6 py-2 rounded-lg shadow-lg transition-all font-semibold"
+          onClick={() => {
+            setOpen(true);
+            setEditTour(null);
+          }}
+          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-[var(--color-white)] px-6 py-2 rounded-lg shadow-lg transition-all font-semibold"
         >
           + Add New Tour
         </button>
       </div>
 
-      {/* Admin Add Tour Modal */}
-      {open && <AdminAddTour onClose={() => setOpen(false)} onSuccess={handleSuccess} />}
+      {/* Add/Edit Tour Modal */}
+      {open && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-start justify-center z-50 bg-black/30">
+          <div className="bg-[var(--color-white)] rounded-3xl shadow-2xl w-full max-w-4xl max-h-[80vh] p-6 overflow-y-auto relative animate-slide-down mt-10">
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setEditTour(null);
+              }}
+              className="absolute top-4 right-4 text-[var(--color-neutral)] hover:text-[var(--color-primary)] text-2xl font-bold transition-colors"
+            >
+              &times;
+            </button>
+
+            {/* Admin Add/Edit Tour Form */}
+            <AdminAddTour
+              tour={editTour} // pass selected tour for editing
+              onClose={() => {
+                setOpen(false);
+                setEditTour(null);
+              }}
+              onSuccess={handleSuccess} // refresh list after add/update
+            />
+          </div>
+        </div>
+      )}
 
       {/* Tours Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {tours.length === 0 ? (
-          <p className="text-gray-500 col-span-full text-center">No tours available</p>
+          <p className="text-gray-500 col-span-full text-center">
+            No tours available
+          </p>
         ) : (
           tours.map((tour) => (
             <div
               key={tour._id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 relative"
+              className="bg-[var(--color-white)] rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 relative"
             >
-              {/* Tour Image */}
               <div className="relative">
                 <img
-                  src={tour.mainImage || "https://via.placeholder.com/400x200"}
+                  src={
+                    tour.mainImage
+                      ? `http://localhost:5000/${tour.mainImage}`
+                      : "https://via.placeholder.com/400x200"
+                  }
                   alt={tour.title}
                   className="w-full h-48 object-cover"
                 />
-                <span className="absolute top-3 left-3 bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow">
-                  {tour.category}
+                <span className="absolute top-3 left-3 bg-[var(--color-accent)] text-[var(--color-white)] text-xs font-semibold px-2 py-1 rounded-full shadow">
+                  {tour.category?.name || "Uncategorized"}
                 </span>
                 <span
                   className={`absolute top-3 right-3 text-xs font-semibold px-2 py-1 rounded-full shadow ${
-                    tour.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    tour.status === "active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
                   {tour.status || "Active"}
                 </span>
               </div>
 
-              {/* Tour Info */}
               <div className="p-4 space-y-2">
-                <h3 className="text-lg font-bold text-gray-800 hover:text-indigo-600 transition-colors cursor-pointer">
+                <h3 className="text-lg font-bold text-[var(--color-neutral)] hover:text-[var(--color-primary)] transition-colors cursor-pointer">
                   {tour.title}
                 </h3>
-                <p className="text-gray-500 text-sm">{tour.description?.slice(0, 80)}...</p>
+                <p className="text-gray-500 text-sm">
+                  {tour.description?.slice(0, 80)}...
+                </p>
 
                 <div className="flex justify-between items-center mt-3">
-                  <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-                    {tour.services.length} Services
+                  <span className="bg-[var(--color-light-gray)] text-[var(--color-neutral)] text-xs font-semibold px-2 py-1 rounded-full">
+                    {tour.duration || "N/A"}
                   </span>
                   <div className="flex gap-2">
-                    <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-yellow-600 transition-all">
+                    <button
+                      onClick={() => handleEdit(tour)}
+                      className="bg-[var(--color-primary)] text-[var(--color-white)] px-3 py-1 rounded-lg text-sm hover:bg-[var(--color-primary-dark)] transition-all"
+                    >
                       Edit
                     </button>
-                    <button className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 transition-all">
+                    <button
+                      onClick={() => handleDelete(tour._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 transition-all"
+                    >
                       Delete
                     </button>
                   </div>
@@ -97,6 +163,17 @@ export default function ToursManagement() {
           ))
         )}
       </div>
+
+      {/* Tailwind Slide Down Animation */}
+      <style>{`
+          @keyframes slide-down {
+            0% { transform: translateY(-20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+          .animate-slide-down {
+            animation: slide-down 0.3s ease-out forwards;
+          }
+        `}</style>
     </Section>
   );
-}             
+}

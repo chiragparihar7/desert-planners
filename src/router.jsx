@@ -4,16 +4,24 @@ import Tour from "./pages/Tour";
 import ScrollToTop from "./components/ScrollToTop";
 import TourDetails from "./pages/TourDetails";
 import TourServiceDetails from "./pages/TourServiceDetails";
-import HolidayPackages from "./pages/HolidayPackages";
-import HolidayDetails from "./pages/HolidayDetails";
+// import HolidayPackages from "./pages/HolidayPackages";
+// import HolidayDetails from "./pages/HolidayDetails";
 import VisaList from "./pages/VisaList";
 import VisaDetails from "./pages/VisaDetails";
 import ContactUs from "./pages/Contact";
 import AdminRegister from "./pages/Admin/AdminRegister";
 import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
-
-
+import ProtectedRoute from "./components/ProtectedRoute";
+import Cart from "./components/Cart";
+import Checkout from "./components/Checkout";
+import UserLogin from "./pages/User/UserLogin";
+import UserRegister from "./pages/User/UserRegister";
+import MyProfile from "./components/Profile/MyProfile";
+import MyOrders from "./components/Profile/MyOrder";
+import TermsAndConditions from "./components/TermsAndConditions";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import CancellationPolicy from "./components/CancellationPolicy";
 const AppRouter = () => (
   <>
     <ScrollToTop />
@@ -22,19 +30,34 @@ const AppRouter = () => (
       <Route path="/tours" element={<Tour />} />
       <Route path="/tours/:slug" element={<TourDetails />} />{" "}
       <Route
-        path="/tours/:slug/:serviceSlug"
+        path="/tours/:categorySlug/:tourSlug"
         element={<TourServiceDetails />}
       />
-      <Route path="/holidays" element={<HolidayPackages />} />
-      <Route path="/holidays/:slug" element={<HolidayDetails />} />
+      {/* <Route path="/holidays" element={<HolidayPackages />} />
+      <Route path="/holidays/:slug" element={<HolidayDetails />} /> */}
       <Route path="/visa" element={<VisaList />} />
       <Route path="/visa/:slug" element={<VisaDetails />} />
       <Route path="/contact" element={<ContactUs />} />
       {/* Admin Auth */}
       <Route path="/admin/register" element={<AdminRegister />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-
+      <Route path="/login" element={<UserLogin />} />
+      <Route path="/register" element={<UserRegister />} />
+      <Route path="/profile" element={<MyProfile />} />
+      <Route path="/my-orders" element={<MyOrders />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
       <Route
         path="*"
         element={

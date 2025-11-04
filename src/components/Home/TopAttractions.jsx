@@ -1,48 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { useNavigate } from "react-router-dom"; // ✅ Added for navigation
-
-const attractions = [
-  {
-    name: "Burj Khalifa",
-    price: "AED 350",
-    img: "https://plus.unsplash.com/premium_photo-1694475634077-e6e4b623b574?auto=format&fit=crop&w=1071&q=80",
-    path: "tours/burj-khalifa/burj-khalifa---124th-+-125th-floor-non-prime-hours",
-  },
-  {
-    name: "Desert Safari",
-    price: "AED 250",
-    img: "https://images.unsplash.com/photo-1588310558566-b983c7d257e4?auto=format&fit=crop&w=688&q=80",
-    path: "tours/desert-safari/desert-safari-with-bbq-dinner-by-4*4-vechicle-on-sharing-basis",
-  },
-  {
-    name: "Ferrari World",
-    price: "AED 450",
-    img: "https://images.unsplash.com/photo-1578152882785-df9744e359e5?auto=format&fit=crop&w=735&q=80",
-    path: "/tours/yas-island/ferrari-world",
-  },
-  {
-    name: "Dubai Marina",
-    price: "AED 150",
-    img: "https://images.unsplash.com/photo-1459787915554-b34915863013?auto=format&fit=crop&w=633&q=80",
-    path: "tours/excursion-tickets/dubai-miracle-garden",
-  },
-  {
-    name: "The Dubai Balloon",
-    price: "AED 100",
-    img: "https://i.pinimg.com/736x/e9/34/0a/e9340ae93dddb0f831937ba1a70c3c60.jpg",
-    path: "tours/adventure-tour/the-dubai-balloon",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import DataService from "../../config/DataService";
+import { API } from "../../config/API";
 
 export default function TopAttractionsCarousel() {
+  const [attractions, setAttractions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
-  const navigate = useNavigate(); // ✅ Initialize navigation
 
-  // Responsive cards per view
+  // ✅ Section ID for “Top Attractions”
+  const sectionId = "69083cc3dda693d673b550fd"; // Replace with actual _id for Top Attractions section from MongoDB
+
+  // ✅ Fetch data from backend
+  useEffect(() => {
+    const fetchAttractions = async () => {
+      try {
+        const api = DataService();
+        const res = await api.get(API.GET_SECTION_ITEMS(sectionId));
+        setAttractions(res.data || []);
+      } catch (error) {
+        console.error("Error fetching attractions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAttractions();
+  }, [sectionId]);
+
+  // ✅ Handle responsiveness
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setCardsPerView(4);
@@ -54,24 +44,22 @@ export default function TopAttractionsCarousel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // ✅ Auto slide every 5 seconds
+  useEffect(() => {
+    if (attractions.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % attractions.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [attractions]);
+
+  // ✅ Next / Prev buttons
   const next = () => setCurrent((prev) => (prev + 1) % attractions.length);
-  const prev = () =>
-    setCurrent((prev) => (prev - 1 + attractions.length) % attractions.length);
+  const prev = () => setCurrent((prev) => (prev - 1 + attractions.length) % attractions.length);
 
-  const getVisible = () => {
-    const visible = [];
-    for (let i = 0; i < cardsPerView; i++) {
-      visible.push(attractions[(current + i) % attractions.length]);
-    }
-    return visible;
-  };
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
+  // ✅ Swipe support
+  const handleTouchStart = (e) => (touchStartX.current = e.touches[0].clientX);
+  const handleTouchMove = (e) => (touchEndX.current = e.touches[0].clientX);
   const handleTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
     const diff = touchStartX.current - touchEndX.current;
@@ -80,18 +68,34 @@ export default function TopAttractionsCarousel() {
     touchEndX.current = null;
   };
 
+  // ✅ Get visible items
+  const getVisible = () => {
+    const visible = [];
+    for (let i = 0; i < cardsPerView; i++) {
+      visible.push(attractions[(current + i) % attractions.length]);
+    }
+    return visible;
+  };
+
   const visibleAttractions = getVisible();
-
-  // ✅ Auto slide every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % attractions.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const totalPages = Math.ceil(attractions.length / cardsPerView);
 
+  // ✅ Loading and empty states
+  if (loading)
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        Loading Top Attractions...
+      </div>
+    );
+
+  if (!attractions.length)
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        No attractions found in this section.
+      </div>
+    );
+
+  // ✅ Main UI (Same design as before)
   return (
     <section className="py-8 bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-4 relative">
@@ -121,7 +125,7 @@ export default function TopAttractionsCarousel() {
             {visibleAttractions.map((item, idx) => (
               <div
                 key={idx}
-                onClick={() => navigate(item.path)}
+                onClick={() => item.link && navigate(item.link)}
                 className="relative flex-shrink-0 rounded-xl shadow-md overflow-hidden bg-white transition-transform duration-500 cursor-pointer hover:scale-[1.03]"
                 style={{ width: `${100 / cardsPerView - 1.5}%` }}
               >
@@ -130,17 +134,19 @@ export default function TopAttractionsCarousel() {
                   alt={item.name}
                   className="w-full h-80 object-cover transform transition duration-500 hover:scale-105"
                 />
-                {/* ✅ Text inside image */}
+                {/* Text inside image */}
                 <div className="absolute bottom-5 left-5 text-white">
                   <h3 className="text-2xl font-extrabold tracking-wide drop-shadow-lg">
                     {item.name}
                   </h3>
-                  <p className="text-lg font-bold text-gray-100">
-                    From{" "}
-                    <span className="text-[#e82429] font-extrabold">
-                      {item.price}
-                    </span>
-                  </p>
+                  {item.price && (
+                    <p className="text-lg font-bold text-gray-100">
+                      From{" "}
+                      <span className="text-[#e82429] font-extrabold">
+                        {item.price}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -155,7 +161,7 @@ export default function TopAttractionsCarousel() {
           </button>
         </div>
 
-        {/* Pagination Dots */}
+        {/* Pagination Dots (Mobile) */}
         <div className="flex justify-center mt-6 gap-2 sm:hidden">
           {Array.from({ length: totalPages }).map((_, idx) => (
             <button

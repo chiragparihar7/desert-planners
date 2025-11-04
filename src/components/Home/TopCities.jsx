@@ -1,36 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { useNavigate } from "react-router-dom"; // ✅ for navigation
-
-const cities = [
-  {
-    name: "Dubai",
-    img: "https://images.unsplash.com/flagged/photo-1559717865-a99cac1c95d8?auto=format&fit=crop&q=80&w=1171",
-    link: "/tours/dubai-city-tour/dubai-city-tour",
-  },
-  {
-    name: "Abu Dhabi",
-    img: "https://images.unsplash.com/photo-1603565095944-2a6f33bb517c?auto=format&fit=crop&q=80&w=1171",
-    link: "/tours/abu-dhabi-city-tour/abu-dhabi-city-tour",
-  },
-  {
-    name: "Ajman",
-    img: "https://images.unsplash.com/photo-1557678493-c54624d611fc?auto=format&fit=crop&q=80&w=687",
-    link: "/tours/excursion-tickets/ajman-city-tour",
-  },
-  {
-    name: "Sharjah",
-    img: "https://plus.unsplash.com/premium_photo-1697730012360-d49e7ca1a776?auto=format&fit=crop&q=80&w=1192",
-    link: "/tours/excursion-tickets/sharjah-city-tour",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import DataService from "../../config/DataService";
+import { API } from "../../config/API";
 
 export default function TopCitiesSlider() {
+  const [cities, setCities] = useState([]);
   const [current, setCurrent] = useState(0);
   const [visibleCards, setVisibleCards] = useState(4);
-  const navigate = useNavigate(); // ✅ navigation hook
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // responsive visible card count
+  // ✅ This is your section ID from MongoDB
+  const sectionId = "69082fb8544d61ec230a8054";
+
+  // ✅ Fetch city items from backend
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const api = DataService();
+        const res = await api.get(API.GET_SECTION_ITEMS(sectionId));
+        setCities(res.data || []);
+      } catch (error) {
+        console.error("Error fetching top cities:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  // ✅ responsive visible card count
   const getVisibleCards = () => {
     if (window.innerWidth < 640) return 1;
     if (window.innerWidth < 1024) return 2;
@@ -44,19 +44,20 @@ export default function TopCitiesSlider() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Auto slide effect
+  // ✅ Auto slide effect
   useEffect(() => {
+    if (cities.length === 0) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % cities.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [cities]);
 
-  // next and previous functions
+  // ✅ Next/Prev
   const nextSlide = () => setCurrent((prev) => (prev + 1) % cities.length);
   const prevSlide = () => setCurrent((prev) => (prev - 1 + cities.length) % cities.length);
 
-  // Swipe functionality
+  // ✅ Swipe gestures
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
@@ -65,13 +66,14 @@ export default function TopCitiesSlider() {
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
-    const swipeThreshold = 40;
-    if (distance > swipeThreshold) nextSlide();
-    else if (distance < -swipeThreshold) prevSlide();
+    const threshold = 40;
+    if (distance > threshold) nextSlide();
+    else if (distance < -threshold) prevSlide();
     setTouchStart(null);
     setTouchEnd(null);
   };
 
+  // ✅ Slice visible cards
   const getVisibleCities = () => {
     const result = [];
     for (let i = 0; i < visibleCards; i++) {
@@ -83,6 +85,24 @@ export default function TopCitiesSlider() {
   const visibleCities = getVisibleCities();
   const totalPages = Math.ceil(cities.length / visibleCards);
 
+  // ✅ Loading & Empty States
+  if (loading) {
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        Loading Top Cities...
+      </div>
+    );
+  }
+
+  if (!cities.length) {
+    return (
+      <div className="py-10 text-center text-gray-500 text-lg">
+        No cities found in this section.
+      </div>
+    );
+  }
+
+  // ✅ UI
   return (
     <section className="py-8 bg-gray-50">
       <div className="max-w-[1200px] mx-auto relative px-4">
@@ -110,7 +130,7 @@ export default function TopCitiesSlider() {
             {visibleCities.map((city, index) => (
               <div
                 key={index}
-                onClick={() => navigate(city.link)} // ✅ navigate to details page
+                onClick={() => city.link && navigate(city.link)}
                 className="flex-shrink-0 transition-transform duration-700 ease-in-out cursor-pointer"
                 style={{
                   width:

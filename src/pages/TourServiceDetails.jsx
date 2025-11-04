@@ -1,19 +1,265 @@
-// src/pages/TourServiceDetails.jsx
-import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import toursData from "../data/toursData";
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import DataService from "../config/DataService";
+import { API } from "../config/API";
 import {
   FaMapMarkerAlt,
   FaClock,
   FaStar,
   FaInfoCircle,
-  FaUserCircle,
+  FaCheckCircle,
+  FaFileContract,
+  FaTimesCircle,
 } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import TourGallery from "../components/TourGallery";
+import toast from "react-hot-toast";
 
 export default function TourServiceDetails() {
-  const { slug, serviceSlug } = useParams();
+  const { categorySlug, tourSlug } = useParams();
+  const [tour, setTour] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [mainImage, setMainImage] = useState("");
+
+  // Check Availability states
+  const [startDate, setStartDate] = useState(null);
+  const [guests, setGuests] = useState("");
+  const [availabilityResult, setAvailabilityResult] = useState(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [relatedTours, setRelatedTours] = useState([]);
+
   const navigate = useNavigate();
-  const tour = toursData.find((t) => t.slug === slug);
+
+  // Reset availabilityResult when date or guests change
+  useEffect(() => {
+    setAvailabilityResult(null);
+  }, [startDate, guests]);
+
+  // Fetch tour details
+  useEffect(() => {
+    const fetchTour = async () => {
+      try {
+        const api = DataService();
+        const res = await api.get(API.GET_TOUR(tourSlug));
+
+        if (res.data) {
+          setTour(res.data);
+          setRelatedTours(res.data.relatedTours || []);
+          setMainImage(`http://localhost:5000/${res.data.mainImage}`);
+          console.log("Fetched tour:", res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching tour details:", err);
+        setTour(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTour();
+  }, [tourSlug]);
+
+  // Format date to YYYY-MM-DD for backend
+  const formatDateToYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Check Availability
+  const checkAvailability = async () => {
+    if (!startDate || !guests) {
+      toast("Please select a date and number of guests");
+      return;
+    }
+
+    try {
+      setLoadingAvailability(true);
+      const api = DataService();
+      const res = await api.post(API.CHECK_AVAILABILITY, {
+        date: formatDateToYYYYMMDD(startDate),
+        guests: parseInt(guests),
+        tourId: tour._id,
+      });
+      setAvailabilityResult(res.data);
+      toast.success(res.data.message || "Availability checked successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error checking availability");
+    } finally {
+      setLoadingAvailability(false);
+    }
+  };
+
+  // Add to Cart
+  const handleAddToCart = async () => {
+    if (!startDate || !guests) return;
+
+    setAddingToCart(true);
+    try {
+      const api = DataService();
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        toast("Please login first!");
+        return;
+      }
+
+      await api.post(API.ADD_TO_CART, {
+        userId,
+        tourId: tour._id,
+        date: startDate.toISOString(),
+        guests,
+      });
+
+      toast("Added to cart!");
+      navigate("/cart");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error adding to cart");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  // Yeh function component ke bahar add karo (file ke end mein)
+  // 🔄 UPDATED - Array Format Cancellation Policy Render Function
+  const renderStructuredCancellationPolicy = (policy) => {
+    // Agar policy array format mein hai (new dynamic format)
+    if (Array.isArray(policy)) {
+      if (policy.length === 0) return null;
+
+      return (
+        <div className="space-y-6">
+          {policy.map((section, index) => (
+            <div
+              key={index}
+              className="border-b border-gray-200 pb-4 last:border-b-0"
+            >
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                {section.title}
+              </h3>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {section.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Agar policy string format mein hai (backward compatibility)
+    if (typeof policy === "string") {
+      return (
+        <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+          {policy}
+        </div>
+      );
+    }
+
+    // Agar policy object format mein hai (old structured format - backward compatibility)
+    if (typeof policy === "object") {
+      return (
+        <div className="space-y-6">
+          {/* Refund Timeline */}
+          {policy.refundTimeline && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Refund Timeline
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.refundTimeline}
+              </p>
+            </div>
+          )}
+
+          {/* No-Show Policy */}
+          {policy.noShowPolicy && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                No-Show Policy
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.noShowPolicy}
+              </p>
+            </div>
+          )}
+
+          {/* Non-Refundable Items */}
+          {policy.nonRefundableItems && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Non-Refundable Items
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.nonRefundableItems}
+              </p>
+            </div>
+          )}
+
+          {/* Refund Method */}
+          {policy.refundMethod && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Refund Method
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.refundMethod}
+              </p>
+            </div>
+          )}
+
+          {/* Rescheduling Policy */}
+          {policy.reschedulingPolicy && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Rescheduling Policy
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.reschedulingPolicy}
+              </p>
+            </div>
+          )}
+
+          {/* Child Policy */}
+          {policy.childPolicy && (
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Child Policy
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.childPolicy}
+              </p>
+            </div>
+          )}
+
+          {/* Other Terms */}
+          {policy.otherTerms && (
+            <div>
+              <h3 className="font-bold text-[#e82429] text-lg mb-2">
+                Other Terms
+              </h3>
+              <p className="text-gray-700 leading-relaxed">
+                {policy.otherTerms}
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  };
+  if (loading)
+    return (
+      <div className="text-center py-20 text-2xl font-semibold text-gray-700">
+        Loading...
+      </div>
+    );
 
   if (!tour)
     return (
@@ -22,58 +268,39 @@ export default function TourServiceDetails() {
       </div>
     );
 
-  const service = tour.services.find(
-    (s) => s.title.toLowerCase().replace(/\s+/g, "-") === serviceSlug
-  );
-
-  if (!service)
-    return (
-      <div className="text-center py-20 text-2xl font-semibold text-red-600">
-        Service not found
-      </div>
-    );
-
-  const [mainImage, setMainImage] = useState(service.img);
-
   return (
     <div className="bg-gray-50 py-10">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-4">
-        {/* MOBILE-FIRST: IMAGE + TITLE */}
+        {/* LEFT SECTION — IMAGES + DETAILS */}
         <div className="lg:col-span-8 order-1 lg:order-1 space-y-8">
-          {/* GALLERY */}
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-            <img
-              src={mainImage}
-              alt={service.title}
-              className="w-full h-[420px] object-cover"
-            />
-          </div>
+          {/* Main Image + Thumbnails */}
+          <TourGallery tour={tour} />
 
-          {/* TITLE + PRICE */}
+          {/* Title + Price */}
           <div className="bg-gradient-to-r from-[#fff4f4] to-[#ffeaea] rounded-3xl shadow-xl p-6 border border-[#e82429]/30">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl md:text-3xl font-extrabold text-[#721011] mb-2">
-                  {service.title}
+                  {tour.title}
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <span className="bg-[#e82429]/20 text-[#721011] font-semibold px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                    <FaClock className="text-[#e82429]" /> {tour.duration}
+                    <FaClock className="text-[#e82429]" />{" "}
+                    {tour.duration || "Flexible"}
                   </span>
                   <span className="bg-[#fff4f4]/80 text-[#721011] font-semibold px-3 py-1 rounded-full text-sm">
-                    Luxury Experience
+                    {tour.category?.name || "Luxury Experience"}
                   </span>
                 </div>
               </div>
 
               <div className="flex flex-col items-start md:items-end gap-2 mt-3 md:mt-0">
                 <p className="text-2xl md:text-2xl font-bold text-[#e82429]">
-                  AED {service.price}
+                  AED {tour.price || "—"}
                 </p>
                 <p className="text-gray-500 text-sm md:text-base font-medium">
                   per person
                 </p>
-
                 <div className="flex items-center gap-2 mt-2">
                   {[...Array(5)].map((_, i) => (
                     <FaStar key={i} className="text-yellow-500" />
@@ -85,215 +312,439 @@ export default function TourServiceDetails() {
               </div>
             </div>
 
-            <p className="mt-4 text-gray-700 text-sm md:text-base">
-              Experience the ultimate luxury and personalized service in the
-              heart of {tour.location || "Dubai"}. Perfect for families,
-              couples, and solo travelers seeking an unforgettable adventure.
+            <p className="mt-4 text-gray-700 text-sm md:text-base leading-relaxed">
+              {tour.description ||
+                "Experience the best of Dubai with our luxury travel packages and unforgettable adventures."}
             </p>
           </div>
+
+          {/* Mobile / Tablet Check Availability */}
+          <div className="block lg:hidden">
+            <div className="bg-white rounded-3xl shadow-xl p-6 mt-4 flex flex-col gap-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-[#404041]">
+                  Check Availability
+                </h2>
+                <span className="bg-[#e82429] text-white px-3 py-1 rounded-full text-sm">
+                  Popular
+                </span>
+              </div>
+
+              {/* Date Picker */}
+              <div className="flex flex-col gap-1">
+                <label className="text-gray-600 font-medium">Select Date</label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  minDate={new Date()}
+                  placeholderText="Select a date"
+                  className="w-full border rounded-2xl px-4 py-2 focus:ring-2 focus:ring-[#e82429] focus:outline-none shadow-sm"
+                />
+              </div>
+
+              {/* Guests */}
+              <div className="flex flex-col gap-1">
+                <label className="text-gray-600 font-medium">Guests</label>
+                <select
+                  value={guests}
+                  onChange={(e) => setGuests(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#e82429]"
+                >
+                  <option value="">Select Guests</option>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} {i + 1 === 1 ? "Person" : "Persons"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Button */}
+              <div className="mt-4">
+                <button
+                  onClick={() => {
+                    if (!availabilityResult?.available) {
+                      checkAvailability();
+                    } else {
+                      handleAddToCart();
+                    }
+                  }}
+                  className={`w-full font-bold py-3 rounded-2xl shadow-xl transition-transform duration-300 ${
+                    availabilityResult?.available
+                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white hover:scale-105"
+                      : "bg-gradient-to-r from-[#e82429] to-[#721011] text-white hover:scale-105"
+                  }`}
+                >
+                  {availabilityResult?.available
+                    ? addingToCart
+                      ? "Adding..."
+                      : "Add to Cart"
+                    : loadingAvailability
+                    ? "Checking..."
+                    : "Check Availability"}
+                </button>
+
+                {/* Status messages */}
+                {availabilityResult && !availabilityResult.available && (
+                  <div className="mt-3 p-3 bg-red-50 text-red-800 rounded-xl border border-red-200 text-center">
+                    Not available on selected date or for selected guests
+                  </div>
+                )}
+                {availabilityResult?.available && (
+                  <div className="mt-3 p-3 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
+                    Available for {guests} guest(s) on{" "}
+                    {startDate.toDateString()}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* HIGHLIGHTS */}
+          <section className="bg-gradient-to-br from-[#fff4f4] to-[#ffeaea] rounded-2xl shadow p-8">
+            <h2 className="text-2xl font-bold text-[#721011] mb-4 flex items-center gap-2">
+              <FaInfoCircle className="text-[#e82429]" /> Highlights
+            </h2>
+
+            <ul className="space-y-3 text-gray-700">
+              {(tour.highlights || []).map((point, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <FaCheckCircle className="text-[#e82429]" /> {point}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* NEED TO KNOW */}
+          <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2">
+              Need to Know
+            </h2>
+
+            <ul className="space-y-3">
+              {[
+                { icon: "⏰", text: `Timings: ${tour.timings || "Flexible"}` },
+                {
+                  icon: "📌",
+                  text: "Pick-up & drop-off included in most tours",
+                },
+                { icon: "🧳", text: "Comfortable clothing recommended" },
+              ].map((item, idx) => (
+                <li
+                  key={idx}
+                  className="flex items-start gap-3 p-3 bg-[#fff4f4] rounded-xl border border-[#e82429]/20 hover:bg-[#ffeaea] transition-all duration-300"
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-gray-700 font-medium">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* ✅ Inclusions Section */}
+            {tour.inclusions?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold text-[#e82429] mb-2">
+                  Inclusions
+                </h3>
+                <ul className="space-y-2 text-gray-700">
+                  {tour.inclusions.map((inc, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-2 p-2 bg-[#fff4f4] rounded-lg border border-[#e82429]/20 hover:bg-[#ffeaea] transition-all duration-300"
+                    >
+                      <span className="text-[#e82429] text-lg">✅</span> {inc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* ✅ Exclusions Section */}
+            {tour.exclusions?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold text-[#e82429] mb-2">
+                  Exclusions
+                </h3>
+                <ul className="space-y-2 text-gray-700">
+                  {tour.exclusions.map((exc, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-2 p-2 bg-[#fff4f4] rounded-lg border border-[#e82429]/20 hover:bg-[#ffeaea] transition-all duration-300"
+                    >
+                      <span className="text-[#e82429] text-lg">❌</span> {exc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* ✅ NAYA SECTION - Terms and Conditions */}
+          {tour.termsAndConditions && (
+            <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300">
+              <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2 flex items-center gap-2">
+                <FaFileContract className="text-[#e82429]" /> Special Terms &
+                Conditions
+              </h2>
+
+              <div className="bg-[#fff4f4] rounded-2xl p-6 border border-[#e82429]/20">
+                <div
+                  className="text-gray-700 leading-relaxed prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: tour.termsAndConditions.replace(/\n/g, "<br />"),
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ✅ UPDATED SECTION - Structured Cancellation Policy */}
+          {tour.cancellationPolicy && (
+            <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300">
+              <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2 flex items-center gap-2">
+                <FaTimesCircle className="text-[#e82429]" /> Cancellation Policy
+              </h2>
+
+              <div className="bg-[#fff4f4] rounded-2xl p-6 border border-[#e82429]/20">
+                {renderStructuredCancellationPolicy(tour.cancellationPolicy)}
+              </div>
+            </div>
+          )}
+          {/* STATIC REVIEWS */}
+          <div className="bg-white rounded-3xl shadow-xl p-6 mt-6">
+            <h2 className="text-2xl font-bold text-[#404041] mb-6 border-b pb-2">
+              Reviews
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  name: "Alice Smith",
+                  rating: 5,
+                  text: "Amazing experience! Highly recommend for family trips.",
+                },
+                {
+                  name: "John Doe",
+                  rating: 4,
+                  text: "Very well organized tour. Worth the price!",
+                },
+                {
+                  name: "Maria Johnson",
+                  rating: 5,
+                  text: "The guides were friendly and knowledgeable. Loved it!",
+                },
+                {
+                  name: "David Lee",
+                  rating: 4,
+                  text: "Beautiful places and great itinerary. Will come again.",
+                },
+              ].map((rev, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col justify-between p-5 bg-gradient-to-r from-[#fff4f4] to-[#ffeaea] rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-[#e82429]/20 flex items-center justify-center text-[#e82429] font-bold text-lg">
+                      {rev.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[#404041]">
+                        {rev.name}
+                      </h3>
+                      <div className="flex items-center gap-1 mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={`text-sm ${
+                              i < rev.rating
+                                ? "text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {rev.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* COMMON INFO SECTION */}
+          <div className="bg-white rounded-3xl shadow-xl p-6 mt-6">
+            <h2 className="text-2xl font-bold text-[#404041] mb-4 border-b pb-2">
+              Know Before You Go
+            </h2>
+
+            <ul className="space-y-3">
+              {[
+                {
+                  text: "Pick-up and drop-off included in most tours",
+                  icon: "🚐",
+                },
+                { text: "Comfortable clothing recommended", icon: "👕" },
+                { text: "Duration may vary depending on traffic", icon: "⏱️" },
+                {
+                  text: "Free cancellation up to 24 hours in advance",
+                  icon: "❌",
+                },
+                { text: "Guided tours with professional staff", icon: "🧑‍💼" },
+              ].map((item, idx) => (
+                <li
+                  key={idx}
+                  className="flex items-start gap-3 p-3 rounded-xl border border-[#e82429]/20 bg-[#fff4f4] hover:bg-[#ffeaea] transition-all duration-300"
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-gray-700 font-medium">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* RELATED TOURS SECTION */}
+          {relatedTours && relatedTours.length > 0 && (
+            <section className="mt-12">
+              <h2 className="text-3xl font-bold text-[#721011] mb-8 text-center">
+                Related Tours
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                {relatedTours.map((t) => (
+                  <Link
+                    key={t._id}
+                    to={`/tours/${t.category?.slug}/${t.slug}`}
+                    className="group block rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500"
+                  >
+                    {/* Image with hover overlay */}
+                    <div className="relative h-56 overflow-hidden">
+                      <img
+                        src={
+                          t.mainImage
+                            ? `${API.BASE_URL}/${t.mainImage}`
+                            : "/no-image.jpg"
+                        }
+                        alt={t.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-500"></div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 bg-white">
+                      <h3 className="text-xl font-semibold text-[#e82429] mb-2 group-hover:underline">
+                        {t.title}
+                      </h3>
+                      <p className="text-gray-600">
+                        Starting from{" "}
+                        <span className="font-semibold text-[#721011]">
+                          AED {t.price}
+                        </span>
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* LOCATION MAP */}
+          {tour.location && (
+            <div className="bg-white rounded-3xl shadow-lg p-8 mt-6">
+              <h2 className="text-2xl font-semibold text-[#404041] flex items-center gap-2 mb-4">
+                <FaMapMarkerAlt className="text-[#e82429]" /> Location on Map
+              </h2>
+              <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-[#e82429]/20 shadow-md">
+                <iframe
+                  src={tour.location}
+                  width="100%"
+                  height="100%"
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* CHECK AVAILABILITY */}
-        <div className="lg:col-span-4 order-2 lg:order-2">
-          <div className="sticky top-24 bg-white rounded-3xl shadow-xl p-6 flex flex-col gap-5">
+        {/* Desktop Sidebar */}
+        <div className="lg:col-span-4 order-2 lg:order-2 hidden lg:block">
+          <div className="sticky top-24 bg-white rounded-3xl shadow-2xl p-6 flex flex-col gap-6 border border-gray-100">
+            {/* Header */}
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[#404041]">
+              <h2 className="text-2xl font-extrabold text-gray-800">
                 Check Availability
               </h2>
-              <span className="bg-[#e82429] text-white px-3 py-1 rounded-full text-sm">
+              <span className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
                 Popular
               </span>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-gray-600 font-medium">Select Date</label>
-              <input
-                type="date"
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
+            {/* Date Picker */}
+            <div className="flex flex-col gap-2 relative">
+              <label className="text-gray-700 font-medium">Select Date</label>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                minDate={new Date()}
+                placeholderText="Select a date"
+                className="w-full border rounded-2xl px-4 py-3 focus:ring-2 focus:ring-[#e82429] focus:outline-none shadow-sm"
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-gray-600 font-medium">Guests</label>
-              <input
-                type="number"
-                placeholder="1-12 persons"
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
-              />
-            </div>
-
-            <button className="w-full bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-semibold py-3 rounded-xl shadow-lg hover:scale-105 transition-all">
-              Check Availability
-            </button>
-
-            <div className="flex items-start gap-3 bg-[#fff4f4] p-4 rounded-xl border border-[#e82429]/30 text-gray-700">
-              <span className="text-[#e82429] text-xl">💡</span>
-              <p className="text-sm">
-                Need assistance? Chat with our travel advisor for group
-                bookings, special offers, and personalized support.
-              </p>
-            </div>
-
-            <p className="text-gray-500 text-xs text-center border-t border-gray-200 pt-2">
-              Prices are per person. Subject to availability and seasonal
-              changes.
-            </p>
-          </div>
-        </div>
-
-        {/* REST OF CONTENT */}
-        <div className="lg:col-span-8 order-3 lg:order-3 space-y-8">
-          {/* OVERVIEW */}
-          <div className="bg-white rounded-3xl shadow-lg p-8 space-y-6">
-            <h2 className="text-2xl font-semibold text-[#404041] flex items-center gap-2 mb-4">
-              <FaInfoCircle className="text-[#e82429]" /> Overview
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              Step inside the world of unparalleled luxury — an iconic
-              experience with stunning views and exclusive access.
-            </p>
-            <p className="text-gray-700 leading-relaxed">
-              Enjoy guided tours, unique amenities, and unforgettable moments
-              designed for travelers seeking the ultimate adventure.
-            </p>
-          </div>
-
-          {/* HIGHLIGHTS */}
-          <div className="bg-gradient-to-br from-[#fff4f4] to-[#ffeaea] rounded-2xl shadow-md p-6 space-y-3 border border-[#e82429]/20">
-            <h2 className="text-2xl font-semibold text-[#721011] mb-2">
-              Highlights ✨
-            </h2>
-            <ul className="space-y-2 text-gray-700">
-              <li>🌟 90-min guided tour with a dedicated butler.</li>
-              <li>🌟 Access to the Royal Suite and exclusive hotel areas.</li>
-              <li>🌟 Learn Burj Al Arab’s design secrets and history.</li>
-              <li>🌟 Explore the Inside Burj Boutique and shop souvenirs.</li>
-              <li>
-                💡 Fun Fact: The marble used is the same as Michelangelo’s
-                sculptures.
-              </li>
-            </ul>
-          </div>
-
-          {/* NEED TO KNOW */}
-          <div className="bg-white rounded-2xl shadow-md p-6 space-y-3">
-            <h2 className="text-2xl font-semibold text-[#404041]">
-              Need to Know
-            </h2>
-            <h3 className="text-lg font-semibold text-[#e82429]">
-              Important Information
-            </h3>
-            <ul className="list-disc list-inside text-gray-700">
-              <li>Max 12 people per group.</li>
-              <li>Smart casual attire required.</li>
-              <li>Kids Club available for ages 2+.</li>
-            </ul>
-
-            <h3 className="text-lg font-semibold text-[#e82429]">
-              Restrictions
-            </h3>
-            <ul className="list-disc list-inside text-gray-700">
-              <li>No food & drinks allowed.</li>
-              <li>No photography in the lobby.</li>
-              <li>No flip-flops or beachwear.</li>
-            </ul>
-
-            <h3 className="text-lg font-semibold text-[#e82429]">Timings</h3>
-            <p className="text-gray-700">Daily: 10:30 AM – 9:00 PM</p>
-          </div>
-
-          {/* CANCELLATION */}
-          <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-[#404041] mb-2">
-              Cancellation Policy
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-              You can cancel up to <strong>24 hours before</strong> the
-              experience for a full refund.
-            </p>
-          </div>
-
-          {/* REVIEWS */}
-          <div className="bg-gray-50 rounded-3xl p-2 space-y-8 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-extrabold text-[#721011] mb-4 relative inline-block">
-              Ratings & Reviews
-              <span className="absolute left-0 bottom-0 w-16 h-1 bg-[#e82429] rounded-full"></span>
-            </h2>
-
-            {[
-              {
-                name: "Aarav Sharma",
-                date: "Oct 2025",
-                rating: 5,
-                review:
-                  "Absolutely mesmerizing! The tour guide was informative and polite. The interiors of Burj Al Arab are beyond imagination.",
-              },
-              {
-                name: "Sophia Khan",
-                date: "Sept 2025",
-                rating: 5,
-                review:
-                  "Felt like royalty for a day. The Royal Suite was stunning, and the staff made it a truly unforgettable experience!",
-              },
-              {
-                name: "Rahul Mehta",
-                date: "Aug 2025",
-                rating: 4,
-                review:
-                  "Great experience overall. The only downside was the crowd at the entrance, but the tour itself was top-notch.",
-              },
-            ].map((r, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl shadow-lg p-5 hover:shadow-2xl transition-all duration-300"
+            {/* Guests */}
+            <div className="flex flex-col gap-2">
+              <label className="text-gray-700 font-medium">Guests</label>
+              <select
+                value={guests}
+                onChange={(e) => setGuests(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all shadow-sm bg-white cursor-pointer"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <FaUserCircle className="text-4xl text-gray-400 p-1 rounded-full bg-gray-100" />
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{r.name}</h4>
-                      <p className="text-sm text-gray-500">{r.date}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`px-1 rounded ${
-                          idx < r.rating ? "bg-yellow-400" : "bg-gray-200"
-                        } text-yellow-500`}
-                      >
-                        <FaStar size={14} />
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <p className="text-gray-700 leading-relaxed text-base">
-                  {r.review}
-                </p>
-              </div>
-            ))}
-          </div>
+                <option value="">Select Guests</option>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1} {i + 1 === 1 ? "Person" : "Persons"}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* LOCATION MAP */}
-          <div className="bg-white rounded-3xl shadow-lg p-8 mt-6">
-            <h2 className="text-2xl font-semibold text-[#404041] flex items-center gap-2 mb-4">
-              <FaMapMarkerAlt className="text-[#e82429]" /> Location on Map
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Explore the exact location of this experience in the heart of
-              Dubai.
-            </p>
-            <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-[#e82429]/20 shadow-md">
-              <iframe
-                title="Dubai Map"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115906.80734362169!2d55.17127943775587!3d25.20484932788862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f434eb2ff9cf3%3A0x7d02f59f5dc1a49d!2sDubai!5e0!3m2!1sen!2sae!4v1708231145123!5m2!1sen!2sae"
-                width="100%"
-                height="100%"
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
+            {/* Button */}
+            <div className="mt-2">
+              <button
+                onClick={
+                  availabilityResult?.available
+                    ? handleAddToCart
+                    : checkAvailability
+                }
+                className={`w-full font-bold py-3 rounded-2xl shadow-xl transition-transform duration-300 ${
+                  availabilityResult?.available
+                    ? "bg-gradient-to-r from-green-500 to-green-700 text-white hover:scale-105"
+                    : "bg-gradient-to-r from-[#e82429] to-[#721011] text-white hover:scale-105"
+                }`}
+              >
+                {availabilityResult?.available
+                  ? addingToCart
+                    ? "Adding..."
+                    : "Add to Cart"
+                  : loadingAvailability
+                  ? "Checking..."
+                  : "Check Availability"}
+              </button>
+
+              {availabilityResult && !availabilityResult.available && (
+                <div className="mt-3 p-3 bg-red-50 text-red-800 rounded-xl border border-red-200 text-center">
+                  Not available on selected date or for selected guests
+                </div>
+              )}
+              {availabilityResult?.available && (
+                <div className="mt-3 p-3 bg-green-50 text-green-800 rounded-xl border border-green-200 text-center">
+                  Available for {guests} guest(s) on {startDate.toDateString()}
+                </div>
+              )}
             </div>
           </div>
         </div>

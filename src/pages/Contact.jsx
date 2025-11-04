@@ -1,22 +1,49 @@
 // src/pages/ContactUs.jsx
 import React, { useState } from "react";
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock } from "react-icons/fa";
-
+import { API } from "../config/API";
+import DataService from "../config/DataService";
+import toast from "react-hot-toast";
 export default function ContactUs() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "",
+    contactNumber: "",
+    services: "",
     message: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Message submitted! We'll get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setLoading(true);
+
+    try {
+      const api = DataService();
+      const response = await api.post(API.CREATE_ENQUIRY, formData);
+      // NOTE: No need for response.json() with axios
+      if (response.data.success) {
+        toast("Message submitted! Admin will contact you soon.");
+        setFormData({
+          name: "",
+          email: "",
+          contactNumber: "",
+          services: "",
+          message: "",
+        });
+      } else {
+        toast.error(response.data.message || "Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error. Try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,14 +68,13 @@ export default function ContactUs() {
         <div className="lg:col-span-7">
           <div className="bg-white rounded-3xl shadow-2xl p-10 space-y-6 relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#e82429]/30 rounded-full blur-3xl animate-pulse"></div>
-            <h2 className="text-3xl font-bold text-[#721011] z-10 relative">
-              Contact Form
-            </h2>
-            <p className="text-gray-600 z-10 relative">
+            <h2 className="text-3xl font-bold text-[#721011] relative z-10">Contact Form</h2>
+            <p className="text-gray-600 relative z-10">
               Have questions? Fill out the form below and we'll get back to you!
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4 z-10 relative">
+            <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+              {/* Name & Email */}
               <div className="flex flex-col md:flex-row gap-4">
                 <input
                   type="text"
@@ -69,15 +95,33 @@ export default function ContactUs() {
                   required
                 />
               </div>
-              <input
-                type="text"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                placeholder="Subject"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
-                required
-              />
+
+              {/* Contact Number & Services */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <input
+                  type="tel"
+                  name="contactNumber"
+                  value={formData.contactNumber}
+                  onChange={handleChange}
+                  placeholder="Your Contact Number"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
+                  required
+                />
+                <select
+                  name="services"
+                  value={formData.services}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
+                  required
+                >
+                  <option value="">Select a Service</option>
+                  <option value="Dubai Tour">Dubai Tour</option>
+                  <option value="Holiday Tour">Holiday Tour</option>
+                  <option value="Visa Service">Visa Service</option>
+                </select>
+              </div>
+
+              {/* Message */}
               <textarea
                 name="message"
                 value={formData.message}
@@ -86,11 +130,16 @@ export default function ContactUs() {
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 h-40 focus:ring-2 focus:ring-[#e82429] focus:outline-none transition-all"
                 required
               />
+
+              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#e82429] to-[#721011] text-white py-3 font-semibold rounded-xl shadow-lg hover:scale-105 transition-all"
+                disabled={loading}
+                className={`w-full bg-gradient-to-r from-[#e82429] to-[#721011] text-white py-3 font-semibold rounded-xl shadow-lg hover:scale-105 transition-all ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>
@@ -99,26 +148,10 @@ export default function ContactUs() {
         {/* Right: Contact Info */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           {[
-            {
-              icon: <FaMapMarkerAlt className="text-[#e82429] text-3xl" />,
-              title: "Address",
-              text: "123 Travel Street, Dubai, UAE",
-            },
-            {
-              icon: <FaPhoneAlt className="text-[#e82429] text-3xl" />,
-              title: "Phone",
-              text: "+971 55 123 4567",
-            },
-            {
-              icon: <FaEnvelope className="text-[#e82429] text-3xl" />,
-              title: "Email",
-              text: "info@travelcompany.com",
-            },
-            {
-              icon: <FaClock className="text-[#e82429] text-3xl" />,
-              title: "Hours",
-              text: "Mon - Fri: 9:00 AM - 6:00 PM",
-            },
+            { icon: <FaMapMarkerAlt className="text-[#e82429] text-3xl" />, title: "Address", text: "123 Travel Street, Dubai, UAE" },
+            { icon: <FaPhoneAlt className="text-[#e82429] text-3xl" />, title: "Phone", text: "+971 55 123 4567" },
+            { icon: <FaEnvelope className="text-[#e82429] text-3xl" />, title: "Email", text: "info@travelcompany.com" },
+            { icon: <FaClock className="text-[#e82429] text-3xl" />, title: "Hours", text: "Mon - Fri: 9:00 AM - 6:00 PM" },
           ].map((card, idx) => (
             <div
               key={idx}

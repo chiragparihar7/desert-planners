@@ -8,7 +8,7 @@ import TopCities from '../components/Home/TopCities'
 import TopThingsToDo from '../components/Home/TopThingsToDo'
 import TravelInspiration from '../components/Home/TravelInspiration'
 import UAEVisaServices from '../components/Home/UAEVisaServices'
-
+import WhyBookWithUs from '../components/Home/WhyBookWithUs'
 function Home() {
   return (
     <>
@@ -19,6 +19,7 @@ function Home() {
     <PopularExperiences />
     <TopThingsToDo />
     <UAEVisaServices />
+    <WhyBookWithUs />
     <TravelInspiration />
     <TestimonialSection />
     </>
