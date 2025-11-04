@@ -2,23 +2,28 @@ import React, { useState } from "react";
 import Lightbox from "react-18-image-lightbox";
 import "react-18-image-lightbox/style.css";
 
-
 const TourGallery = ({ tour }) => {
   // 🧤 Guard: tour null ya undefined ho to safe fallback
   if (!tour) {
     return (
-      <div className="text-center text-gray-500 p-10">Loading gallery...</div>
+      <div className="text-center text-gray-500 p-10">
+        Loading gallery...
+      </div>
     );
   }
 
-  const baseURL = "http://localhost:5000/";
+  // ✅ Dynamic Base URL (works in local + deployed)
+  const baseURL =
+    import.meta.env.VITE_API_URL ||
+    "https://desetplanner-backend.onrender.com";
+
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
 
   // ✅ Convert images into full URLs
   const images =
     tour?.galleryImages?.map((img) =>
-      img?.startsWith("http") ? img : `${baseURL}${img}`
+      img?.startsWith("http") ? img : `${baseURL}/${img}`
     ) || [];
 
   // 🧤 Guard: agar koi image nahi hai
@@ -33,9 +38,9 @@ const TourGallery = ({ tour }) => {
   const [mainImage, setMainImage] = useState(images[0]);
 
   return (
-    <div className="relative flex bg-white rounded-2xl shadow-md overflow-hidden">
+    <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden">
       {/* Sidebar Thumbnails */}
-      <div className="flex flex-col gap-2 p-2 bg-white shadow-inner rounded-l-xl overflow-y-auto max-h-[420px]">
+      <div className="flex md:flex-col gap-2 p-2 bg-white shadow-inner rounded-l-xl overflow-x-auto md:overflow-y-auto max-h-[420px]">
         {images.map((img, idx) => (
           <img
             key={idx}
@@ -71,13 +76,16 @@ const TourGallery = ({ tour }) => {
       {/* ✅ Safe Lightbox Rendering */}
       {typeof window !== "undefined" && isOpen && images.length > 0 && (
         <Lightbox
-        
           mainSrc={images[photoIndex]}
           nextSrc={images[(photoIndex + 1) % images.length]}
-          prevSrc={images[(photoIndex + images.length - 1) % images.length]}
+          prevSrc={
+            images[(photoIndex + images.length - 1) % images.length]
+          }
           onCloseRequest={() => setIsOpen(false)}
           onMovePrevRequest={() =>
-            setPhotoIndex((photoIndex + images.length - 1) % images.length)
+            setPhotoIndex(
+              (photoIndex + images.length - 1) % images.length
+            )
           }
           onMoveNextRequest={() =>
             setPhotoIndex((photoIndex + 1) % images.length)
