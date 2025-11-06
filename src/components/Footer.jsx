@@ -23,16 +23,16 @@ export default function Footer() {
   ];
 
   const topDestinations = [
-    { name: "Abu Dhabi City Tour", path: "/tours/abu-dhabi-city-tour" },
+    { name: "Abu Dhabi City Tour", path: "/tours/abu-dhabi-city-tour/abu-dhabi-city-tour-with-ferrari-world" },
     { name: "Dubai City Tour", path: "/tours/dubai-city-tour" },
-    { name: "Yas WaterPark With Meal", path: "/tours/yas-waterpark-with-meal" },
-    { name: "Dubai Miracle Garden", path: "/tours/dubai-miracle-garden" },
+    { name: "Yas WaterPark With Meal", path: "/tours/dubai-city-tour/dubai-city-tour" },
+    { name: "Dubai Miracle Garden", path: "/tours/combo-packages/miracle-garden-+-global-village-combo-ticket" },
     { name: "Sharjah City Tour", path: "/tours/sharjah-city-tour" },
   ];
 
   const socialLinks = [
-    { icon: FaFacebookF, color: "bg-[#3b5998]", href: "#" },
-    { icon: FaInstagram, color: "bg-gradient-to-tr from-pink-500 to-orange-400", href: "#" },
+    { icon: FaFacebookF, color: "bg-[#3b5998]", href: "https://www.facebook.com/Desertplannersdxb" },
+    { icon: FaInstagram, color: "bg-gradient-to-tr from-pink-500 to-orange-400", href: "https://www.instagram.com/desertplannerstourism/" },
     { icon: FaTwitter, color: "bg-[#00acee]", href: "#" },
     { icon: FaLinkedinIn, color: "bg-[#0077b5]", href: "#" },
   ];
