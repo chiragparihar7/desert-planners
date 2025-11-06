@@ -18,7 +18,6 @@ const TourGallery = ({ tour }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
 
-  // ✅ Convert only galleryImages
   const images =
     tour?.galleryImages?.map((img) =>
       img?.startsWith("http") ? img : `${baseURL}/${img}`
@@ -26,7 +25,6 @@ const TourGallery = ({ tour }) => {
 
   const [mainImage, setMainImage] = useState(images[0]);
 
-  // 🧠 FIX: Jab tour change ho → mainImage ko reset karo
   useEffect(() => {
     if (images.length > 0) {
       setMainImage(images[0]);
@@ -43,9 +41,9 @@ const TourGallery = ({ tour }) => {
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden">
+    <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full">
       {/* Sidebar Thumbnails */}
-      <div className="flex md:flex-col gap-2 p-2 bg-white shadow-inner rounded-l-xl overflow-x-auto md:overflow-y-auto max-h-[420px]">
+      <div className="flex md:flex-col gap-2 p-2 bg-white shadow-inner rounded-l-xl overflow-x-auto md:overflow-y-auto max-h-[600px]">
         {images.map((img, idx) => (
           <img
             key={idx}
@@ -63,26 +61,28 @@ const TourGallery = ({ tour }) => {
       </div>
 
       {/* Main Image */}
-      <div className="flex-1 relative">
-        <img
-          src={mainImage}
-          alt={tour?.title || "Tour Image"}
-          className="w-full h-[420px] object-cover rounded-r-2xl cursor-pointer"
-          onClick={() => {
-            setPhotoIndex(images.indexOf(mainImage));
-            setTimeout(() => setIsOpen(true), 0);
-          }}
-        />
-      </div>
+    <div className="flex-1 relative ">
+  <img
+    src={mainImage}
+    alt={tour?.title || "Tour Image"}
+    className="w-full h-auto max-h-[600px] object-contain rounded-2xl cursor-pointer mx-auto"
+    style={{
+      display: "block",
+    }}
+    onClick={() => {
+      setPhotoIndex(images.indexOf(mainImage));
+      setTimeout(() => setIsOpen(true), 0);
+    }}
+  />
+</div>
+
 
       {/* ✅ Safe Lightbox Rendering */}
       {typeof window !== "undefined" && isOpen && images.length > 0 && (
         <Lightbox
           mainSrc={images[photoIndex]}
           nextSrc={images[(photoIndex + 1) % images.length]}
-          prevSrc={
-            images[(photoIndex + images.length - 1) % images.length]
-          }
+          prevSrc={images[(photoIndex + images.length - 1) % images.length]}
           onCloseRequest={() => setIsOpen(false)}
           onMovePrevRequest={() =>
             setPhotoIndex(
