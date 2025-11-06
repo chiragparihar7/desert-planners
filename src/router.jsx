@@ -22,6 +22,7 @@ import MyOrders from "./components/Profile/MyOrder";
 import TermsAndConditions from "./components/TermsAndConditions";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import CancellationPolicy from "./components/CancellationPolicy";
+import BookingSuccess from "./components/BookingSuccess";
 const AppRouter = () => (
   <>
     <ScrollToTop />
@@ -48,6 +49,8 @@ const AppRouter = () => (
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+      <Route path="/booking-success" element={<BookingSuccess />} />
+      
       <Route
         path="/admin/dashboard"
         element={

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DataService from "../config/DataService";
 import { API } from "../config/API";
@@ -14,7 +14,17 @@ import toast from "react-hot-toast";
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const cart = location.state?.cart || [];
+
+  // 🛒 Cart data (from state or localStorage)
+  const [cart, setCart] = useState(location.state?.cart || []);
+
+  useEffect(() => {
+    // ✅ If cart not passed via navigate, load from localStorage (for guests)
+    if (!location.state?.cart) {
+      const localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      setCart(localCart);
+    }
+  }, [location.state?.cart]);
 
   // 🧠 Logged-in user (if any)
   const user = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -32,7 +42,8 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
 
   const totalPrice = cart.reduce(
-    (sum, item) => sum + (item.tourId?.price || 0) * (item.guests || 1),
+    (sum, item) =>
+      sum + (item.tourId?.price || item.price || 0) * (item.guests || 1),
     0
   );
 
@@ -54,6 +65,11 @@ export default function Checkout() {
       return;
     }
 
+    if (cart.length === 0) {
+      toast.error("Your cart is empty!");
+      return;
+    }
+
     setLoading(true);
     try {
       const api = DataService();
@@ -63,6 +79,7 @@ export default function Checkout() {
         ...(token && { Authorization: `Bearer ${token}` }),
       };
 
+      // 🧾 Booking data
       const bookingData = {
         guestName: form.guestName,
         guestEmail: form.guestEmail,
@@ -72,26 +89,41 @@ export default function Checkout() {
         specialRequest: form.specialRequest,
         totalPrice,
         items: cart.map((item) => ({
-          tourId: item.tourId?._id || item.tourId,
+          tourId: item.tourId?._id || item._id || item.tourId,
           date: item.date,
-          guests: item.guests,
+          guests: item.guests || 1,
           pickupPoint: form.pickupPoint,
           dropPoint: form.dropPoint,
         })),
       };
 
-      const res = await api.post(API.CREATE_BOOKING, bookingData, { headers });
+      // ✅ If user logged in → save booking in backend
+      if (token) {
+        const res = await api.post(API.CREATE_BOOKING, bookingData, { headers });
 
-      if (res.data?.success) {
-        toast.success("🎉 Booking confirmed successfully!");
-        navigate("/booking-success", { state: { booking: res.data.booking } });
+        if (res.data?.success) {
+          toast.success("🎉 Booking confirmed successfully!");
+          navigate("/booking-success", { state: { booking: res.data.booking } });
+        } else {
+          toast.error(res.data.message || "Booking failed. Please try again.");
+        }
       } else {
-        toast.error(res.data.message || "Booking failed. Please try again.");
+        // 🛒 Guest user → save locally
+        const guestBookings =
+          JSON.parse(localStorage.getItem("guestBookings")) || [];
+        guestBookings.push(bookingData);
+        localStorage.setItem("guestBookings", JSON.stringify(guestBookings));
+
+        toast.success("🎉 Booking saved locally!");
+        // Clear guest cart
+        localStorage.removeItem("guestCart");
+        navigate("/booking-success", { state: { booking: bookingData } });
       }
     } catch (err) {
       console.error("❌ Booking Error:", err);
       toast.error(
-        err.response?.data?.message || "Something went wrong while booking."
+        err.response?.data?.message ||
+          "Something went wrong while booking. Please try again."
       );
     } finally {
       setLoading(false);
@@ -121,16 +153,18 @@ export default function Checkout() {
                 >
                   <img
                     src={
-                      item.tourId?.mainImage
-                        ? `https://desetplanner-backend.onrender.com/${item.tourId.mainImage}`
+                      item.tourId?.mainImage || item.mainImage
+                        ? `https://desetplanner-backend.onrender.com/${
+                            item.tourId?.mainImage || item.mainImage
+                          }`
                         : "https://cdn-icons-png.flaticon.com/512/854/854878.png"
                     }
-                    alt={item.tourId?.title}
+                    alt={item.tourId?.title || item.title}
                     className="w-28 h-24 object-cover rounded-2xl shadow"
                   />
                   <div>
                     <h4 className="font-semibold text-gray-900 text-lg">
-                      {item.tourId?.title}
+                      {item.tourId?.title || item.title}
                     </h4>
                     <p className="text-gray-600 text-sm">
                       <FaCalendarAlt className="inline text-[#e82429] mr-1" />
@@ -139,10 +173,12 @@ export default function Checkout() {
                         : "Not selected"}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      Guests: {item.guests}
+                      Guests: {item.guests || 1}
                     </p>
                     <p className="text-[#e82429] font-bold">
-                      AED {(item.tourId?.price || 0) * (item.guests || 1)}
+                      AED{" "}
+                      {(item.tourId?.price || item.price || 0) *
+                        (item.guests || 1)}
                     </p>
                   </div>
                 </div>
@@ -156,7 +192,9 @@ export default function Checkout() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-10">No items in cart 🛒</p>
+            <p className="text-gray-500 text-center py-10">
+              No items in cart 🛒
+            </p>
           )}
         </div>
 

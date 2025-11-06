@@ -2,28 +2,32 @@ import React, { useEffect, useState } from "react";
 import { API } from "../config/API";
 import DataService from "../config/DataService";
 import { FaTrashAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Cart({ userId }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [clearing, setClearing] = useState(false);
   const [removingItemId, setRemovingItemId] = useState(null);
 
+  // ✅ Get userId from prop or localStorage
   const getUserId = () => {
     const uid = userId || localStorage.getItem("userId");
     return uid && /^[0-9a-fA-F]{24}$/.test(uid) ? uid : null;
   };
 
-  const isLoggedIn = () => !!localStorage.getItem("userToken");
-
+  // ✅ Fetch cart from backend (logged-in users)
   const fetchCart = async (uid) => {
     try {
       setLoading(true);
-      const api = DataService();
+      const api = DataService("user");
       const res = await api.get(API.GET_CART(uid));
-      setCart(res.data?.items || []);
+      const items =
+        res.data?.items || res.data?.cart || res.data?.data || res.data || [];
+      setCart(items);
     } catch (err) {
       console.error("Error fetching cart:", err);
       setCart([]);
@@ -32,14 +36,31 @@ export default function Cart({ userId }) {
     }
   };
 
+  // ✅ Remove single item
   const removeItem = async (itemId) => {
+    const uid = getUserId();
+
+    if (!uid) {
+      // Guest user
+      let guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      guestCart = guestCart.filter(
+        (item) => item._id !== itemId && item.tourId !== itemId
+      );
+      localStorage.setItem("guestCart", JSON.stringify(guestCart));
+      setCart(guestCart);
+      toast.success("Item removed!");
+      return;
+    }
+
+    // Logged-in user
     try {
       setRemovingItemId(itemId);
-      const api = DataService();
-      const uid = getUserId();
-      if (!uid) return alert("Invalid userId");
+      const api = DataService("user");
       const res = await api.delete(API.REMOVE_FROM_CART(uid, itemId));
-      setCart(res.data?.items || []);
+      const items =
+        res.data?.items || res.data?.cart || res.data?.data || res.data || [];
+      setCart(items);
+      toast.success("Item removed!");
     } catch (err) {
       console.error("Error removing item:", err);
     } finally {
@@ -47,14 +68,25 @@ export default function Cart({ userId }) {
     }
   };
 
+  // ✅ Clear entire cart
   const clearCart = async () => {
+    const uid = getUserId();
+
+    if (!uid) {
+      localStorage.removeItem("guestCart");
+      setCart([]);
+      toast.success("Cart cleared!");
+      return;
+    }
+
     try {
       setClearing(true);
-      const api = DataService();
-      const uid = getUserId();
-      if (!uid) return alert("Invalid userId");
+      const api = DataService("user");
       const res = await api.delete(API.CLEAR_CART(uid));
-      setCart(res.data?.items || []);
+      const items =
+        res.data?.items || res.data?.cart || res.data?.data || res.data || [];
+      setCart(items);
+      toast.success("Cart cleared!");
     } catch (err) {
       console.error("Error clearing cart:", err);
     } finally {
@@ -62,28 +94,50 @@ export default function Cart({ userId }) {
     }
   };
 
+  // ✅ Load cart on mount or after redirect with state
   useEffect(() => {
     const uid = getUserId();
-    if (uid) fetchCart(uid);
-    else setLoading(false);
-  }, [userId]);
 
+    if (location.state?.newCart) {
+      setCart(location.state.newCart);
+      setLoading(false);
+    } else if (uid) {
+      fetchCart(uid);
+    } else {
+      try {
+        const localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        setCart(localCart);
+      } catch {
+        setCart([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [userId, location.state]);
+
+  // ✅ Calculate total
   const totalPrice = cart.reduce(
-    (sum, item) => sum + (item.tourId?.price || 0) * item.guests,
+    (sum, item) =>
+      sum + (item.tourId?.price || item.price || 0) * (item.guests || 1),
     0
   );
 
+  // ✅ Checkout handler
   const handleCheckout = () => {
     navigate("/checkout", { state: { cart } });
   };
 
+  // ✅ Loading UI
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-600 text-lg animate-pulse">Loading your cart...</p>
+        <p className="text-gray-600 text-lg animate-pulse">
+          Loading your cart...
+        </p>
       </div>
     );
 
+  // ✅ Empty cart UI
   if (cart.length === 0)
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center bg-gradient-to-b from-gray-50 to-white p-8 rounded-3xl shadow-inner">
@@ -96,8 +150,8 @@ export default function Cart({ userId }) {
           Your Cart is Empty 🛒
         </h2>
         <p className="text-gray-600 mb-6 max-w-md">
-          Looks like you haven’t added anything yet.  
-          Explore amazing tours and add them to your cart!
+          Looks like you haven’t added anything yet. Explore amazing tours and
+          add them to your cart!
         </p>
         <button
           onClick={() => navigate("/tours")}
@@ -108,47 +162,58 @@ export default function Cart({ userId }) {
       </div>
     );
 
+  // ✅ Cart UI
   return (
     <div className="max-w-[1200px] mx-auto p-4">
       <h2 className="text-3xl font-bold mb-6 text-[#721011]">Your Cart</h2>
 
       <div className="grid gap-6">
-        {cart.map((item) => (
+        {cart.map((item, index) => (
           <div
-            key={item._id}
+            key={item._id || index}
             className="flex flex-col md:flex-row justify-between items-center bg-white rounded-2xl shadow-lg p-4 hover:shadow-xl transition"
           >
             <div className="flex items-center gap-4">
               <img
-                src={`https://desetplanner-backend.onrender.com/${item.tourId?.mainImage}`}
-                alt={item.tourId?.title}
+                src={`https://desetplanner-backend.onrender.com/${
+                  item.tourId?.mainImage || item.mainImage
+                }`}
+                alt={item.tourId?.title || item.title}
                 className="w-28 h-20 object-cover rounded-xl"
               />
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {item.tourId?.title}
+                  {item.tourId?.title || item.title}
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  Date: {new Date(item.date).toDateString()}
-                </p>
-                <p className="text-gray-600 text-sm">Guests: {item.guests}</p>
+                {item.date && (
+                  <p className="text-gray-600 text-sm">
+                    Date: {new Date(item.date).toDateString()}
+                  </p>
+                )}
+                {item.guests && (
+                  <p className="text-gray-600 text-sm">Guests: {item.guests}</p>
+                )}
                 <p className="text-gray-800 font-bold">
-                  AED {(item.tourId?.price || 0) * item.guests}
+                  AED{" "}
+                  {(item.tourId?.price || item.price || 0) *
+                    (item.guests || 1)}
                 </p>
               </div>
             </div>
 
             <button
-              onClick={() => removeItem(item._id)}
-              disabled={removingItemId === item._id}
+              onClick={() => removeItem(item._id || item.tourId)}
+              disabled={removingItemId === (item._id || item.tourId)}
               className={`mt-3 md:mt-0 bg-red-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-red-600 transition ${
-                removingItemId === item._id
+                removingItemId === (item._id || item.tourId)
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
             >
               <FaTrashAlt />
-              {removingItemId === item._id ? "Removing..." : "Remove"}
+              {removingItemId === (item._id || item.tourId)
+                ? "Removing..."
+                : "Remove"}
             </button>
           </div>
         ))}

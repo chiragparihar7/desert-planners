@@ -100,34 +100,58 @@ export default function TourServiceDetails() {
   };
 
   // Add to Cart
-  const handleAddToCart = async () => {
-    if (!startDate || !guests) return;
-
+  // ✅ Inside your component
+const handleAddToCart = async (tour) => {
+  try {
     setAddingToCart(true);
-    try {
-      const api = DataService();
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        toast("Please login first!");
-        return;
-      }
 
-      await api.post(API.ADD_TO_CART, {
-        userId,
+    const user = JSON.parse(localStorage.getItem("user"));
+    const formattedDate = startDate
+      ? formatDateToYYYYMMDD(startDate)
+      : new Date().toISOString().split("T")[0];
+
+    const totalGuests = guests ? parseInt(guests) : 1;
+
+    if (user?._id) {
+      // 🔐 Logged-in user → backend
+      const api = DataService("user");
+      const res = await api.post(API.ADD_TO_CART, {
+        userId: user._id,
         tourId: tour._id,
-        date: startDate.toISOString(),
-        guests,
+        date: formattedDate,
+        guests: totalGuests,
       });
 
-      toast("Added to cart!");
-      navigate("/cart");
-    } catch (err) {
-      console.error(err);
-      toast.error("Error adding to cart");
-    } finally {
-      setAddingToCart(false);
+      if (res.status === 200) {
+        toast.success("Added to your cart!");
+        navigate("/cart");
+      } else {
+        toast.error("Something went wrong!");
+      }
+      return;
     }
-  };
+
+    // 🧳 Guest (no login)
+    let localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+    localCart.push({
+      ...tour,
+      guests: totalGuests,
+      date: formattedDate,
+      quantity: 1,
+    });
+
+    localStorage.setItem("guestCart", JSON.stringify(localCart));
+    toast.success("Added to your cart!");
+    navigate("/cart");
+  } catch (error) {
+    console.error("Add to cart error:", error.response?.data || error.message);
+    toast.error("Error adding to cart!");
+  } finally {
+    setAddingToCart(false);
+  }
+};
+
+
 
   // Yeh function component ke bahar add karo (file ke end mein)
   // 🔄 UPDATED - Array Format Cancellation Policy Render Function
@@ -383,7 +407,7 @@ export default function TourServiceDetails() {
                     if (!availabilityResult?.available) {
                       checkAvailability();
                     } else {
-                      handleAddToCart();
+                      handleAddToCart(tour);
                     }
                   }}
                   className={`w-full font-bold py-3 rounded-2xl shadow-xl transition-transform duration-300 ${
@@ -732,11 +756,13 @@ export default function TourServiceDetails() {
             {/* Button */}
             <div className="mt-2">
               <button
-                onClick={
-                  availabilityResult?.available
-                    ? handleAddToCart
-                    : checkAvailability
-                }
+                onClick={() => {
+                  if (!availabilityResult?.available) {
+                    checkAvailability();
+                  } else {
+                    handleAddToCart(tour);
+                  }
+                }}
                 className={`w-full font-bold py-3 rounded-2xl shadow-xl transition-transform duration-300 ${
                   availabilityResult?.available
                     ? "bg-gradient-to-r from-green-500 to-green-700 text-white hover:scale-105"

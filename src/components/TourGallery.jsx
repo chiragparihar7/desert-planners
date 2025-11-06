@@ -5,15 +5,12 @@ import "react-18-image-lightbox/style.css";
 const TourGallery = ({ tour }) => {
   if (!tour) {
     return (
-      <div className="text-center text-gray-500 p-10">
-        Loading gallery...
-      </div>
+      <div className="text-center text-gray-500 p-10">Loading gallery...</div>
     );
   }
 
   const baseURL =
-    import.meta.env.VITE_API_URL ||
-    "https://desetplanner-backend.onrender.com";
+    import.meta.env.VITE_API_URL || "https://desetplanner-backend.onrender.com";
 
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -61,21 +58,20 @@ const TourGallery = ({ tour }) => {
       </div>
 
       {/* Main Image */}
-    <div className="flex-1 relative ">
-  <img
-    src={mainImage}
-    alt={tour?.title || "Tour Image"}
-    className="w-full h-auto max-h-[600px] object-contain rounded-2xl cursor-pointer mx-auto"
-    style={{
-      display: "block",
-    }}
-    onClick={() => {
-      setPhotoIndex(images.indexOf(mainImage));
-      setTimeout(() => setIsOpen(true), 0);
-    }}
-  />
-</div>
-
+      <div className="flex-1 relative ">
+        <img
+          src={mainImage}
+          alt={tour?.title || "Tour Image"}
+          className="w-full h-auto max-h-[600px] object-contain rounded-2xl cursor-pointer mx-auto"
+          style={{
+            display: "block",
+          }}
+          onClick={() => {
+            setPhotoIndex(images.indexOf(mainImage));
+            setTimeout(() => setIsOpen(true), 0);
+          }}
+        />
+      </div>
 
       {/* ✅ Safe Lightbox Rendering */}
       {typeof window !== "undefined" && isOpen && images.length > 0 && (
@@ -85,9 +81,7 @@ const TourGallery = ({ tour }) => {
           prevSrc={images[(photoIndex + images.length - 1) % images.length]}
           onCloseRequest={() => setIsOpen(false)}
           onMovePrevRequest={() =>
-            setPhotoIndex(
-              (photoIndex + images.length - 1) % images.length
-            )
+            setPhotoIndex((photoIndex + images.length - 1) % images.length)
           }
           onMoveNextRequest={() =>
             setPhotoIndex((photoIndex + 1) % images.length)
