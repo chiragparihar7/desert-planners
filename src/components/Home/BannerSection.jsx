@@ -21,7 +21,7 @@ export default function Banner() {
     {
       image: "/Banner3.webp",
       subtitle: "Discover the cultural charm of Sharjah.",
-      title: "SHARJAH TOUR",
+      title: "Desert Safari",
       price: "AED 200",
       cta: "View All Packages",
       link: "/tours",
@@ -38,7 +38,7 @@ export default function Banner() {
   }, [slides.length]);
 
   return (
-    <div className="relative w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] overflow-hidden">
+    <div className="relative w-full h-[350px] sm:h-[480px] md:h-[550px] lg:h-[650px] overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -46,7 +46,7 @@ export default function Banner() {
             index === current ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-          {/* Background image */}
+          {/* Background Image */}
           <img
             src={slide.image}
             alt={slide.title}
@@ -54,25 +54,24 @@ export default function Banner() {
           />
 
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-black/50 to-transparent"></div>
 
           {/* Text Content */}
           {index === current && (
-            <div className="absolute bottom-14 left-0 w-full">
-              <div className="max-w-[1200px] mx-auto px-6 text-left text-white animate-fadeInUp">
+            <div className="absolute bottom-10 sm:bottom-14 left-0 w-full">
+              <div className="max-w-[1200px] mx-auto px-4 sm:px-6 text-left text-white animate-fadeInUp">
                 {/* Subtitle with gradient background */}
-                <p className="inline-block bg-gradient-to-r from-[#e82429]/80 to-[#ff5f5f]/80 backdrop-blur-md px-4 py-2 rounded-full text-sm sm:text-lg font-medium tracking-wide mb-4 shadow-md border border-white/10">
+                <p className="inline-block bg-gradient-to-r from-[#e82429]/80 to-[#ff5f5f]/80 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium tracking-wide mb-3 sm:mb-4 shadow-md border border-white/10">
                   {slide.subtitle}
                 </p>
 
                 {/* Title */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 leading-tight drop-shadow-2xl tracking-wide">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-5 leading-tight drop-shadow-2xl tracking-wide">
                   {slide.title}
                 </h2>
 
-                {/* Premium Price Bar */}
                 {/* Simple Price */}
-                <p className="text-lg sm:text-xl font-medium text-white/90 mb-6">
+                <p className="text-sm sm:text-lg md:text-xl font-medium text-white/90 mb-4 sm:mb-6">
                   Starting from{" "}
                   <span className="text-[#e82429] font-semibold">
                     {slide.price}
@@ -80,14 +79,12 @@ export default function Banner() {
                 </p>
 
                 {/* Button */}
-                <div>
-                  <a
-                    href={slide.link}
-                    className="inline-block px-8 py-3 bg-gradient-to-r from-[#e82429] to-[#ff5151] hover:shadow-[0_0_20px_#e82429aa] text-white rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  >
-                    {slide.cta}
-                  </a>
-                </div>
+                <a
+                  href={slide.link}
+                  className="inline-block text-xs sm:text-sm md:text-base lg:text-lg px-5 sm:px-7 md:px-8 py-2 sm:py-3 bg-gradient-to-r from-[#e82429] to-[#ff5151] hover:shadow-[0_0_20px_#e82429aa] text-white rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                >
+                  {slide.cta}
+                </a>
               </div>
             </div>
           )}
