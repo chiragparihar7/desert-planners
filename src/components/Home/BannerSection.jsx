@@ -24,7 +24,7 @@ export default function Banner() {
       title: "DESERT SAFARI",
       price: "AED 150",
       cta: "View All Packages",
-      link: "tours/desert-safari-with-dinner/desert-safari-with-bbq-dinner-by-4x4-vehicle"
+      link: "tours/desert-safari-with-dinner/desert-safari-with-bbq-dinner-by-4x4-vehicle",
     },
   ];
 
@@ -71,9 +71,10 @@ export default function Banner() {
                 </h2>
 
                 {/* Simple Price */}
+
                 <p className="text-sm sm:text-lg md:text-xl font-medium text-white/90 mb-4 sm:mb-6">
                   Starting from{" "}
-                  <span className="text-[#e82429] font-semibold">
+                  <span className="text-[#e82429] font-semibold bg-white/10 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-white/20">
                     {slide.price}
                   </span>
                 </p>
@@ -96,7 +97,7 @@ export default function Banner() {
 
 /* ✨ Custom Animations */
 <style>
-{`
+  {`
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
@@ -108,4 +109,4 @@ export default function Banner() {
 .animate-fadeInUp { animation: fadeInUp 1.2s ease forwards; }
 .animate-zoom-slow { animation: zoomSlow 8s ease-in-out infinite alternate; }
 `}
-</style>
+</style>;

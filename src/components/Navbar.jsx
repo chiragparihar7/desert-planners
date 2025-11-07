@@ -12,9 +12,9 @@ export default function Navbar() {
   const [holidayCategory, setHolidayCategory] = useState(null);
   const [visas, setVisas] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
+  const [openSubIndex, setOpenSubIndex] = useState(null);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
 
-  // ✅ Detect login/logout in real-time (no refresh needed)
   useEffect(() => {
     const checkLogin = () => {
       const token = localStorage.getItem("userToken");
@@ -22,8 +22,6 @@ export default function Navbar() {
     };
 
     checkLogin();
-
-    // Listen for changes from other components or tabs
     window.addEventListener("userLoginChange", checkLogin);
     window.addEventListener("storage", checkLogin);
 
@@ -33,7 +31,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // ✅ Fetch categories and visas
   useEffect(() => {
     const api = DataService();
 
@@ -119,10 +116,11 @@ export default function Navbar() {
     {
       title: "Visa Services",
       path: "/visa",
-      subLinks: visas.map((v) => ({
-        name: v.title,
-        path: `/visa/${v.slug}`,
-      })),
+      subLinks:
+        visas.map((v) => ({
+          name: v.title,
+          path: `/visa/${v.slug}`,
+        })) || [],
     },
     { title: "Contact Us", path: "/contact-us" },
   ];
@@ -130,6 +128,19 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     alert(`Searching for: ${searchQuery}`);
+  };
+
+  const handleMainClick = (i, link) => {
+    // Toggle dropdown
+    const isAlreadyOpen = openIndex === i;
+    setOpenIndex(isAlreadyOpen ? null : i);
+
+    // 🔥 If it's "Tours" and has sublinks, auto-open first sublink
+    if (!isAlreadyOpen && link.title === "Tours" && link.subLinks?.length > 0) {
+      setOpenSubIndex(0);
+    } else {
+      setOpenSubIndex(null);
+    }
   };
 
   return (
@@ -156,7 +167,6 @@ export default function Navbar() {
                 {link.subLinks?.length > 0 && <FiChevronDown size={16} />}
               </Link>
 
-              {/* Dropdown */}
               {link.subLinks?.length > 0 && (
                 <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-300 z-[9999]">
                   <ul className="py-3">
@@ -214,7 +224,6 @@ export default function Navbar() {
             Contact Us
           </Link>
 
-          {/* ✅ Profile menu refreshes automatically on login/logout */}
           <ProfileMenu key={userLoggedIn ? "loggedIn" : "loggedOut"} />
         </div>
 
@@ -228,36 +237,89 @@ export default function Navbar() {
       </div>
 
       {/* ✅ Mobile Menu */}
+      {/* ✅ Mobile Menu */}
       {menuOpen && (
         <div className="lg:hidden bg-white border-t shadow-md">
           <ul className="flex flex-col p-4 space-y-2">
             {navLinks.map((link, i) => (
               <li key={i}>
-                <div
-                  className="flex justify-between items-center font-medium text-[#404041] hover:text-[#e82429] cursor-pointer py-2"
-                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                >
-                  <span>{link.title}</span>
+                {/* Main link */}
+                <div className="flex justify-between items-center font-medium text-[#404041] py-2">
+                  <Link
+                    to={link.path}
+                    className="flex-1 hover:text-[#e82429] transition-colors"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.title}
+                  </Link>
+
+                  {/* Dropdown toggle arrow */}
                   {link.subLinks?.length > 0 && (
-                    <FiChevronDown
-                      className={`transform transition-transform duration-300 ${
-                        openIndex === i ? "rotate-180 text-[#e82429]" : ""
-                      }`}
-                    />
+                    <button
+                      onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                      className="p-1 text-[#404041] hover:text-[#e82429] transition-transform"
+                    >
+                      <FiChevronDown
+                        className={`transform transition-transform duration-300 ${
+                          openIndex === i ? "rotate-180 text-[#e82429]" : ""
+                        }`}
+                      />
+                    </button>
                   )}
                 </div>
 
+                {/* 2nd level */}
                 {openIndex === i && link.subLinks?.length > 0 && (
                   <ul className="pl-4 mt-1 space-y-1">
                     {link.subLinks.map((sublink, j) => (
                       <li key={j}>
-                        <Link
-                          to={sublink.path}
-                          className="block text-sm text-gray-700 hover:text-[#e82429] py-1"
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          {sublink.name}
-                        </Link>
+                        <div className="flex justify-between items-center text-sm text-gray-700 py-1">
+                          {/* Category link (click = go to page) */}
+                          <Link
+                            to={sublink.path}
+                            className="flex-1 hover:text-[#e82429] transition-colors"
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            {sublink.name}
+                          </Link>
+
+                          {/* Arrow for sub-sub dropdown */}
+                          {sublink.subSubLinks?.length > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenSubIndex(openSubIndex === j ? null : j);
+                              }}
+                              className="p-1 text-[#404041] hover:text-[#e82429] transition-transform"
+                            >
+                              <FiChevronDown
+                                className={`transform transition-transform duration-300 ${
+                                  openSubIndex === j
+                                    ? "rotate-180 text-[#e82429]"
+                                    : ""
+                                }`}
+                              />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* 3rd level */}
+                        {openSubIndex === j &&
+                          sublink.subSubLinks?.length > 0 && (
+                            <ul className="pl-4 mt-1 space-y-1">
+                              {sublink.subSubLinks.map((sub, k) => (
+                                <li key={k}>
+                                  <Link
+                                    to={sub.path}
+                                    className="block text-sm text-gray-600 hover:text-[#e82429] py-1"
+                                    onClick={() => setMenuOpen(false)}
+                                  >
+                                    {sub.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                       </li>
                     ))}
                   </ul>
@@ -265,7 +327,7 @@ export default function Navbar() {
               </li>
             ))}
 
-            {/* ✅ Mobile Profile Options */}
+            {/* Profile Options */}
             <li className="mt-3 border-t pt-3">
               {userLoggedIn ? (
                 <>
