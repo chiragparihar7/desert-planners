@@ -38,42 +38,59 @@ const TourGallery = ({ tour }) => {
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden w-full">
-      {/* Sidebar Thumbnails */}
-      <div className="flex md:flex-col gap-2 p-2 bg-white shadow-inner rounded-l-xl overflow-x-auto md:overflow-y-auto max-h-[600px]">
-        {images.map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt={`${tour?.title || "Tour"} thumb ${idx + 1}`}
-            className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition-transform duration-200 hover:scale-105 ${
-              mainImage === img ? "border-[#e82429]" : "border-transparent"
-            }`}
-            onClick={() => {
-              setMainImage(img);
-              setPhotoIndex(idx);
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Image */}
-      <div className="flex-1 relative ">
+    <div className="relative w-full bg-white rounded-2xl shadow-md overflow-hidden">
+      {/* 🌄 Main Image */}
+      <div className="relative w-full">
         <img
           src={mainImage}
           alt={tour?.title || "Tour Image"}
-          className="w-full h-auto max-h-[600px] object-contain rounded-2xl cursor-pointer mx-auto"
-          style={{
-            display: "block",
-          }}
+          className="
+            w-full h-auto max-h-[600px] object-cover
+            rounded-2xl cursor-pointer
+            transition-transform duration-300 hover:scale-[1.02]
+          "
           onClick={() => {
             setPhotoIndex(images.indexOf(mainImage));
             setTimeout(() => setIsOpen(true), 0);
           }}
         />
+
+        {/* 🖼️ Left-Side Overlapping Thumbnails */}
+        <div
+          className="
+            absolute top-1/2 -translate-y-1/2 left-4
+            flex flex-col gap-3 
+            bg-white/30 backdrop-blur-sm 
+            p-2 rounded-2xl shadow-lg
+            max-h-[80%] overflow-y-auto
+            scrollbar-hide
+          "
+        >
+          {images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              alt={`thumb-${idx}`}
+              className={`
+                w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer
+                border-2 transition-all duration-200
+                hover:scale-105 hover:brightness-110
+                ${
+                  mainImage === img
+                    ? "border-[#e82429] ring-2 ring-[#e82429]/30"
+                    : "border-transparent"
+                }
+              `}
+              onClick={() => {
+                setMainImage(img);
+                setPhotoIndex(idx);
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* ✅ Safe Lightbox Rendering */}
+      {/* ✅ Lightbox */}
       {typeof window !== "undefined" && isOpen && images.length > 0 && (
         <Lightbox
           mainSrc={images[photoIndex]}

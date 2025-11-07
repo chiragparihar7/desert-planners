@@ -119,25 +119,27 @@ export default function AdminAddTour({ tour, onSuccess }) {
         if (Array.isArray(tour.cancellationPolicy)) {
           // New array format
           setCancellationPolicy(tour.cancellationPolicy);
-        } else if (typeof tour.cancellationPolicy === 'object') {
+        } else if (typeof tour.cancellationPolicy === "object") {
           // Convert old object format to array
           const policyArray = Object.entries(tour.cancellationPolicy)
-            .filter(([_, value]) => value && value.trim() !== '') // Remove empty values
+            .filter(([_, value]) => value && value.trim() !== "") // Remove empty values
             .map(([key, value]) => {
               // Convert camelCase to Title Case
               const title = key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, str => str.toUpperCase())
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())
                 .trim();
               return { title, description: value };
             });
           setCancellationPolicy(policyArray);
-        } else if (typeof tour.cancellationPolicy === 'string') {
+        } else if (typeof tour.cancellationPolicy === "string") {
           // String format - create one section
-          setCancellationPolicy([{ 
-            title: 'Cancellation Policy', 
-            description: tour.cancellationPolicy 
-          }]);
+          setCancellationPolicy([
+            {
+              title: "Cancellation Policy",
+              description: tour.cancellationPolicy,
+            },
+          ]);
         }
       } else {
         // No cancellation policy - start with empty array
@@ -364,7 +366,10 @@ export default function AdminAddTour({ tour, onSuccess }) {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => setGalleryImages([...e.target.files])}
+              onChange={(e) => {
+                const selected = Array.from(e.target.files);
+                setGalleryImages((prev) => [...prev, ...selected]);
+              }}
               className="w-full"
             />
           </div>
@@ -467,7 +472,8 @@ export default function AdminAddTour({ tour, onSuccess }) {
 
             {cancellationPolicy.length === 0 && (
               <div className="text-center py-4 text-gray-500">
-                No cancellation policy sections added. Click "Add Policy Section" to start.
+                No cancellation policy sections added. Click "Add Policy
+                Section" to start.
               </div>
             )}
 

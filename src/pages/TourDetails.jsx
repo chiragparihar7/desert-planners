@@ -75,7 +75,7 @@ export default function TourDetails() {
         <div className="absolute inset-0 flex justify-center items-center">
           <h1
             className="text-4xl md:text-6xl font-extrabold text-white text-center tracking-wide 
-      px-6 py-2 rounded-lg te/20"
+            px-6 py-2 rounded-lg"
           >
             {tours[0].category?.name || "Category"}
           </h1>
@@ -88,7 +88,7 @@ export default function TourDetails() {
           <Link
             key={tour._id}
             to={`/tours/${slug}/${tour.slug}`}
-            className="block bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 hover:scale-[1.04] relative group"
+            className="block bg-white rounded-3xl overflow-hidden shadow-lg transition hover:shadow-2xl relative group"
           >
             {/* 📸 Image */}
             <div className="relative h-64 md:h-72 w-full overflow-hidden rounded-t-3xl">
@@ -99,21 +99,21 @@ export default function TourDetails() {
                     : `${baseURL}/${tour.mainImage}`
                 }
                 alt={tour.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
 
             {/* 📋 Card Content */}
             <div className="p-6 flex flex-col justify-between h-56">
-              <h2 className="text-xl font-bold text-[#e82429] mb-3 transition-transform duration-300 group-hover:translate-y-[-2px]">
+              <h2 className="text-xl font-bold text-[#e82429] mb-3">
                 {tour.title}
               </h2>
-              <p className="text-gray-700 font-semibold mb-4 text-lg transition-colors duration-300 group-hover:text-[#5f19ff]">
+              <p className="text-gray-700 font-semibold mb-4 text-lg">
                 from AED {tour.price} / person
               </p>
               <div className="mt-auto text-center bg-[#404041] text-white font-semibold py-3 rounded-2xl shadow-md hover:shadow-lg hover:bg-gray-700 transition-all cursor-pointer">
-                View Trip
+                View Trip 
               </div>
             </div>
           </Link>
