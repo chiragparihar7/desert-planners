@@ -74,7 +74,7 @@ export default function Banner() {
 
                 <p className="text-sm sm:text-lg md:text-xl font-medium text-white/90 mb-4 sm:mb-6">
                   Starting from{" "}
-                  <span className="text-[#e82429] font-semibold bg-white/10 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-white/20">
+                  <span className="text-[#ffff] font-extrabold">
                     {slide.price}
                   </span>
                 </p>

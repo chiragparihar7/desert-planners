@@ -132,11 +132,11 @@ export default function TourList() {
     {
       id:7,
       path: "dubai-aquarium",
-      image: "https://images.unsplash.com/photo-1635756962089-ee9e9cfd284c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
-      category: "Adventure Tours",
+      image: "TourImg/Dubai-Aquarium.png",
+      category: "Dubai Aquarium Tours",
       rating: "4.7",
-      reviews: "210",
-      title: "Dive Into Wonder: Dubai Aquarium & Underwater Adventure",
+      reviews: "124",
+      title: "Dubai Aquarium Tour",
       details: [
         "Explore the ‘home of luxury’, Inside Burj Al Arab, on this 90-minute tour.",
         "Accompanied by a butler, enter the Royal Suite of this 7-star hotel.",
@@ -153,11 +153,11 @@ export default function TourList() {
     {
       id: 8,
       path: "helicopter-tour",
-      image: "https://images.unsplash.com/photo-1707938594551-23a20304682f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=735",
-      category: "Adventure Tours",
+      image: "/TourImg/Helicopter-Tour-Dubai.png",
+      category: "Helicopter Tours",
       rating: "4.7",
-      reviews: "210",
-      title: "Sky High Dubai: Exclusive Helicopter Tour Experience",
+      reviews: "343",
+      title: "Helicopter Tours",
       details: [
         "Explore the ‘home of luxury’, Inside Burj Al Arab, on this 90-minute tour.",
         "Accompanied by a butler, enter the Royal Suite of this 7-star hotel.",
@@ -174,11 +174,11 @@ export default function TourList() {
     {
       id: 9,
       path: "yas-island-theme-park",
-      image: "https://images.unsplash.com/photo-1606225791862-6b106554ccaa?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1074",
-      category: "Adventure Tours",
+      image: "/TourImg/Yas-Island-Theme-Park.png",
+      category: "Yas Island Tours",
       rating: "4.7",
-      reviews: "210",
-      title: "Ultimate Fun at Yas Island: Thrills & Entertainment",
+      reviews: "265",
+      title: "Yas Island Theme Park ",
       details: [
         "Explore the ‘home of luxury’, Inside Burj Al Arab, on this 90-minute tour.",
         "Accompanied by a butler, enter the Royal Suite of this 7-star hotel.",
@@ -216,11 +216,11 @@ export default function TourList() {
     {
       id: 11,
       path: "combo-packages",
-      image: "https://plus.unsplash.com/premium_photo-1694475218266-b93569487419?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-      category: "Adventure Tours",
+      image: "/TourImg/Combo-Packages.png",
+      category: "Combo Packages",
       rating: "4.7",
       reviews: "210",
-      title: "All-in-One Combo Packages: Explore More, Save More",
+      title: "Combo Packages",
       details: [
         "Explore the ‘home of luxury’, Inside Burj Al Arab, on this 90-minute tour.",
         "Accompanied by a butler, enter the Royal Suite of this 7-star hotel.",
