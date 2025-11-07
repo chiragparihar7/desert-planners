@@ -22,7 +22,7 @@ export default function WhyBookWithUs() {
           Planning your Dubai adventure has never been simpler! At Desert
           Planners, you can book Dubai tours and activities online in just a few
           clicks no registration fees and instant confirmation. Whether you’re
-          reserving a 
+          reserving a {" "}
           <Link
             to="/tours/dubai-city-tour"
             className="text-primary font-semibold hover:underline"
