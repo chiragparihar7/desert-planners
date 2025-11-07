@@ -8,7 +8,7 @@ export default function Banner() {
       title: "DUBAI TOUR",
       price: "AED 75",
       cta: "Explore Tours",
-      link: "/tours",
+      link: "/tours/dubai-city-tour/dubai-city-tour",
     },
     {
       image: "/Banner2.webp",
@@ -16,15 +16,15 @@ export default function Banner() {
       title: "ABU DHABI TOUR",
       price: "AED 455",
       cta: "Explore Tours",
-      link: "/tours",
+      link: "/tours/abu-dhabi-city-tour/abu-dhabi-city-tour-with-ferrari-world",
     },
     {
       image: "/Banner3.webp",
       subtitle: "Discover the cultural charm of Sharjah.",
       title: "DESERT SAFARI",
-      price: "AED 200",
+      price: "AED 150",
       cta: "View All Packages",
-      link: "/tours",
+      link: "/tours/desert-safari-with-dinner/desert-safari-with-bbq-dinner-by-4x4-vehicle,
     },
   ];
 
@@ -54,7 +54,7 @@ export default function Banner() {
           />
 
           {/* Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-black/50 to-transparent"></div>
+          {/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-black/50 to-transparent"></div> */}
 
           {/* Text Content */}
           {index === current && (
