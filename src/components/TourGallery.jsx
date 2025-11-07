@@ -55,14 +55,15 @@ const TourGallery = ({ tour }) => {
           }}
         />
 
-        {/* 🖼️ Left-Side Overlapping Thumbnails */}
+        {/* 🖼️ Left-Side Thumbnails (Desktop Only) */}
         <div
           className="
+            hidden md:flex
             absolute top-1/2 -translate-y-1/2 left-4
-            flex flex-col gap-3 
+            flex-col gap-3 
             bg-white/30 backdrop-blur-sm 
             p-2 rounded-2xl shadow-lg
-            max-h-[80%] overflow-y-auto
+            max-h-[70%] overflow-y-auto
             scrollbar-hide
           "
         >
@@ -72,7 +73,7 @@ const TourGallery = ({ tour }) => {
               src={img}
               alt={`thumb-${idx}`}
               className={`
-                w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer
+                w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg cursor-pointer
                 border-2 transition-all duration-200
                 hover:scale-105 hover:brightness-110
                 ${
@@ -88,6 +89,39 @@ const TourGallery = ({ tour }) => {
             />
           ))}
         </div>
+      </div>
+
+      {/* 📱 Mobile Thumbnail Row (Horizontal Scroll) */}
+      <div
+        className="
+          flex md:hidden 
+          overflow-x-auto scrollbar-hide
+          gap-3 p-3 bg-gray-50
+          border-t border-gray-200
+          flex-nowrap
+        "
+      >
+        {images.map((img, idx) => (
+          <img
+            key={idx}
+            src={img}
+            alt={`thumb-${idx}`}
+            className={`
+              w-20 h-20 flex-shrink-0 object-cover rounded-lg cursor-pointer
+              border-2 transition-all duration-200
+              hover:scale-105 hover:brightness-110
+              ${
+                mainImage === img
+                  ? "border-[#e82429] ring-2 ring-[#e82429]/30"
+                  : "border-transparent"
+              }
+            `}
+            onClick={() => {
+              setMainImage(img);
+              setPhotoIndex(idx);
+            }}
+          />
+        ))}
       </div>
 
       {/* ✅ Lightbox */}
