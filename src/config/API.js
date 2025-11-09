@@ -7,7 +7,7 @@ const bookings = "/api/bookings";
 const enquiries = "/api/enquiries";
 const visas = "/api/visas";
 const sections = "/api/sections"; // ✅ new added
-
+const visaCategories = "/api/visa-categories";
 export const API = {
   BASE_URL: "https://desetplanner-backend.onrender.com",
 
@@ -38,12 +38,17 @@ export const API = {
   GET_TOURS_BY_CATEGORY: (categoryName) => `${tours}/category/${categoryName}`,
   CHECK_AVAILABILITY: `${tours}/check-availability`,
 
-  // ---- Categories ----
+  // ---- Tour Categories ----
   GET_CATEGORIES: `${categories}`,
   ADD_CATEGORY: `${categories}`,
   DELETE_CATEGORY: (id) => `${categories}/${id}`,
   UPDATE_CATEGORY: (id) => `${categories}/${id}`,
 
+  // ---- Visa Categories ----
+   ADD_VISA_CATEGORY: `${visaCategories}`,
+  GET_VISA_CATEGORIES: `${visaCategories}`,
+  DELETE_VISA_CATEGORY: (id) => `${visaCategories}/${id}`,
+  UPDATE_VISA_CATEGORY: (id) => `${visaCategories}/${id}`,
   // ---- Cart ----
   GET_CART: (userId) => `${cart}/${userId}`,
   ADD_TO_CART: `${cart}/add`,

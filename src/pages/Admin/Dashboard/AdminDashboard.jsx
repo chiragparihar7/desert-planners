@@ -5,13 +5,14 @@ import Sidebar from "./Sidebar";
 import Overview from "./Overview";
 import ToursManagement from "./ToursManagement";
 import TourCategory from "./TourCategory";
+import VisaCategory from "./VisaCategory"; // ✅ NEW IMPORT
 import Bookings from "./Bookings";
 import Payments from "./Payments";
 import Users from "./Users";
 import Enquiries from "./Enquiries";
 import Settings from "./Settings";
 import Visa from "./Visa";
-import SectionsManagement from "./SectionsManagement"; // ✅ YE NAYA IMPORT ADD KARO
+import SectionsManagement from "./SectionsManagement"; 
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -21,8 +22,9 @@ export default function AdminDashboard() {
     overview: Overview,
     tours: ToursManagement,
     visa: Visa,
+    visaCategory: VisaCategory, // ✅ NEW TAB ADDED HERE
     category: TourCategory,
-    sections: SectionsManagement, // ✅ YE NAYA LINE ADD KARO
+    sections: SectionsManagement,
     bookings: Bookings,
     payments: Payments,
     users: Users,
@@ -42,7 +44,7 @@ export default function AdminDashboard() {
       />
 
       <div className="flex-1 p-6 overflow-y-auto">
-        <ActiveComponent />
+        {ActiveComponent ? <ActiveComponent /> : <p>No component found</p>}
       </div>
     </div>
   );

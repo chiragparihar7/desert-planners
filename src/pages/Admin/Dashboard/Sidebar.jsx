@@ -12,14 +12,16 @@ import {
   Menu,
   X,
   Layers,
+  FileSpreadsheet, // ✅ NEW ICON (for visa category)
 } from "lucide-react";
 
 const ITEMS = [
   { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
   { tab: "tours", label: "Tours", icon: <Briefcase size={20} /> },
   { tab: "visa", label: "Visa", icon: <Plane size={20} /> },
-  { tab: "category", label: "Category", icon: <Grid size={20} /> },
-    { tab: "sections", label: "Sections", icon: <Layers size={20} /> },
+  { tab: "visaCategory", label: "Visa Categories", icon: <FileSpreadsheet size={20} /> }, // ✅ NEW TAB
+  { tab: "category", label: "Tour Categories", icon: <Grid size={20} /> },
+  { tab: "sections", label: "Sections", icon: <Layers size={20} /> },
   { tab: "bookings", label: "Bookings", icon: <CalendarCheck size={20} /> },
   { tab: "payments", label: "Payments", icon: <CreditCard size={20} /> },
   { tab: "users", label: "Users", icon: <Users size={20} /> },
