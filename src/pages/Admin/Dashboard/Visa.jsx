@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash, FaPlus, FaMoneyBillWave  } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaMoneyBillWave, FaTags } from "react-icons/fa";
 import AdminAddVisa from "./AdminAddVisa";
 import DataService from "../../../config/DataService";
 import { API } from "../../../config/API";
@@ -15,7 +15,9 @@ export default function AdminVisaManagement() {
   const fetchVisas = async () => {
     try {
       const res = await api.get(API.GET_VISAS);
-      const visasArray = Array.isArray(res.data) ? res.data : res.data.visas || [];
+      const visasArray = Array.isArray(res.data)
+        ? res.data
+        : res.data.visas || [];
       setVisas(visasArray);
     } catch (err) {
       toast.error("Error fetching visas");
@@ -67,25 +69,41 @@ export default function AdminVisaManagement() {
               key={v._id}
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
-              {/* Image Thumbnail */}
-              <div className="h-40 w-full overflow-hidden">
+              {/* Thumbnail */}
+              <div className="h-40 w-full overflow-hidden relative">
                 <img
                   src={v.gallery?.[0] || v.img || "/placeholder.jpg"}
                   alt={v.title}
                   className="w-full h-full object-cover"
                 />
+
+                {/* ✅ Category Tag (Top-left corner of image) */}
+                {v.visaCategory && (
+                  <div className="absolute top-3 left-3 bg-[#721011]/90 text-white text-xs font-medium px-3 py-1 rounded-full shadow-md">
+                    {v.visaCategory?.name || "Uncategorized"}
+                  </div>
+                )}
               </div>
 
               {/* Card Content */}
               <div className="p-5 space-y-2">
-                <h2 className="text-lg font-bold text-[#404041] truncate">{v.title}</h2>
-                <p className="text-sm text-gray-500 truncate">Slug: {v.slug}</p>
-                <p className="text-sm text-gray-700 flex items-center gap-1 font-semibold">
-  <FaMoneyBillWave className="text-[#e82429]" /> AED {v.price}
-</p>
-                <p className="text-gray-600 text-sm line-clamp-3">{v.overview || "No description available."}</p>
+                <h2 className="text-lg font-bold text-[#404041] truncate">
+                  {v.title}
+                </h2>
 
-                {/* Tags */}
+                <p className="text-sm text-gray-500 truncate">Slug: {v.slug}</p>
+
+                {/* Price */}
+                <p className="text-sm text-gray-700 flex items-center gap-1 font-semibold">
+                  <FaMoneyBillWave className="text-[#e82429]" /> AED {v.price}
+                </p>
+
+                {/* Overview */}
+                <p className="text-gray-600 text-sm line-clamp-3">
+                  {v.overview || "No description available."}
+                </p>
+
+                {/* Type tags */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {v.visaType && (
                     <span className="bg-[#e82429]/20 text-[#e82429] px-2 py-1 rounded-full text-xs font-medium">

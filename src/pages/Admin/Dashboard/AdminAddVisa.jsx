@@ -21,20 +21,20 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     exclusions: [],
     documents: [],
     relatedVisas: [],
+    visaCategory: "", // ✅ new field
   });
 
   const [allVisas, setAllVisas] = useState([]);
+  const [visaCategories, setVisaCategories] = useState([]); // ✅ all categories list
   const [loading, setLoading] = useState(false);
   const api = DataService();
 
   // Prefill form if editing
   useEffect(() => {
-    if (editVisa) {
-      setFormData(editVisa);
-    }
+    if (editVisa) setFormData(editVisa);
   }, [editVisa]);
 
-  // Auto-generate slug from title
+  // Auto slug
   useEffect(() => {
     const slug = formData.title
       .toLowerCase()
@@ -43,7 +43,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     setFormData((prev) => ({ ...prev, slug }));
   }, [formData.title]);
 
-  // Fetch all visas for relatedVisas dropdown
+  // Fetch all visas (for related list)
   useEffect(() => {
     const fetchAllVisas = async () => {
       try {
@@ -53,12 +53,26 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
           : res.data.visas || [];
         setAllVisas(visasArray);
       } catch (err) {
-        toast.error("Error fetching all visas:", err);
+        toast.error("Error fetching visas");
       }
     };
     fetchAllVisas();
   }, []);
 
+  // ✅ Fetch all Visa Categories
+  useEffect(() => {
+    const fetchVisaCategories = async () => {
+      try {
+        const res = await api.get(API.GET_VISA_CATEGORIES);
+        setVisaCategories(res.data || []);
+      } catch (err) {
+        toast.error("Error fetching visa categories");
+      }
+    };
+    fetchVisaCategories();
+  }, []);
+
+  // handleChange
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -80,6 +94,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     setFormData((prev) => ({ ...prev, [key]: arr }));
   };
 
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -91,8 +106,9 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
       }
       fetchVisas();
       closeModal();
+      toast.success("Visa saved successfully!");
     } catch (err) {
-      toast.error("Error saving visa:", err);
+      toast.error("Error saving visa");
     } finally {
       setLoading(false);
     }
@@ -104,21 +120,11 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
         <h2 className="text-3xl font-bold mb-6 text-[#721011]">
           {editVisa ? "Edit Visa" : "Add New Visa"}
         </h2>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              "title",
-              "slug",
-              "price",
-              "overview",
-              "details",
-              "visaType",
-              "processingTime",
-              "entryType",
-              "validity",
-              "stayDuration",
-            ].map((field) => (
+            {[ "title", "slug", "price", "overview", "details", "visaType", "processingTime", "entryType", "validity", "stayDuration", ].map((field) => (
               <div key={field} className="flex flex-col">
                 <label className="text-gray-700 font-medium mb-1 capitalize">
                   {field}
@@ -134,14 +140,31 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                 />
               </div>
             ))}
+
+            {/* ✅ Visa Category Dropdown */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-medium mb-1">Visa Category</label>
+              <select
+                name="visaCategory"
+                value={formData.visaCategory}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#e82429]"
+                required
+              >
+                <option value="">Select Visa Category</option>
+                {visaCategories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Array Fields */}
           {["gallery", "inclusions", "exclusions", "documents"].map((key) => (
             <div key={key} className="border rounded-xl p-4 bg-gray-50">
-              <h3 className="font-semibold text-[#e82429] mb-2 capitalize">
-                {key}
-              </h3>
+              <h3 className="font-semibold text-[#e82429] mb-2 capitalize">{key}</h3>
               {formData[key].map((val, idx) => (
                 <div key={idx} className="flex gap-2 mb-2">
                   <input
