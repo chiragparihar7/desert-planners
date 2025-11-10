@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import {
   FaFacebookF,
   FaInstagram,
-  FaTwitter,
-  FaLinkedinIn,
   FaMapMarkerAlt,
   FaPhoneAlt,
   FaEnvelope,
@@ -50,7 +48,6 @@ export default function Footer() {
       color: "bg-gradient-to-tr from-pink-500 to-orange-400",
       href: "https://www.instagram.com/desertplannerstourism/",
     },
-  
   ];
 
   return (
@@ -116,9 +113,9 @@ export default function Footer() {
                 <li key={dest.name}>
                   <Link
                     to={dest.path}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors transition-all group text-sm hover:underline"
+                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-all group text-sm hover:underline"
                   >
-                     <FaArrowRight className="text-[#e82429] text-xs group-hover:translate-x-1 transition-transform" />
+                    <FaArrowRight className="text-[#e82429] text-xs group-hover:translate-x-1 transition-transform" />
                     {dest.name}
                   </Link>
                 </li>
@@ -182,6 +179,26 @@ export default function Footer() {
                 <FaTimesCircle className="text-[#e82429] text-xs group-hover:scale-110 transition-transform" />
                 Cancellation & Refund Policy
               </Link>
+            </div>
+
+            {/* ✅ Mastercard & Footer Logo Section */}
+            <div className="pt-6 border-t border-gray-800">
+              <h4 className="text-sm font-semibold text-gray-400 mb-3">
+                Secure Payments
+              </h4>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/mastercard.png"
+                  alt="Mastercard"
+                  className="w-12 h-8 object-contain"
+                />
+                <img
+                  src="/visa.png"
+                  alt="Visa"
+                  className="w-12 h-8 object-contain"
+                />
+               
+              </div>
             </div>
           </div>
         </div>

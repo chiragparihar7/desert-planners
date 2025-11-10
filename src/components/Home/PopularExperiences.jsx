@@ -5,7 +5,7 @@ const experiences = [
   {
     title: "Desert Safari",
     desc: "Thrilling dune bashing, camel rides & stunning sunsets.",
-    price: "AED 50",
+    price: "AED 150",
     img: "https://images.unsplash.com/photo-1588310558566-b983c7d257e4?auto=format&fit=crop&w=800&q=80",
     path: "tours/desert-safari-with-dinner/desert-safari-with-bbq-dinner-by-4x4-vehicle",
   },
@@ -26,7 +26,7 @@ const experiences = [
   {
     title: "Dubai City Tour",
     desc: "Explore the iconic landmarks and hidden gems of Dubai.",
-    price: "AED 375",
+    price: "AED 75",
     img: "/TourImg/Dubai-City-Tour.png",
     path: "tours/dubai-city-tour/dubai-city-tour",
   },

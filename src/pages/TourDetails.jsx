@@ -116,7 +116,7 @@ export default function TourDetails() {
                 {tour.title}
               </h2>
               <p className="text-gray-700 font-semibold mb-4 text-lg">
-                from AED {tour.price} / person
+                From AED {tour.price} / Per Person
               </p>
               <div className="mt-auto text-center bg-[#404041] text-white font-semibold py-3 rounded-2xl shadow-md hover:shadow-lg hover:bg-gray-700 transition-all cursor-pointer">
                 View Trip

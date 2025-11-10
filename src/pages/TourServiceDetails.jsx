@@ -463,11 +463,11 @@ export default function TourServiceDetails() {
             <ul className="space-y-3">
               {[
                 { icon: "⏰", text: `Timings: ${tour.timings || "Flexible"}` },
-                {
-                  icon: "📌",
-                  text: "Pick-up & drop-off included in most tours",
-                },
-                { icon: "🧳", text: "Comfortable clothing recommended" },
+                // {
+                //   icon: "📌",
+                //   text: "Pick-up & drop-off included in most tours",
+                // },
+                // { icon: "🧳", text: "Comfortable clothing recommended" },
               ].map((item, idx) => (
                 <li
                   key={idx}
@@ -541,7 +541,7 @@ export default function TourServiceDetails() {
           {tour.cancellationPolicy && (
             <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300">
               <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2 flex items-center gap-2">
-                <FaTimesCircle className="text-[#e82429]" /> Cancellation Policy
+                <FaTimesCircle className="text-[#e82429]" /> Cancellation & Refund Policy
               </h2>
 
               <div className="bg-[#fff4f4] rounded-2xl p-6 border border-[#e82429]/20">
