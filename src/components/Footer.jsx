@@ -210,11 +210,7 @@ export default function Footer() {
               © {new Date().getFullYear()} Desert Planners Tourism LLC. All
               rights reserved.
             </p>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <span>Designed with passion</span>
-              <span className="text-[#e82429] mx-1">•</span>
-              <span>by Chirag</span>
-            </div>
+           
           </div>
         </div>
       </div>
