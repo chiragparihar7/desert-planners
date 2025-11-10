@@ -10,14 +10,14 @@ export default function Banner() {
       cta: "Explore Tours",
       link: "/tours/dubai-city-tour/dubai-city-tour",
     },
-    {
-      image: "/abu-dhabi.png",
-      subtitle: "Experience the grandeur of the UAE’s capital.",
-      title: "ABU DHABI TOUR",
-      price: "AED 455",
-      cta: "Explore Tours",
-      link: "tours/abu-dhabi-city-tour/abu-dhabi-city-tour-with-ferrari-world",
-    },
+    // {
+    //   image: "/abu-dhabi.png",
+    //   subtitle: "Experience the grandeur of the UAE’s capital.",
+    //   title: "ABU DHABI TOUR",
+    //   price: "AED 455",
+    //   cta: "Explore Tours",
+    //   link: "tours/abu-dhabi-city-tour/abu-dhabi-city-tour-with-ferrari-world",
+    // },
     {
       image: "/abu-dhabi2.png",
       subtitle: "Experience the grandeur of the UAE’s capital.",
