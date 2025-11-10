@@ -46,15 +46,12 @@ export default function TourServiceDetails() {
       const api = DataService();
       try {
         const res = await api.get(API.GET_TOUR(tourSlug));
+        console.log("🎯 API GET_TOUR Response:", res.data); // <-- ADD THIS
         if (res.data) {
           setTour(res.data);
           setMainImage(`${API.BASE_URL}/${res.data.mainImage}`);
+          console.log("🖼️ Related tours:", res.data.relatedTours); // <-- ADD THIS
           setRelatedTours(res.data.relatedTours || []);
-
-          // Load secondary data in background
-          requestIdleCallback(() => {
-            console.log("Preloading related tours...");
-          });
         }
       } catch (err) {
         console.error("Error fetching tour:", err);
@@ -101,57 +98,58 @@ export default function TourServiceDetails() {
 
   // Add to Cart
   // ✅ Inside your component
-const handleAddToCart = async (tour) => {
-  try {
-    setAddingToCart(true);
+  const handleAddToCart = async (tour) => {
+    try {
+      setAddingToCart(true);
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    const formattedDate = startDate
-      ? formatDateToYYYYMMDD(startDate)
-      : new Date().toISOString().split("T")[0];
+      const user = JSON.parse(localStorage.getItem("user"));
+      const formattedDate = startDate
+        ? formatDateToYYYYMMDD(startDate)
+        : new Date().toISOString().split("T")[0];
 
-    const totalGuests = guests ? parseInt(guests) : 1;
+      const totalGuests = guests ? parseInt(guests) : 1;
 
-    if (user?._id) {
-      // 🔐 Logged-in user → backend
-      const api = DataService("user");
-      const res = await api.post(API.ADD_TO_CART, {
-        userId: user._id,
-        tourId: tour._id,
-        date: formattedDate,
+      if (user?._id) {
+        // 🔐 Logged-in user → backend
+        const api = DataService("user");
+        const res = await api.post(API.ADD_TO_CART, {
+          userId: user._id,
+          tourId: tour._id,
+          date: formattedDate,
+          guests: totalGuests,
+        });
+
+        if (res.status === 200) {
+          toast.success("Added to your cart!");
+          navigate("/cart");
+        } else {
+          toast.error("Something went wrong!");
+        }
+        return;
+      }
+
+      // 🧳 Guest (no login)
+      let localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      localCart.push({
+        ...tour,
         guests: totalGuests,
+        date: formattedDate,
+        quantity: 1,
       });
 
-      if (res.status === 200) {
-        toast.success("Added to your cart!");
-        navigate("/cart");
-      } else {
-        toast.error("Something went wrong!");
-      }
-      return;
+      localStorage.setItem("guestCart", JSON.stringify(localCart));
+      toast.success("Added to your cart!");
+      navigate("/cart");
+    } catch (error) {
+      console.error(
+        "Add to cart error:",
+        error.response?.data || error.message
+      );
+      toast.error("Error adding to cart!");
+    } finally {
+      setAddingToCart(false);
     }
-
-    // 🧳 Guest (no login)
-    let localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
-    localCart.push({
-      ...tour,
-      guests: totalGuests,
-      date: formattedDate,
-      quantity: 1,
-    });
-
-    localStorage.setItem("guestCart", JSON.stringify(localCart));
-    toast.success("Added to your cart!");
-    navigate("/cart");
-  } catch (error) {
-    console.error("Add to cart error:", error.response?.data || error.message);
-    toast.error("Error adding to cart!");
-  } finally {
-    setAddingToCart(false);
-  }
-};
-
-
+  };
 
   // Yeh function component ke bahar add karo (file ke end mein)
   // 🔄 UPDATED - Array Format Cancellation Policy Render Function
@@ -653,40 +651,43 @@ const handleAddToCart = async (tour) => {
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {relatedTours.map((t) => (
-                  <Link
-                    key={t._id}
-                    to={`/tours/${t.category?.slug}/${t.slug}`}
-                    className="group block rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500"
-                  >
-                    {/* Image with hover overlay */}
-                    <div className="relative h-56 overflow-hidden">
-                      <img
-                        src={
-                          t.mainImage
-                            ? `${API.BASE_URL}/${t.mainImage}`
-                            : "/no-image.jpg"
-                        }
-                        alt={t.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-500"></div>
-                    </div>
+                {relatedTours.map((t) => {
+                  // safe image path
+                  const imageUrl = t.mainImage?.startsWith("http")
+                    ? t.mainImage
+                    : `${API.BASE_URL}/${t.mainImage}`;
 
-                    {/* Content */}
-                    <div className="p-5 bg-white">
-                      <h3 className="text-xl font-semibold text-[#e82429] mb-2 group-hover:underline">
-                        {t.title}
-                      </h3>
-                      <p className="text-gray-600">
-                        Starting from{" "}
-                        <span className="font-semibold text-[#721011]">
-                          AED {t.price}
-                        </span>
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                  return (
+                    <Link
+                      key={t._id}
+                      to={`/tours/${t.category?.slug}/${t.slug}`}
+                      className="group block rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500"
+                    >
+                      {/* Image */}
+                      <div className="relative h-56 overflow-hidden">
+                        <img
+                          src={imageUrl || "/no-image.jpg"}
+                          alt={t.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-500"></div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-5 bg-white">
+                        <h3 className="text-xl font-semibold text-[#e82429] mb-2 group-hover:underline">
+                          {t.title}
+                        </h3>
+                        <p className="text-gray-600">
+                          Starting from{" "}
+                          <span className="font-semibold text-[#721011]">
+                            AED {t.price}
+                          </span>
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </section>
           )}

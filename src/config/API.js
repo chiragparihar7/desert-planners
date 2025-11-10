@@ -1,3 +1,8 @@
+// 🔥 Automatically detect local or live environment
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
 const admin = "/api/admin";
 const user = "/api/users";
 const tours = "/api/tours";
@@ -8,9 +13,14 @@ const enquiries = "/api/enquiries";
 const visas = "/api/visas";
 const sections = "/api/sections"; // ✅ new added
 const visaCategories = "/api/visa-categories";
-export const API = {
-  BASE_URL: "https://desetplanner-backend.onrender.com",
 
+export const API = {
+  // ✅ BASE_URL now switches automatically between local & Render
+  BASE_URL: isLocalhost
+    ? "https://desetplanner-backend.onrender.com" // 🔹 Render (production)
+    : "http://localhost:5000",                    // 🔹 Local (development)
+
+    
   // ---- Admin ----
   ADMIN_REGISTER: `${admin}/register`,
   ADMIN_LOGIN: `${admin}/login`,
@@ -45,10 +55,11 @@ export const API = {
   UPDATE_CATEGORY: (id) => `${categories}/${id}`,
 
   // ---- Visa Categories ----
-   ADD_VISA_CATEGORY: `${visaCategories}`,
+  ADD_VISA_CATEGORY: `${visaCategories}`,
   GET_VISA_CATEGORIES: `${visaCategories}`,
   DELETE_VISA_CATEGORY: (id) => `${visaCategories}/${id}`,
   UPDATE_VISA_CATEGORY: (id) => `${visaCategories}/${id}`,
+
   // ---- Cart ----
   GET_CART: (userId) => `${cart}/${userId}`,
   ADD_TO_CART: `${cart}/add`,

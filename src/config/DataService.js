@@ -1,8 +1,16 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://desetplanner-backend.onrender.com";
+// 🧠 Auto detect environment (Local vs Live)
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
+// 🔗 Auto select base URL based on environment
+const API_BASE_URL = isLocalhost
+  ? "http://localhost:5000" // 🧩 Local backend (VS terminal)
+  : "https://desetplanner-backend.onrender.com"; // ☁️ Render backend (live)
+
+// 🧩 Axios instance generator
 const DataService = (type = "guest") => {
   let token = null;
 
@@ -18,15 +26,18 @@ const DataService = (type = "guest") => {
     "Content-Type": "application/json",
   };
 
-  // 🛡️ Add Authorization header only if token valid hai
+  // 🛡️ Add Authorization header only if valid token hai
   if (token && token !== "undefined" && token !== "null") {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  // 🧾 Debug log (optional)
+  console.log("🔗 Using API Base URL:", API_BASE_URL);
+
   return axios.create({
     baseURL: API_BASE_URL,
     headers,
-    withCredentials: false, // ❌ Render CORS issue fix
+    withCredentials: false, // Render CORS issue fix
   });
 };
 
