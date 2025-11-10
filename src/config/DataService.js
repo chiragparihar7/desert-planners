@@ -32,7 +32,7 @@ const DataService = (type = "guest") => {
   }
 
   // 🧾 Debug log (optional)
-  console.log("🔗 Using API Base URL:", API_BASE_URL);
+  // console.log("🔗 Using API Base URL:", API_BASE_URL);
 
   return axios.create({
     baseURL: API_BASE_URL,
