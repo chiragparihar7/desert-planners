@@ -6,12 +6,13 @@ import { API } from "../config/API";
 import { FaClock, FaStar } from "react-icons/fa";
 
 export default function VisaList() {
-  const { categorySlug } = useParams(); // 👈 categorySlug route se milega
+  const { categorySlug } = useParams(); // 👈 categorySlug from route
   const [visas, setVisas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoryName, setCategoryName] = useState(""); // 👈 dynamic category name
   const api = DataService();
 
-  // ✅ Fetch visas (agar categorySlug mila hai to uske hisaab se)
+  // ✅ Fetch visas based on category
   const fetchVisas = async () => {
     try {
       let res;
@@ -24,10 +25,22 @@ export default function VisaList() {
       const visaArray = Array.isArray(res.data)
         ? res.data
         : res.data.visas || [];
+
       setVisas(visaArray);
+
+      // ✅ Set category name dynamically
+      if (visaArray.length > 0 && visaArray[0].visaCategory?.name) {
+        setCategoryName(visaArray[0].visaCategory.name);
+      } else if (categorySlug) {
+        const formatted = categorySlug.replace(/-/g, " ");
+        setCategoryName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+      } else {
+        setCategoryName("Visa Services");
+      }
     } catch (err) {
       console.error("Error fetching visas:", err);
       setVisas([]);
+      setCategoryName("Visa Services");
     } finally {
       setLoading(false);
     }
@@ -37,6 +50,7 @@ export default function VisaList() {
     fetchVisas();
   }, [categorySlug]);
 
+  // 🌀 Loading
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
@@ -45,6 +59,7 @@ export default function VisaList() {
     );
   }
 
+  // ⚠️ No Visas
   if (visas.length === 0) {
     return (
       <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
@@ -53,23 +68,25 @@ export default function VisaList() {
     );
   }
 
+  // ✅ Render Section
   return (
     <div className="bg-gray-50">
-      {/* Banner */}
-      <div className="relative w-full h-64 md:h-96 overflow-hidden">
+      {/* ===== Compact Category Banner (1600x500 optimized) ===== */}
+      <div className="relative w-full h-[160px] sm:h-[200px] md:h-[240px] lg:h-[260px] overflow-hidden">
         <img
-          src="https://i.pinimg.com/736x/3e/2a/a5/3e2aa5d6ad915a7f64e2ce799a38de76.jpg"
-          alt="Visa Services Banner"
-          className="w-full h-full object-cover brightness-75"
+          src="/visa-banner.png"
+          alt={categoryName || "Visa Services"}
+          className="w-full h-full object-cover brightness-[0.65]"
+          loading="lazy"
         />
         <div className="absolute inset-0 flex justify-center items-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white text-center drop-shadow-lg tracking-wide max-w-[1200px] px-4">
-            Visa Services
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white text-center drop-shadow-lg tracking-wide px-4 capitalize">
+            {categoryName || "Visa Services"}
           </h1>
         </div>
       </div>
 
-      {/* Visa Cards */}
+      {/* ===== Visa Cards ===== */}
       <div className="max-w-[1200px] mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {visas.map((v) => (
@@ -86,6 +103,7 @@ export default function VisaList() {
                   src={v.gallery?.[0] || v.img}
                   alt={v.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
 
