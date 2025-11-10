@@ -9,7 +9,7 @@ export default function FixedWhatsApp() {
   // Admin pages me show mat karo
   if (location.pathname.startsWith("/admin")) return null;
 
-  const phone = "918003155718"; 
+  const phone = "+97143546677"; 
   const message = "Hi! I want to know more about your services.";
   const encodedMessage = encodeURIComponent(message);
 

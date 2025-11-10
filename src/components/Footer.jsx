@@ -50,8 +50,7 @@ export default function Footer() {
       color: "bg-gradient-to-tr from-pink-500 to-orange-400",
       href: "https://www.instagram.com/desertplannerstourism/",
     },
-    { icon: FaTwitter, color: "bg-[#00acee]", href: "#" },
-    { icon: FaLinkedinIn, color: "bg-[#0077b5]", href: "#" },
+  
   ];
 
   return (
@@ -117,8 +116,9 @@ export default function Footer() {
                 <li key={dest.name}>
                   <Link
                     to={dest.path}
-                    className="text-gray-400 hover:text-white transition-colors text-sm hover:underline"
+                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors transition-all group text-sm hover:underline"
                   >
+                     <FaArrowRight className="text-[#e82429] text-xs group-hover:translate-x-1 transition-transform" />
                     {dest.name}
                   </Link>
                 </li>

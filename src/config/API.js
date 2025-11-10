@@ -15,10 +15,10 @@ const sections = "/api/sections"; // ✅ new added
 const visaCategories = "/api/visa-categories";
 
 export const API = {
-  // ✅ BASE_URL now switches automatically between local & Render
+  // ✅ BASE_URL switches automatically
   BASE_URL: isLocalhost
-    ? "https://desetplanner-backend.onrender.com" // 🔹 Render (production)
-    : "http://localhost:5000", // 🔹 Local (development)
+    ? "http://localhost:5000" // 🔹 Local (development)
+    : "https://desetplanner-backend.onrender.com", // 🔹 Render (production)
 
   // ---- Admin ----
   ADMIN_REGISTER: `${admin}/register`,
@@ -79,7 +79,6 @@ export const API = {
   DELETE_ENQUIRY: (id) => `${enquiries}/${id}`,
 
   // ---- ✅ Visa ----
-  // ---- ✅ Visa ----
   GET_VISAS: `${visas}`,
   GET_VISA_BY_SLUG: (slug) => `${visas}/${slug}`,
   GET_VISAS_BY_CATEGORY: (categorySlug) => `${visas}/category/${categorySlug}`,
@@ -87,7 +86,7 @@ export const API = {
   UPDATE_VISA: (id) => `${visas}/${id}`,
   DELETE_VISA: (id) => `${visas}/${id}`,
 
-  // ---- ✅ Sections (New) ----
+  // ---- ✅ Sections ----
   GET_SECTIONS: `${sections}`,
   ADD_SECTION: `${sections}`,
   GET_SECTION_BY_ID: (id) => `${sections}/${id}`,
@@ -95,9 +94,9 @@ export const API = {
   DELETE_SECTION: (id) => `${sections}/${id}`,
   TOGGLE_SECTION_VISIBILITY: (id) => `${sections}/${id}/visibility`,
 
-  // ---- ✅ Section Items ----
+  // ---- ✅ Section Items (with image upload) ----
   ADD_SECTION_ITEM: (sectionId) => `${sections}/${sectionId}/items`,
   GET_SECTION_ITEMS: (sectionId) => `${sections}/${sectionId}/items`,
-  UPDATE_SECTION_ITEM: (itemId) => `${sections}/items/${itemId}`,
-  DELETE_SECTION_ITEM: (itemId) => `${sections}/items/${itemId}`,
+  UPDATE_SECTION_ITEM: (sectionId, itemId) => `${sections}/${sectionId}/items/${itemId}`,
+  DELETE_SECTION_ITEM: (sectionId, itemId) => `${sections}/${sectionId}/items/${itemId}`,
 };
