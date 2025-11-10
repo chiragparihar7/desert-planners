@@ -11,9 +11,7 @@ export default function TourDetails() {
   const baseURL =
     import.meta.env.VITE_API_URL || "https://desetplanner-backend.onrender.com";
 
-  // 🔹 Common fallback banner image
-  const commonBanner =
-    "/images/dubai-common-banner.jpg"; // 👉 Place this image in /public/images folder
+  const commonBanner = "/images/dubai-common-banner.jpg";
 
   useEffect(() => {
     const fetchCategoryTours = async () => {
@@ -32,7 +30,6 @@ export default function TourDetails() {
     requestIdleCallback(fetchCategoryTours);
   }, [slug]);
 
-  // 🧩 Skeleton Loader
   if (loading) {
     return (
       <div className="max-w-[1200px] mx-auto px-4 py-10 animate-pulse">
@@ -60,7 +57,6 @@ export default function TourDetails() {
     <div className="w-full">
       {/* 🖼️ Category Banner */}
       <div className="relative w-full h-[180px] sm:h-[200px] md:h-[240px] lg:h-[300px] rounded-2xl overflow-hidden shadow-lg bg-black">
-        {/* 🧠 Image fallback — use category image else show common banner */}
         <img
           src={
             tours[0].mainImage
@@ -74,13 +70,13 @@ export default function TourDetails() {
           onError={(e) => (e.currentTarget.src = commonBanner)}
         />
 
-        {/* Gradient Overlay */}
+        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
 
-        {/* Category Title */}
+        {/* ✅ Category Title in Uppercase */}
         <div className="absolute inset-0 flex justify-center items-center text-center">
           <h1
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-wide drop-shadow-lg"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-wide drop-shadow-lg uppercase"
           >
             {tours[0].category?.name || "Explore Dubai Adventures"}
           </h1>
@@ -118,7 +114,9 @@ export default function TourDetails() {
               <p className="text-gray-700 font-semibold mb-4 text-lg">
                 From AED {tour.price} / Per Person
               </p>
-              <div className="mt-auto text-center bg-[#404041] text-white font-semibold py-3 rounded-2xl shadow-md hover:shadow-lg hover:bg-gray-700 transition-all cursor-pointer">
+
+              {/* ✅ Hover color updated to #e82429 */}
+              <div className="mt-auto text-center bg-[#404041] text-white font-semibold py-3 rounded-2xl shadow-md hover:shadow-lg hover:bg-[#e82429] transition-all cursor-pointer">
                 View Trip
               </div>
             </div>
