@@ -1,8 +1,7 @@
-// src/pages/admin/.../AdminAddVisa.jsx
 import React, { useState, useEffect } from "react";
 import DataService from "../../../config/DataService";
 import { API } from "../../../config/API";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaUpload } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
@@ -16,9 +15,10 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     validity: "",
     stayDuration: "",
     img: "",
-    // ✅ list fields
-    overview: [""],
+    imgFile: null, // 👈 for main image upload
     gallery: [],
+    galleryFiles: [], // 👈 for gallery upload
+    overview: [""],
     inclusions: [],
     exclusions: [],
     documents: [],
@@ -33,10 +33,11 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
   const [loading, setLoading] = useState(false);
   const api = DataService();
 
-  // ✅ Prefill form if editing
+  // ✅ Prefill if editing
   useEffect(() => {
     if (editVisa) {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         title: editVisa.title || "",
         slug: editVisa.slug || "",
         price: editVisa.price || "",
@@ -46,31 +47,21 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
         validity: editVisa.validity || "",
         stayDuration: editVisa.stayDuration || "",
         img: editVisa.img || "",
-        overview: Array.isArray(editVisa.overview) && editVisa.overview.length
-          ? editVisa.overview
-          : [""],
+        overview: editVisa.overview?.length ? editVisa.overview : [""],
         gallery: editVisa.gallery || [],
         inclusions: editVisa.inclusions || [],
         exclusions: editVisa.exclusions || [],
         documents: editVisa.documents || [],
-        howToApply:
-          editVisa.howToApply && editVisa.howToApply.length
-            ? editVisa.howToApply
-            : [],
-        termsAndConditions:
-          editVisa.termsAndConditions && editVisa.termsAndConditions.length
-            ? editVisa.termsAndConditions
-            : [],
+        howToApply: editVisa.howToApply || [],
+        termsAndConditions: editVisa.termsAndConditions || [],
         relatedVisas: editVisa.relatedVisas || [],
         visaCategory:
-          editVisa.visaCategory && editVisa.visaCategory._id
-            ? editVisa.visaCategory._id
-            : editVisa.visaCategory || "",
-      });
+          editVisa.visaCategory?._id || editVisa.visaCategory || "",
+      }));
     }
   }, [editVisa]);
 
-  // ✅ Auto-generate slug
+  // ✅ Auto Slug
   useEffect(() => {
     const slug = formData.title
       .toLowerCase()
@@ -84,10 +75,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     const fetchAllVisas = async () => {
       try {
         const res = await api.get(API.GET_VISAS);
-        const visasArray = Array.isArray(res.data)
-          ? res.data
-          : res.data.visas || [];
-        setAllVisas(visasArray);
+        setAllVisas(Array.isArray(res.data) ? res.data : res.data.visas || []);
       } catch {
         toast.error("Error fetching visas");
       }
@@ -95,7 +83,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     fetchAllVisas();
   }, []);
 
-  // ✅ Fetch all Visa Categories
+  // ✅ Fetch visa categories
   useEffect(() => {
     const fetchVisaCategories = async () => {
       try {
@@ -108,22 +96,21 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     fetchVisaCategories();
   }, []);
 
-  // ✅ Input change handler
+  // ✅ Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ For array fields
+  // ✅ Array field handling
   const handleArrayChange = (e, key, index) => {
     const arr = [...formData[key]];
     arr[index] = e.target.value;
     setFormData((prev) => ({ ...prev, [key]: arr }));
   };
 
-  const handleAddField = (key) => {
+  const handleAddField = (key) =>
     setFormData((prev) => ({ ...prev, [key]: [...prev[key], ""] }));
-  };
 
   const handleRemoveField = (key, index) => {
     const arr = [...formData[key]];
@@ -131,38 +118,79 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     setFormData((prev) => ({ ...prev, [key]: arr }));
   };
 
-  // ✅ Submit handler
+  // ✅ Main Image Upload
+  const handleMainImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        imgFile: file,
+        img: URL.createObjectURL(file),
+      }));
+    }
+  };
+
+  // ✅ Gallery Upload
+  const handleGalleryChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length) {
+      const previews = files.map((f) => URL.createObjectURL(f));
+      setFormData((prev) => ({
+        ...prev,
+        galleryFiles: [...prev.galleryFiles, ...files],
+        gallery: [...prev.gallery, ...previews],
+      }));
+    }
+  };
+
+  // ✅ Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      // backend already handles array, we just send as is
-      if (editVisa) {
-        await api.put(API.UPDATE_VISA(editVisa._id), formData);
-      } else {
-        await api.post(API.ADD_VISA, formData);
+      const formDataToSend = new FormData();
+
+      // Append normal fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (["imgFile", "galleryFiles"].includes(key)) return; // skip files here
+        if (Array.isArray(value)) {
+          value.forEach((v) => formDataToSend.append(key, v));
+        } else {
+          formDataToSend.append(key, value);
+        }
+      });
+
+      // Append main image
+      if (formData.imgFile) {
+        formDataToSend.append("img", formData.imgFile);
       }
+
+      // Append gallery images
+      formData.galleryFiles.forEach((file) =>
+        formDataToSend.append("gallery", file)
+      );
+
+      if (editVisa) {
+        await api.put(API.UPDATE_VISA(editVisa._id), formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        await api.post(API.ADD_VISA, formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+
       fetchVisas();
       closeModal();
       toast.success("Visa saved successfully!");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error("Error saving visa");
     } finally {
       setLoading(false);
     }
   };
-
-  // ✅ array sections (new)
-  const arraySections = [
-    { key: "overview", label: "Overview Points" },
-    { key: "gallery", label: "Gallery (image URLs)" },
-    { key: "inclusions", label: "Inclusions" },
-    { key: "exclusions", label: "Exclusions" },
-    { key: "documents", label: "Required Documents" },
-    { key: "howToApply", label: "How to Apply (steps)" },
-    { key: "termsAndConditions", label: "Terms & Conditions" },
-  ];
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-10 z-50 overflow-y-auto">
@@ -172,7 +200,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Fields */}
+          {/* BASIC FIELDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               "title",
@@ -183,11 +211,10 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
               "entryType",
               "validity",
               "stayDuration",
-              "img",
             ].map((field) => (
               <div key={field} className="flex flex-col">
                 <label className="text-gray-700 font-medium mb-1 capitalize">
-                  {field === "img" ? "Main Image (img)" : field}
+                  {field}
                 </label>
                 <input
                   type={field === "price" ? "number" : "text"}
@@ -201,7 +228,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
               </div>
             ))}
 
-            {/* ✅ Visa Category Dropdown */}
+            {/* Visa Category Dropdown */}
             <div className="flex flex-col">
               <label className="text-gray-700 font-medium mb-1">
                 Visa Category
@@ -223,12 +250,75 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
             </div>
           </div>
 
-          {/* Array Fields */}
-          {arraySections.map(({ key, label }) => (
+          {/* MAIN IMAGE UPLOAD */}
+          <div className="border rounded-xl p-4 bg-gray-50">
+            <h3 className="font-semibold text-[#e82429] mb-2">Main Image</h3>
+            {formData.img && (
+              <img
+                src={formData.img}
+                alt="Visa Preview"
+                className="w-32 h-32 object-cover rounded-lg border mb-3"
+              />
+            )}
+            <label className="cursor-pointer flex items-center gap-2 bg-[#e82429] text-white px-4 py-2 rounded-lg w-fit hover:bg-[#721011] transition">
+              <FaUpload /> Upload Image
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleMainImageChange}
+              />
+            </label>
+          </div>
+
+          {/* GALLERY UPLOAD */}
+          <div className="border rounded-xl p-4 bg-gray-50">
+            <h3 className="font-semibold text-[#e82429] mb-3">
+              Gallery Images
+            </h3>
+
+            <div className="flex flex-wrap gap-3 mb-3">
+              {formData.gallery.map((url, idx) => (
+                <div key={idx} className="relative">
+                  <img
+                    src={url}
+                    alt={`gallery-${idx}`}
+                    className="w-24 h-24 object-cover rounded-lg border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveField("gallery", idx)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <label className="cursor-pointer flex items-center gap-2 bg-[#e82429] text-white px-4 py-2 rounded-lg w-fit hover:bg-[#721011] transition">
+              <FaUpload /> Upload Gallery
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleGalleryChange}
+              />
+            </label>
+          </div>
+
+          {/* ARRAY FIELDS */}
+          {[
+            { key: "overview", label: "Overview Points" },
+            { key: "inclusions", label: "Inclusions" },
+            { key: "exclusions", label: "Exclusions" },
+            { key: "documents", label: "Required Documents" },
+            { key: "howToApply", label: "How to Apply" },
+            { key: "termsAndConditions", label: "Terms & Conditions" },
+          ].map(({ key, label }) => (
             <div key={key} className="border rounded-xl p-4 bg-gray-50">
-              <h3 className="font-semibold text-[#e82429] mb-2">
-                {label}
-              </h3>
+              <h3 className="font-semibold text-[#e82429] mb-2">{label}</h3>
               {(formData[key] || []).map((val, idx) => (
                 <div key={idx} className="flex gap-2 mb-2">
                   <input
@@ -240,7 +330,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                   <button
                     type="button"
                     onClick={() => handleRemoveField(key, idx)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 rounded-lg flex items-center justify-center"
+                    className="bg-red-500 text-white px-3 rounded-lg"
                   >
                     <FaTrash />
                   </button>
@@ -251,12 +341,12 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                 onClick={() => handleAddField(key)}
                 className="flex items-center gap-2 bg-[#e82429] hover:bg-[#721011] text-white px-4 py-2 rounded-lg mt-2"
               >
-                <FaPlus /> Add {label.replace(/\(.*\)/, "").trim().slice(0, -1)}
+                <FaPlus /> Add {label}
               </button>
             </div>
           ))}
 
-          {/* Related Visas */}
+          {/* RELATED VISAS */}
           <div className="border rounded-xl p-4 bg-gray-50">
             <h3 className="font-semibold text-[#e82429] mb-2">Related Visas</h3>
             {formData.relatedVisas.map((val, idx) => (
@@ -278,7 +368,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                 <button
                   type="button"
                   onClick={() => handleRemoveField("relatedVisas", idx)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 rounded-lg flex items-center justify-center"
+                  className="bg-red-500 text-white px-3 rounded-lg"
                 >
                   <FaTrash />
                 </button>
@@ -293,7 +383,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
             </button>
           </div>
 
-          {/* Submit Buttons */}
+          {/* BUTTONS */}
           <div className="flex justify-end gap-4 mt-6">
             <button
               type="button"

@@ -1,4 +1,3 @@
-// src/pages/VisaDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -19,10 +18,12 @@ import {
 export default function VisaDetails() {
   const { categorySlug, visaSlug } = useParams();
   const [visa, setVisa] = useState(null);
-  const [mainImage, setMainImage] = useState("");
   const [relatedVisas, setRelatedVisas] = useState([]);
   const [loading, setLoading] = useState(true);
   const api = DataService();
+
+  // ✅ Static banner path (use your own image if you want)
+  const staticBanner = "/visa-banner.png";
 
   // ✅ Fetch Visa Details
   useEffect(() => {
@@ -30,9 +31,8 @@ export default function VisaDetails() {
       try {
         const res = await api.get(API.GET_VISA_BY_SLUG(visaSlug));
         setVisa(res.data);
-        setMainImage(res.data.gallery?.[0] || res.data.img);
       } catch (err) {
-        console.error("Error fetching visa:", err);
+        console.error("❌ Error fetching visa:", err);
       } finally {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ export default function VisaDetails() {
         const filtered = (res.data || []).filter((v) => v._id !== visa._id);
         setRelatedVisas(filtered);
       } catch (err) {
-        console.error("Error fetching related visas:", err);
+        console.error("❌ Error fetching related visas:", err);
         setRelatedVisas([]);
       }
     };
@@ -72,14 +72,14 @@ export default function VisaDetails() {
 
   return (
     <div className="bg-gray-50 pb-20">
-      {/* HERO SECTION */}
+      {/* ✅ STATIC HERO SECTION */}
       <div className="relative h-96 w-full overflow-hidden">
         <img
-          src={mainImage}
-          alt={visa.title}
+          src={staticBanner}
+          alt="Visa Banner"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white text-center px-4">
+        <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center uppercase text-white text-center px-4">
           <motion.h1
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -88,9 +88,7 @@ export default function VisaDetails() {
           >
             {visa.title}
           </motion.h1>
-          <p className="text-lg flex items-center gap-2 justify-center">
-            <FaMapMarkerAlt /> United Arab Emirates
-          </p>
+          
           <a
             href="#apply-now"
             className="mt-6 bg-[#e82429] hover:bg-[#721011] text-white px-6 py-3 rounded-full font-semibold transition"
@@ -100,24 +98,6 @@ export default function VisaDetails() {
         </div>
       </div>
 
-      {/* IMAGE GALLERY */}
-      {visa.gallery && visa.gallery.length > 1 && (
-        <div className="max-w-[1200px] mx-auto px-4 mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-          {visa.gallery.map((img, idx) => (
-            <motion.img
-              key={idx}
-              src={img}
-              alt={`${visa.title} ${idx + 1}`}
-              className={`w-full h-28 object-cover rounded-xl cursor-pointer border-2 transition ${
-                mainImage === img ? "border-[#e82429]" : "border-transparent"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => setMainImage(img)}
-            />
-          ))}
-        </div>
-      )}
-
       {/* MAIN CONTENT */}
       <div className="max-w-[1200px] mx-auto mt-10 px-4 grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* LEFT SIDE */}
@@ -125,36 +105,12 @@ export default function VisaDetails() {
           {/* QUICK FACTS */}
           <section className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
             {[
-              {
-                icon: <FaClock />,
-                label: "Processing Time",
-                value: visa.processingTime,
-              },
-              {
-                icon: <FaPassport />,
-                label: "Visa Type",
-                value: visa.visaType,
-              },
-              {
-                icon: <FaListUl />,
-                label: "Entry Type",
-                value: visa.entryType,
-              },
-              {
-                icon: <FaCheckCircle />,
-                label: "Validity",
-                value: visa.validity,
-              },
-              {
-                icon: <FaTimesCircle />,
-                label: "Stay Duration",
-                value: visa.stayDuration,
-              },
-              {
-                icon: <FaInfoCircle />,
-                label: "Fees",
-                value: `AED ${visa.price}`,
-              },
+              { icon: <FaClock />, label: "Processing Time", value: visa.processingTime },
+              { icon: <FaPassport />, label: "Visa Type", value: visa.visaType },
+              { icon: <FaListUl />, label: "Entry Type", value: visa.entryType },
+              { icon: <FaCheckCircle />, label: "Validity", value: visa.validity },
+              { icon: <FaTimesCircle />, label: "Stay Duration", value: visa.stayDuration },
+              { icon: <FaInfoCircle />, label: "Fees", value: `AED ${visa.price}` },
             ].map((fact, i) => (
               <motion.div
                 key={i}
@@ -172,28 +128,21 @@ export default function VisaDetails() {
             ))}
           </section>
 
-          {/* OVERVIEW (list) */}
-          {visa.overview && visa.overview.length > 0 && (
+          {/* OVERVIEW */}
+          {visa.overview?.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-gray-100 p-10 overflow-hidden"
+              className="bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-gray-100 p-10 relative overflow-hidden"
             >
-              {/* Gradient Accent Background */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#fff0f0] via-[#ffeaea] to-[#fff5f5] opacity-60 rounded-3xl -z-10" />
-
-              {/* Heading */}
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-[#e82429]/10 rounded-full">
                   <FaInfoCircle className="text-[#e82429] text-2xl" />
                 </div>
-                <h2 className="text-3xl font-extrabold text-[#2e2e2e] tracking-tight">
-                  Overview
-                </h2>
+                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">Overview</h2>
               </div>
-
-              {/* Description List */}
               <ul className="space-y-4">
                 {visa.overview.map((item, idx) => (
                   <motion.li
@@ -201,50 +150,33 @@ export default function VisaDetails() {
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="group flex items-start gap-3 bg-gradient-to-r from-white to-[#fff7f7] hover:from-[#fff2f2] hover:to-white border border-gray-100 rounded-xl p-4 transition-all duration-300 hover:shadow-md"
+                    className="flex items-start gap-3 bg-gradient-to-r from-white to-[#fff7f7] hover:from-[#fff2f2] border border-gray-100 rounded-xl p-4 transition-all hover:shadow-md"
                   >
-                    {/* Icon */}
-                    <div className="flex-shrink-0 mt-1">
-                      <div className="p-2 bg-[#e82429]/10 rounded-full group-hover:scale-110 transition-transform">
-                        <FaCheckCircle className="text-[#e82429]" />
-                      </div>
+                    <div className="p-2 bg-[#e82429]/10 rounded-full">
+                      <FaCheckCircle className="text-[#e82429]" />
                     </div>
-
-                    {/* Text */}
-                    <p className="text-gray-700 leading-relaxed text-[15px]">
-                      {item}
-                    </p>
+                    <p className="text-gray-700 leading-relaxed">{item}</p>
                   </motion.li>
                 ))}
               </ul>
-
-              {/* Decorative corner gradient */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[#e82429]/10 blur-3xl rounded-full -z-10" />
             </motion.section>
           )}
 
           {/* HOW TO APPLY */}
-          {visa.howToApply && visa.howToApply.length > 0 && (
+          {visa.howToApply?.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative bg-gradient-to-br from-white to-[#fff4f4] border border-[#ffe3e3] rounded-3xl shadow-xl p-10 overflow-hidden"
+              className="bg-gradient-to-br from-white to-[#fff4f4] border border-[#ffe3e3] rounded-3xl shadow-xl p-10"
             >
-              {/* background glow */}
-              <div className="absolute -top-10 -right-10 w-60 h-60 bg-[#e82429]/10 blur-3xl rounded-full -z-10" />
-
-              {/* heading */}
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-[#e82429]/10 rounded-full">
                   <FaPassport className="text-[#e82429] text-2xl" />
                 </div>
-                <h2 className="text-3xl font-extrabold text-[#2e2e2e] tracking-tight">
-                  How to Apply
-                </h2>
+                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">How to Apply</h2>
               </div>
 
-              {/* steps */}
               <ol className="relative border-l-2 border-[#e82429]/30 ml-6 space-y-8">
                 {visa.howToApply.map((step, idx) => (
                   <motion.li
@@ -252,54 +184,34 @@ export default function VisaDetails() {
                     initial={{ opacity: 0, x: -15 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="ml-4 relative bg-white/70 backdrop-blur-md rounded-xl p-5 shadow-sm hover:shadow-md border border-gray-100 transition-all"
+                    className="ml-4 bg-white/70 backdrop-blur-md rounded-xl p-5 border border-gray-100"
                   >
-                    {/* number bubble */}
                     <span className="absolute -left-[33px] flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#e82429] to-[#721011] text-white font-semibold shadow-lg">
                       {idx + 1}
                     </span>
-
-                    {/* step text */}
-                    <p className="text-gray-800 font-medium leading-relaxed">
-                      {step}
-                    </p>
+                    <p className="text-gray-800 font-medium">{step}</p>
                   </motion.li>
                 ))}
               </ol>
-
-              {/* decorative corner glow */}
-              <div className="absolute bottom-0 left-0 w-52 h-52 bg-[#721011]/5 blur-3xl -z-10" />
             </motion.section>
           )}
 
           {/* DOCUMENTS */}
-          {visa.documents && visa.documents.length > 0 && (
+          {visa.documents?.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="bg-white/70 backdrop-blur-md rounded-3xl shadow-lg border border-gray-100 p-10 relative overflow-hidden"
+              className="bg-white/70 rounded-3xl shadow-lg border border-gray-100 p-10"
             >
-              {/* gradient glow */}
-              <div className="absolute -top-10 -right-10 w-60 h-60 bg-gradient-to-br from-[#e82429]/10 to-[#721011]/10 blur-3xl rounded-full -z-10" />
-              <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tl from-[#e82429]/10 to-[#721011]/5 blur-3xl rounded-full -z-10" />
-
-              {/* header */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-[#e82429]/10 rounded-full">
-                    <FaCheckCircle className="text-[#e82429] text-2xl" />
-                  </div>
-                  <h2 className="text-3xl font-extrabold text-[#2b2b2b]">
-                    Required Documents
-                  </h2>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-3 bg-[#e82429]/10 rounded-full">
+                  <FaCheckCircle className="text-[#e82429] text-2xl" />
                 </div>
-                <span className="text-sm uppercase tracking-widest text-[#e82429]/70 font-semibold">
-                  Must Have Before Apply
-                </span>
+                <h2 className="text-3xl font-extrabold text-[#2b2b2b]">
+                  Required Documents
+                </h2>
               </div>
-
-              {/* documents list */}
               <ul className="grid sm:grid-cols-1 md:grid-cols-2 gap-5">
                 {visa.documents.map((doc, i) => (
                   <motion.li
@@ -307,48 +219,34 @@ export default function VisaDetails() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="flex items-start gap-3 bg-white/80 border border-gray-100 rounded-2xl p-5 hover:border-[#e82429]/40 hover:shadow-lg transition-all duration-300"
+                    className="flex items-start gap-3 bg-white/80 border border-gray-100 rounded-2xl p-5"
                   >
-                    <div className="p-2 bg-gradient-to-br from-[#e82429] to-[#721011] rounded-lg text-white shadow">
+                    <div className="p-2 bg-gradient-to-br from-[#e82429] to-[#721011] rounded-lg text-white">
                       <FaCheckCircle className="text-white" />
                     </div>
-                    <p className="text-gray-800 text-[15.5px] leading-relaxed font-medium">
-                      {doc}
-                    </p>
+                    <p className="text-gray-800">{doc}</p>
                   </motion.li>
                 ))}
               </ul>
             </motion.section>
           )}
 
-          {/* fallback message (if empty) */}
-          {(!visa.documents || !visa.documents.length) && (
-            <section className="bg-white/60 backdrop-blur-md rounded-3xl shadow p-8 text-center text-gray-500 italic border">
-              Documents details will be shared after submission.
-            </section>
-          )}
           {/* TERMS & CONDITIONS */}
-          {visa.termsAndConditions && visa.termsAndConditions.length > 0 && (
+          {visa.termsAndConditions?.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="relative bg-gradient-to-br from-[#fff] via-[#fff7f7] to-[#ffecec] border border-[#ffd6d6] rounded-3xl shadow-xl p-10 overflow-hidden"
+              className="bg-gradient-to-br from-[#fff] via-[#fff7f7] to-[#ffecec] border border-[#ffd6d6] rounded-3xl shadow-xl p-10"
             >
-              {/* soft gradient glow */}
-              <div className="absolute -top-10 right-0 w-64 h-64 bg-[#e82429]/10 blur-3xl rounded-full -z-10" />
-
-              {/* section heading */}
               <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-[#e82429]/10 rounded-full">
                   <FaCheckCircle className="text-[#e82429] text-2xl" />
                 </div>
-                <h2 className="text-3xl font-extrabold text-[#2e2e2e] tracking-tight">
+                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">
                   Terms & Conditions
                 </h2>
               </div>
-
-              {/* list items */}
               <ul className="grid sm:grid-cols-1 md:grid-cols-2 gap-5">
                 {visa.termsAndConditions.map((t, idx) => (
                   <motion.li
@@ -356,26 +254,15 @@ export default function VisaDetails() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.08 }}
-                    className="relative flex items-start gap-3 bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-gray-100 hover:border-[#e82429]/40 shadow-sm hover:shadow-md transition-all duration-300"
+                    className="flex items-start gap-3 bg-white/80 border border-gray-100 rounded-2xl p-5"
                   >
-                    {/* icon bubble */}
                     <div className="p-2 bg-[#e82429]/10 rounded-full mt-1">
                       <FaCheckCircle className="text-[#e82429]" />
                     </div>
-
-                    {/* condition text */}
-                    <p className="text-gray-800 text-[15.5px] leading-relaxed">
-                      {t}
-                    </p>
-
-                    {/* subtle glow */}
-                    <span className="absolute top-0 right-0 w-2 h-2 bg-[#e82429]/30 rounded-full animate-pulse" />
+                    <p className="text-gray-800">{t}</p>
                   </motion.li>
                 ))}
               </ul>
-
-              {/* decorative corner glow */}
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#721011]/5 blur-3xl -z-10" />
             </motion.section>
           )}
         </div>
@@ -420,8 +307,7 @@ export default function VisaDetails() {
               <FaWhatsapp /> Need Help? Chat on WhatsApp
             </a>
 
-            {/* related visas short list */}
-            {relatedVisas && relatedVisas.length > 0 && (
+            {relatedVisas?.length > 0 && (
               <div className="mt-4">
                 <h3 className="font-semibold text-gray-800 mb-2">
                   You may also need

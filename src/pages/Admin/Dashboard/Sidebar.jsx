@@ -12,90 +12,99 @@ import {
   Menu,
   X,
   Layers,
-  FileSpreadsheet, // ✅ NEW ICON (for visa category)
+  FileSpreadsheet,
+  ImageIcon,
 } from "lucide-react";
 
+/*
+  NOTE:
+  - FileSpreadsheet used for Visa Categories
+  - ImageIcon used for Banners (if your lucide version does not have ImageIcon,
+    replace with any available icon import like "Image" or use a string emoji)
+*/
+
 const ITEMS = [
-  { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
-  { tab: "tours", label: "Tours", icon: <Briefcase size={20} /> },
-  { tab: "visa", label: "Visa", icon: <Plane size={20} /> },
-  { tab: "visaCategory", label: "Visa Categories", icon: <FileSpreadsheet size={20} /> }, // ✅ NEW TAB
-  { tab: "category", label: "Tour Categories", icon: <Grid size={20} /> },
-  { tab: "sections", label: "Sections", icon: <Layers size={20} /> },
-  { tab: "bookings", label: "Bookings", icon: <CalendarCheck size={20} /> },
-  { tab: "payments", label: "Payments", icon: <CreditCard size={20} /> },
-  { tab: "users", label: "Users", icon: <Users size={20} /> },
-  { tab: "enquiries", label: "Enquiries", icon: <Mail size={20} /> },
-  { tab: "settings", label: "Settings", icon: <Settings size={20} /> },
+  { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+  { tab: "tours", label: "Tours", icon: <Briefcase size={18} /> },
+  { tab: "visa", label: "Visa", icon: <Plane size={18} /> },
+  { tab: "visaCategory", label: "Visa Categories", icon: <FileSpreadsheet size={18} /> },
+  { tab: "category", label: "Tour Categories", icon: <Grid size={18} /> },
+  { tab: "sections", label: "Sections", icon: <Layers size={18} /> },
+  { tab: "bookings", label: "Bookings", icon: <CalendarCheck size={18} /> },
+  { tab: "payments", label: "Payments", icon: <CreditCard size={18} /> },
+  { tab: "users", label: "Users", icon: <Users size={18} /> },
+  { tab: "enquiries", label: "Enquiries", icon: <Mail size={18} /> },
+  { tab: "banner", label: "Banners", icon: <ImageIcon size={18} /> }, // new banner tab
+  { tab: "settings", label: "Settings", icon: <Settings size={18} /> },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSidebarOpen }) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div
-      className={`${
+    <aside
+      className={`flex flex-col transition-all duration-300 ${
         sidebarOpen ? "w-64" : "w-20"
-      } bg-[#ffffff] shadow-lg border-r border-gray-100 transition-all duration-300 flex flex-col`}
+      } bg-white shadow-lg border-r border-gray-100`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h1
-          className={`font-bold text-lg text-[#721011] tracking-wide ${
-            sidebarOpen ? "block" : "hidden"
-          }`}
-        >
-          Admin Panel
-        </h1>
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
+              sidebarOpen ? "bg-gradient-to-r from-[#e82429] to-[#721011]" : "bg-[#e82429]"
+            }`}
+          >
+            DP
+          </div>
+          {sidebarOpen && <h1 className="font-bold text-lg text-[#721011]">Admin Panel</h1>}
+        </div>
+
         <button
           onClick={toggleSidebar}
           className="text-[#404041] hover:text-[#e82429] transition-colors"
+          aria-label="Toggle sidebar"
         >
-          {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
       {/* Nav Items */}
-      <nav className="flex flex-col gap-1 mt-4 px-2">
-        {ITEMS.map((item) => (
-          <button
-            key={item.tab}
-            onClick={() => setActiveTab(item.tab)}
-            className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
-              activeTab === item.tab
-                ? "bg-[#721011] text-white shadow-md"
-                : "text-[#404041] hover:bg-[#e82429]/10"
-            }`}
-          >
-            <div
-              className={`transition-colors duration-200 ${
-                activeTab === item.tab ? "text-white" : "text-[#e82429]"
-              }`}
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+        {ITEMS.map((item) => {
+          const active = activeTab === item.tab;
+          return (
+            <button
+              key={item.tab}
+              onClick={() => setActiveTab(item.tab)}
+              className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200
+                ${active ? "bg-gradient-to-r from-[#e82429] to-[#721011] text-white shadow" : "text-[#404041] hover:bg-[#f9e9e9]"}
+              `}
             >
-              {item.icon}
-            </div>
-            {sidebarOpen && (
-              <span
-                className={`text-sm font-medium ${
-                  activeTab === item.tab ? "text-white" : "text-[#404041]"
-                }`}
-              >
-                {item.label}
-              </span>
-            )}
-          </button>
-        ))}
+              <div className={`flex-shrink-0 ${active ? "text-white" : "text-[#e82429]"}`}>
+                {item.icon}
+              </div>
+
+              {sidebarOpen && (
+                <span className={`text-sm font-medium ${active ? "text-white" : "text-[#404041]"}`}>
+                  {item.label}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Footer / Branding */}
-      <div className="mt-auto text-center text-xs text-gray-400 p-3 border-t border-gray-200">
-        {sidebarOpen && (
-          <span>
-            Made with ❤️ by{" "}
-            <span className="text-[#721011] font-semibold">Desert Planners</span>
-          </span>
+      <div className="mt-auto p-3 border-t border-gray-200 text-center">
+        {sidebarOpen ? (
+          <div className="text-xs text-gray-400">
+            Made with <span className="text-[#721011] font-semibold">❤️</span> by Desert Planners
+          </div>
+        ) : (
+          <div className="text-xs text-gray-400">DP</div>
         )}
       </div>
-    </div>
+    </aside>
   );
 }

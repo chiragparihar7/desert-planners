@@ -6,13 +6,12 @@ import { API } from "../config/API";
 import { FaClock, FaStar } from "react-icons/fa";
 
 export default function VisaList() {
-  const { categorySlug } = useParams(); // 👈 categorySlug from route
+  const { categorySlug } = useParams();
   const [visas, setVisas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categoryName, setCategoryName] = useState(""); // 👈 dynamic category name
+  const [categoryName, setCategoryName] = useState("");
   const api = DataService();
 
-  // ✅ Fetch visas based on category
   const fetchVisas = async () => {
     try {
       let res;
@@ -28,7 +27,6 @@ export default function VisaList() {
 
       setVisas(visaArray);
 
-      // ✅ Set category name dynamically
       if (visaArray.length > 0 && visaArray[0].visaCategory?.name) {
         setCategoryName(visaArray[0].visaCategory.name);
       } else if (categorySlug) {
@@ -50,7 +48,6 @@ export default function VisaList() {
     fetchVisas();
   }, [categorySlug]);
 
-  // 🌀 Loading
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
@@ -59,7 +56,6 @@ export default function VisaList() {
     );
   }
 
-  // ⚠️ No Visas
   if (visas.length === 0) {
     return (
       <div className="flex justify-center items-center h-[60vh] text-gray-700 text-xl">
@@ -68,10 +64,9 @@ export default function VisaList() {
     );
   }
 
-  // ✅ Render Section
   return (
     <div className="bg-gray-50">
-      {/* ===== Compact Category Banner (1600x500 optimized) ===== */}
+      {/* ===== Compact Category Banner ===== */}
       <div className="relative w-full h-[160px] sm:h-[200px] md:h-[240px] lg:h-[260px] overflow-hidden">
         <img
           src="/visa-banner.png"
@@ -90,14 +85,11 @@ export default function VisaList() {
       <div className="max-w-[1200px] mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {visas.map((v) => (
-            <Link
+            <div
               key={v._id}
-              to={`/visa/${v.visaCategory?.slug || categorySlug || ""}/${
-                v.slug
-              }`}
-              className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2"
+              className="group relative block rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 bg-white"
             >
-              {/* Image with gradient overlay */}
+              {/* Image */}
               <div className="relative h-56 w-full overflow-hidden rounded-t-3xl">
                 <img
                   src={v.gallery?.[0] || v.img}
@@ -116,34 +108,40 @@ export default function VisaList() {
               </div>
 
               {/* Card Content */}
-              <div className="p-5 bg-white rounded-b-3xl space-y-3">
+              <div className="p-5 rounded-b-3xl space-y-3">
                 <h3 className="text-lg font-semibold text-[#404041] transition-colors group-hover:text-[#e82429]">
                   {v.title}
                 </h3>
+
                 <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
                   {v.overview}
                 </p>
 
-                <div className="flex items-center justify-between mt-4">
-                  <div className="text-[#e82429] font-bold text-lg">
-                    AED {v.price}
+                {/* Price + Button Section */}
+                <div className="flex items-end justify-between mt-5">
+                  <div>
+                    <div className="text-[#e82429] font-bold text-lg">
+                      AED {v.price}
+                    </div>
+                    <div className="text-sm text-gray-500">per application</div>
                   </div>
-                  <div className="text-sm text-gray-500">per application</div>
+
+                  {/* ✨ Stylish View Details Button */}
+                  <Link
+                    to={`/visa/${v.visaCategory?.slug || categorySlug || ""}/${v.slug}`}
+                    className="relative inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-white 
+                    bg-gradient-to-r from-[#e82429] to-[#ff4b2b] rounded-full shadow-md transition-all duration-300 
+                    hover:from-[#ff4b2b] hover:to-[#e82429] hover:shadow-lg hover:scale-105"
+                  >
+                    View Details
+                    <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </Link>
                 </div>
 
-                <div className="flex items-center mt-2">
-                  {[...Array(5)].map((_, idx) => (
-                    <FaStar
-                      key={idx}
-                      className={`${
-                        idx < 4 ? "text-yellow-400" : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-2 text-gray-500 text-xs">(4.0)</span>
-                </div>
+                {/* Ratings */}
+                
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

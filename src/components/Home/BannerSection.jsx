@@ -1,59 +1,80 @@
 import React, { useState, useEffect } from "react";
+import DataService from "../../config/DataService";
+import { API } from "../../config/API";
 import "./Banner.css";
 
 export default function Banner() {
-  const slides = [
-    {
-      desktop: "/BannerImg/dubai-desktop.png",
-      mobile: "/BannerImg/dubai-mobile.webp",
-      subtitle: "Escape to the oasis of luxury and adventure.",
-      title: "DUBAI TOUR",
-      price: "AED 75",
-      cta: "Explore Tours",
-      link: "/tours/dubai-city-tour/dubai-city-tour",
-    },
-    {
-      desktop: "/BannerImg/desert-desktop.png",
-      mobile: "/BannerImg/desert-mobile.png",
-      subtitle: "Experience the Thrill of the Arabian Dunes",
-      title: "DESERT SAFARI",
-      price: "AED 150",
-      cta: "View Packages",
-      link: "tours/desert-safari-with-dinner",
-    },
-  ];
-
+  const api = DataService();
+  const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // 🧠 Fetch banners from backend
   useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await api.get(API.GET_BANNERS);
+        // filter only visible banners & sort by order
+        const filtered = (res.data || [])
+          .filter((b) => b.visible)
+          .sort((a, b) => a.order - b.order);
+        setSlides(filtered);
+      } catch (err) {
+        console.error("❌ Error fetching banners:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  // 🔁 Auto slide rotation
+  useEffect(() => {
+    if (!slides.length) return;
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  if (loading) {
+    return (
+      <section className="relative w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] bg-gray-200 animate-pulse flex items-center justify-center text-gray-500">
+        Loading banner...
+      </section>
+    );
+  }
+
+  if (!slides.length) {
+    return (
+      <section className="relative w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] bg-gray-100 flex items-center justify-center text-gray-500">
+        No banners available
+      </section>
+    );
+  }
+
   return (
     <section className="relative w-full overflow-hidden bg-black">
       <div className="relative w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px]">
         {slides.map((slide, index) => (
           <div
-            key={index}
+            key={slide._id || index}
             className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
               index === current ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
-            {/* ✅ Responsive Image */}
+            {/* ✅ Responsive Image from DB */}
             <picture>
-              <source srcSet={slide.mobile} media="(max-width: 768px)" />
-              <source srcSet={slide.desktop} media="(min-width: 769px)" />
+              <source srcSet={slide.mobileImage} media="(max-width: 768px)" />
+              <source srcSet={slide.desktopImage} media="(min-width: 769px)" />
               <img
-                src={slide.desktop}
+                src={slide.desktopImage}
                 alt={slide.title}
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
             </picture>
 
-            {/* ✅ Text Content - Left Bottom, Max Width 1200px */}
+            {/* ✅ Text Content (unchanged design) */}
             {index === current && (
               <div className="absolute bottom-10 sm:bottom-16 left-0 w-full flex justify-start px-4 sm:px-8">
                 <div className="max-w-[1200px] w-full mx-auto flex flex-col items-start text-white animate-fadeInUp">
@@ -70,16 +91,18 @@ export default function Banner() {
                       Starting from{" "}
                     </span>
                     <span className="text-[#ffffff] font-extrabold">
-                      {slide.price}
+                      AED {slide.price}
                     </span>
                   </p>
 
-                  <a
-                    href={slide.link}
-                    className="text-xs sm:text-sm md:text-base px-5 sm:px-7 md:px-8 py-2 sm:py-3 bg-gradient-to-r from-[#e82429] to-[#ff5151] hover:shadow-[0_0_20px_#e82429aa] text-white rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  >
-                    {slide.cta}
-                  </a>
+                  {slide.cta && (
+                    <a
+                      href={slide.link || "#"}
+                      className="text-xs sm:text-sm md:text-base px-5 sm:px-7 md:px-8 py-2 sm:py-3 bg-gradient-to-r from-[#e82429] to-[#ff5151] hover:shadow-[0_0_20px_#e82429aa] text-white rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                    >
+                      {slide.cta}
+                    </a>
+                  )}
                 </div>
               </div>
             )}

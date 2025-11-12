@@ -14,7 +14,8 @@ const enquiries = "/api/enquiries";
 const visas = "/api/visas";
 const sections = "/api/sections";
 const visaCategories = "/api/visa-categories";
-const payment = "/api/payment"; // ✅ new
+const payment = "/api/payment";
+const banners = "/api/banner"; // ✅ added banner route base
 
 export const API = {
   // ✅ BASE_URL switches automatically
@@ -75,9 +76,9 @@ export const API = {
   GET_MY_BOOKINGS: `${bookings}/my`,
 
   // ---- Payment (💳 NEW) ----
-  CREATE_PAYMENT: `${payment}/create`,       // Step 1: Create payment session (backend → Paymennt)
-  CONFIRM_PAYMENT: (bookingId) => `${payment}/confirm/${bookingId}`, // Step 2: Temporary confirm (local test)
-  WEBHOOK_PAYMENT: `${payment}/webhook`,     // Step 3: Paymennt webhook (server auto updates)
+  CREATE_PAYMENT: `${payment}/create`,       
+  CONFIRM_PAYMENT: (bookingId) => `${payment}/confirm/${bookingId}`,
+  WEBHOOK_PAYMENT: `${payment}/webhook`,     
 
   // ---- Enquiries ----
   CREATE_ENQUIRY: `${enquiries}`,
@@ -104,6 +105,14 @@ export const API = {
   // ---- ✅ Section Items ----
   ADD_SECTION_ITEM: (sectionId) => `${sections}/${sectionId}/items`,
   GET_SECTION_ITEMS: (sectionId) => `${sections}/${sectionId}/items`,
-  UPDATE_SECTION_ITEM: (sectionId, itemId) => `${sections}/${sectionId}/items/${itemId}`,
-  DELETE_SECTION_ITEM: (sectionId, itemId) => `${sections}/${sectionId}/items/${itemId}`,
+  UPDATE_SECTION_ITEM: (sectionId, itemId) =>
+    `${sections}/${sectionId}/items/${itemId}`,
+  DELETE_SECTION_ITEM: (sectionId, itemId) =>
+    `${sections}/${sectionId}/items/${itemId}`,
+
+  // ---- 🖼️ ✅ Banners ----
+  ADD_BANNER: `${banners}`, // POST (with form-data)
+  GET_BANNERS: `${banners}`, // GET all banners
+  UPDATE_BANNER: (id) => `${banners}/${id}`, // PUT (form-data)
+  DELETE_BANNER: (id) => `${banners}/${id}`, // DELETE
 };
