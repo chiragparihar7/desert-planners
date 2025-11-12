@@ -1,3 +1,4 @@
+// src/pages/admin/.../AdminAddVisa.jsx
 import React, { useState, useEffect } from "react";
 import DataService from "../../../config/DataService";
 import { API } from "../../../config/API";
@@ -9,31 +10,58 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     title: "",
     slug: "",
     price: "",
-    overview: "",
-    details: "",
     visaType: "",
     processingTime: "",
     entryType: "",
     validity: "",
     stayDuration: "",
+    img: "",
+    // ✅ list fields
+    overview: [""],
     gallery: [],
     inclusions: [],
     exclusions: [],
     documents: [],
+    howToApply: [],
+    termsAndConditions: [],
     relatedVisas: [],
-    visaCategory: "", // ✅ visaCategory field
+    visaCategory: "",
   });
 
   const [allVisas, setAllVisas] = useState([]);
-  const [visaCategories, setVisaCategories] = useState([]); // ✅ all categories list
+  const [visaCategories, setVisaCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const api = DataService();
 
-  // ✅ Prefill form if editing (auto select category fix)
+  // ✅ Prefill form if editing
   useEffect(() => {
     if (editVisa) {
       setFormData({
-        ...editVisa,
+        title: editVisa.title || "",
+        slug: editVisa.slug || "",
+        price: editVisa.price || "",
+        visaType: editVisa.visaType || "",
+        processingTime: editVisa.processingTime || "",
+        entryType: editVisa.entryType || "",
+        validity: editVisa.validity || "",
+        stayDuration: editVisa.stayDuration || "",
+        img: editVisa.img || "",
+        overview: Array.isArray(editVisa.overview) && editVisa.overview.length
+          ? editVisa.overview
+          : [""],
+        gallery: editVisa.gallery || [],
+        inclusions: editVisa.inclusions || [],
+        exclusions: editVisa.exclusions || [],
+        documents: editVisa.documents || [],
+        howToApply:
+          editVisa.howToApply && editVisa.howToApply.length
+            ? editVisa.howToApply
+            : [],
+        termsAndConditions:
+          editVisa.termsAndConditions && editVisa.termsAndConditions.length
+            ? editVisa.termsAndConditions
+            : [],
+        relatedVisas: editVisa.relatedVisas || [],
         visaCategory:
           editVisa.visaCategory && editVisa.visaCategory._id
             ? editVisa.visaCategory._id
@@ -42,7 +70,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     }
   }, [editVisa]);
 
-  // ✅ Auto-generate slug from title
+  // ✅ Auto-generate slug
   useEffect(() => {
     const slug = formData.title
       .toLowerCase()
@@ -51,7 +79,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     setFormData((prev) => ({ ...prev, slug }));
   }, [formData.title]);
 
-  // ✅ Fetch all visas for related list
+  // ✅ Fetch all visas
   useEffect(() => {
     const fetchAllVisas = async () => {
       try {
@@ -108,6 +136,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
     e.preventDefault();
     setLoading(true);
     try {
+      // backend already handles array, we just send as is
       if (editVisa) {
         await api.put(API.UPDATE_VISA(editVisa._id), formData);
       } else {
@@ -117,11 +146,23 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
       closeModal();
       toast.success("Visa saved successfully!");
     } catch (err) {
+      console.log(err);
       toast.error("Error saving visa");
     } finally {
       setLoading(false);
     }
   };
+
+  // ✅ array sections (new)
+  const arraySections = [
+    { key: "overview", label: "Overview Points" },
+    { key: "gallery", label: "Gallery (image URLs)" },
+    { key: "inclusions", label: "Inclusions" },
+    { key: "exclusions", label: "Exclusions" },
+    { key: "documents", label: "Required Documents" },
+    { key: "howToApply", label: "How to Apply (steps)" },
+    { key: "termsAndConditions", label: "Terms & Conditions" },
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-10 z-50 overflow-y-auto">
@@ -137,17 +178,16 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
               "title",
               "slug",
               "price",
-              "overview",
-              "details",
               "visaType",
               "processingTime",
               "entryType",
               "validity",
               "stayDuration",
+              "img",
             ].map((field) => (
               <div key={field} className="flex flex-col">
                 <label className="text-gray-700 font-medium mb-1 capitalize">
-                  {field}
+                  {field === "img" ? "Main Image (img)" : field}
                 </label>
                 <input
                   type={field === "price" ? "number" : "text"}
@@ -155,7 +195,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                   value={formData[field]}
                   onChange={handleChange}
                   className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#e82429]"
-                  required={["title", "price", "overview"].includes(field)}
+                  required={["title", "price"].includes(field)}
                   disabled={field === "slug"}
                 />
               </div>
@@ -184,12 +224,12 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
           </div>
 
           {/* Array Fields */}
-          {["gallery", "inclusions", "exclusions", "documents"].map((key) => (
+          {arraySections.map(({ key, label }) => (
             <div key={key} className="border rounded-xl p-4 bg-gray-50">
-              <h3 className="font-semibold text-[#e82429] mb-2 capitalize">
-                {key}
+              <h3 className="font-semibold text-[#e82429] mb-2">
+                {label}
               </h3>
-              {formData[key].map((val, idx) => (
+              {(formData[key] || []).map((val, idx) => (
                 <div key={idx} className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -211,7 +251,7 @@ export default function AdminAddVisa({ closeModal, fetchVisas, editVisa }) {
                 onClick={() => handleAddField(key)}
                 className="flex items-center gap-2 bg-[#e82429] hover:bg-[#721011] text-white px-4 py-2 rounded-lg mt-2"
               >
-                <FaPlus /> Add {key.slice(0, -1)}
+                <FaPlus /> Add {label.replace(/\(.*\)/, "").trim().slice(0, -1)}
               </button>
             </div>
           ))}
