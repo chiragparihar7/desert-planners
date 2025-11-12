@@ -15,7 +15,7 @@ export default function Banner() {
     {
       desktop: "/BannerImg/desert-desktop.png",
       mobile: "/BannerImg/desert-mobile.png",
-      subtitle: "Discover the cultural charm of Desert Safari.",
+      subtitle: "Experience the Thrill of the Arabian Dunes",
       title: "DESERT SAFARI",
       price: "AED 150",
       cta: "View Packages",
