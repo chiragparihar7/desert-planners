@@ -23,7 +23,7 @@ export default function VisaDetails() {
   const api = DataService();
 
   // ✅ Static banner path (use your own image if you want)
-  const staticBanner = "/visa-banner.png";
+  const staticBanner = "/visa_details_banner.jpg";
 
   // ✅ Fetch Visa Details
   useEffect(() => {
