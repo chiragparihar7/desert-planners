@@ -1,34 +1,156 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
   const search = new URLSearchParams(window.location.search);
   const reference = search.get("reference");
 
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch booking details from backend
+  useEffect(() => {
+    if (!reference) return;
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/bookings/${reference}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBooking(data.booking);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [reference]);
+
+  if (loading) {
+    return <div className="p-10 text-center text-lg">Loading...</div>;
+  }
+
+  if (!booking) {
+    return (
+      <div className="p-10 text-center text-red-600 text-lg">
+        Booking not found ❌
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] bg-gradient-to-b from-gray-50 to-white p-8 text-center">
-      <img
-        src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
-        alt="Success"
-        className="w-32 h-32 mb-6 animate-bounce"
-      />
+    <div className="max-w-3xl mx-auto p-6 bg-white mt-8 shadow-lg rounded-xl border">
+      <div className="text-center">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
+          alt="Success"
+          className="w-24 h-24 mx-auto mb-4 animate-bounce"
+        />
+        <h2 className="text-3xl font-bold text-[#721011] mb-2">
+          Booking Confirmed 🎉
+        </h2>
+        <p className="text-gray-600">
+          Your payment has been received successfully.
+        </p>
+      </div>
 
-      <h2 className="text-3xl font-bold text-[#721011] mb-2">
-        Booking Confirmed 🎉
-      </h2>
+      {/* Booking Info */}
+      <div className="mt-6 border-t pt-4">
+        <h3 className="text-xl font-semibold mb-2 text-[#721011]">
+          Booking Details
+        </h3>
 
-      <p className="text-gray-700 mb-6">
-        Your payment was successful!  
-        Booking ID: {reference}
-      </p>
+        <div className="grid grid-cols-2 gap-3 text-gray-700">
+          <p>
+            <b>Booking ID:</b> {booking._id}
+          </p>
+          <p>
+            <b>Status:</b>{" "}
+            <span className="text-green-600 font-semibold">
+              {booking.status}
+            </span>
+          </p>
+          <p>
+            <b>Payment:</b>{" "}
+            <span className="text-green-600 font-semibold">
+              {booking.paymentStatus}
+            </span>
+          </p>
+          <p>
+            <b>Total Amount:</b>{" "}
+            <span className="text-[#e82429] font-bold">
+              AED {booking.totalPrice}
+            </span>
+          </p>
+        </div>
+      </div>
 
-      <button
-        onClick={() => navigate("/")}
-        className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-6 py-3 rounded-xl hover:scale-105 transition"
-      >
-        Back to Home
-      </button>
+      {/* User Details */}
+      <div className="mt-6 border-t pt-4">
+        <h3 className="text-xl font-semibold mb-2 text-[#721011]">
+          Customer Information
+        </h3>
+
+        <div className="text-gray-700">
+          <p>
+            <b>Name:</b> {booking.guestName || booking.userName}
+          </p>
+          <p>
+            <b>Email:</b> {booking.guestEmail || booking.userEmail}
+          </p>
+          <p>
+            <b>Contact:</b> {booking.guestContact || "---"}
+          </p>
+          <p>
+            <b>Pickup:</b> {booking.pickupPoint}
+          </p>
+          <p>
+            <b>Drop:</b> {booking.dropPoint}
+          </p>
+          <p>
+            <b>Special Request:</b> {booking.specialRequest || "None"}
+          </p>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="mt-6 border-t pt-4">
+        <h3 className="text-xl font-semibold mb-4 text-[#721011]">
+          Tour Summary
+        </h3>
+
+        {booking.items.map((item, index) => (
+          <div
+            key={index}
+            className="p-4 border rounded-lg mb-3 bg-gray-50 shadow-sm"
+          >
+            <p>
+              <b>Tour:</b> {item.tourId?.title}
+            </p>
+            <p>
+              <b>Date:</b> {item.date}
+            </p>
+            <p>
+              <b>Adults:</b> {item.adultCount} × {item.adultPrice}
+            </p>
+            <p>
+              <b>Child:</b> {item.childCount} × {item.childPrice}
+            </p>
+            <p>
+              <b>Tour Total:</b>{" "}
+              <b className="text-[#e82429]">
+                AED {item.adultCount * item.adultPrice +
+                  item.childCount * item.childPrice}
+              </b>
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center mt-8">
+        <button
+          onClick={() => navigate("/my-orders")}
+          className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-6 py-3 rounded-xl hover:scale-105 transition"
+        >
+          View My Bookings
+        </button>
+      </div>
     </div>
   );
 }
