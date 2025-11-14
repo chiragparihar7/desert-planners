@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
   const search = new URLSearchParams(window.location.search);
-  // const reference = search.get("reference");
+
+  // 🔥 Only bookingId — NOT reference
   const bookingId = search.get("bookingId");
 
   const [booking, setBooking] = useState(null);
@@ -12,7 +13,7 @@ export default function BookingSuccess() {
 
   // Fetch booking details from backend
   useEffect(() => {
-    if (!reference) return;
+    if (!bookingId) return;
 
     fetch(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}`)
       .then((res) => res.json())
@@ -21,7 +22,7 @@ export default function BookingSuccess() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [reference]);
+  }, [bookingId]);
 
   if (loading) {
     return <div className="p-10 text-center text-lg">Loading...</div>;
