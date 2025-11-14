@@ -2,9 +2,9 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function BookingSuccess() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const booking = location.state?.booking;
+  const search = new URLSearchParams(window.location.search);
+  const reference = search.get("reference");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] bg-gradient-to-b from-gray-50 to-white p-8 text-center">
@@ -13,13 +13,16 @@ export default function BookingSuccess() {
         alt="Success"
         className="w-32 h-32 mb-6 animate-bounce"
       />
+
       <h2 className="text-3xl font-bold text-[#721011] mb-2">
         Booking Confirmed 🎉
       </h2>
+
       <p className="text-gray-700 mb-6">
-        Thank you, {booking?.name || "Guest"}!  
-        We've received your booking. You’ll get a confirmation email shortly.
+        Your payment was successful!  
+        Booking ID: {reference}
       </p>
+
       <button
         onClick={() => navigate("/")}
         className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-6 py-3 rounded-xl hover:scale-105 transition"

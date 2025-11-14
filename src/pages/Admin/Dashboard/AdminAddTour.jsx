@@ -10,7 +10,10 @@ export default function AdminAddTour({ tour, onSuccess }) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  // const [price, setPrice] = useState("");
+  // ⭐ Adult & Child Price
+  const [priceAdult, setPriceAdult] = useState("");
+  const [priceChild, setPriceChild] = useState("");
   const [duration, setDuration] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState([]);
@@ -92,7 +95,19 @@ export default function AdminAddTour({ tour, onSuccess }) {
       setTitle(tour.title || "");
       setSlug(tour.slug || "");
       setDescription(tour.description || "");
-      setPrice(tour.price || "");
+      // ⭐ Adult Price fallback → old price field
+      setPriceAdult(
+        tour.priceAdult !== undefined && tour.priceAdult !== null
+          ? tour.priceAdult
+          : tour.price || ""
+      );
+
+      // ⭐ Child Price fallback → stays empty in old tours
+      setPriceChild(
+        tour.priceChild !== undefined && tour.priceChild !== null
+          ? tour.priceChild
+          : ""
+      );
       setDuration(tour.duration || "");
       setCategory(tour.category?._id || "");
       setHighlights(tour.highlights || []);
@@ -203,7 +218,7 @@ export default function AdminAddTour({ tour, onSuccess }) {
     if (
       !title ||
       !description ||
-      !price ||
+      !priceAdult || // ⭐ NEW VALIDATION
       !duration ||
       !category ||
       !startDate ||
@@ -217,7 +232,8 @@ export default function AdminAddTour({ tour, onSuccess }) {
     formData.append("title", title);
     formData.append("slug", slug);
     formData.append("description", description);
-    formData.append("price", price);
+    formData.append("priceAdult", priceAdult);
+    formData.append("priceChild", priceChild);
     formData.append("duration", duration);
     formData.append("category", category);
 
@@ -319,14 +335,27 @@ export default function AdminAddTour({ tour, onSuccess }) {
           {/* Price / Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="font-semibold">Price (AED)</label>
+              <label className="font-semibold">Adult Price (AED)*</label>
               <input
                 type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                value={priceAdult}
+                onChange={(e) => setPriceAdult(e.target.value)}
                 className="w-full border border-[#e82429] rounded-xl px-4 py-2"
+                required
               />
             </div>
+
+            <div>
+              <label className="font-semibold">Child Price (AED)</label>
+              <input
+                type="number"
+                value={priceChild}
+                onChange={(e) => setPriceChild(e.target.value)}
+                className="w-full border border-[#e82429] rounded-xl px-4 py-2"
+                placeholder="Optional"
+              />
+            </div>
+
             <div>
               <label className="font-semibold">Duration</label>
               <input

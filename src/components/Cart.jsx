@@ -26,13 +26,15 @@ export default function Cart({ userId }) {
       const api = DataService("user");
       const res = await api.get(API.GET_CART(uid));
       const data = res.data;
+
       const items =
-        data?.items ||
         data?.cart?.items ||
         data?.cart ||
+        data?.items ||
         data?.data ||
         data ||
         [];
+
       setCart(Array.isArray(items) ? items : []);
     } catch (err) {
       console.error("Error fetching cart:", err);
@@ -67,14 +69,16 @@ export default function Cart({ userId }) {
       setRemovingItemId(itemId);
       const api = DataService("user");
       const res = await api.delete(API.REMOVE_FROM_CART(uid, itemId));
+
       const data = res.data;
       const items =
-        data?.items ||
         data?.cart?.items ||
         data?.cart ||
+        data?.items ||
         data?.data ||
         data ||
         [];
+
       setCart(Array.isArray(items) ? items : []);
       toast.success("Item removed!");
     } catch (err) {
@@ -100,14 +104,16 @@ export default function Cart({ userId }) {
       setClearing(true);
       const api = DataService("user");
       const res = await api.delete(API.CLEAR_CART(uid));
+
       const data = res.data;
       const items =
-        data?.items ||
         data?.cart?.items ||
         data?.cart ||
+        data?.items ||
         data?.data ||
         data ||
         [];
+
       setCart(Array.isArray(items) ? items : []);
       toast.success("Cart cleared!");
     } catch (err) {
@@ -136,11 +142,17 @@ export default function Cart({ userId }) {
     }
   }, [userId, location.key]);
 
-  // ✅ Calculate total price safely
+  // ✅ Calculate total price (adult + child)
   const totalPrice = cart.reduce((sum, item) => {
-    const price = Number(item.tourId?.price || item.price || 0);
-    const guests = Number(item.guests || 1);
-    return sum + price * guests;
+    const t = item.tourId || item;
+
+    const adultPrice = Number(item.adultPrice || t.priceAdult || t.price || 0);
+    const childPrice = Number(item.childPrice || t.priceChild || 0);
+
+    const adultGuests = Number(item.guestsAdult || item.guests || 0);
+    const childGuests = Number(item.guestsChild || 0);
+
+    return sum + adultPrice * adultGuests + childPrice * childGuests;
   }, 0);
 
   // ✅ Checkout handler
@@ -152,7 +164,10 @@ export default function Cart({ userId }) {
     navigate("/checkout", { state: { cart } });
   };
 
-  // ✅ Loading UI
+  // ================================
+  // UI STARTS HERE
+  // ================================
+
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -162,7 +177,6 @@ export default function Cart({ userId }) {
       </div>
     );
 
-  // ✅ Empty cart UI
   if (cart.length === 0)
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center bg-gradient-to-b from-gray-50 to-white p-8 rounded-3xl shadow-inner">
@@ -187,20 +201,16 @@ export default function Cart({ userId }) {
       </div>
     );
 
-  // ✅ Main cart UI
   return (
     <div className="max-w-[1200px] mx-auto p-4">
       <h2 className="text-3xl font-bold mb-6 text-[#721011]">Your Cart</h2>
 
       <div className="grid gap-6">
         {cart.map((item, index) => {
-          const imageSrc = item.tourId?.mainImage
-            ? `https://desetplanner-backend.onrender.com/${item.tourId.mainImage}`
-            : item.mainImage
-            ? `https://desetplanner-backend.onrender.com/${item.mainImage}`
-            : item.tourId?.image
-            ? `https://desetplanner-backend.onrender.com/${item.tourId.image}`
-            : "https://cdn-icons-png.flaticon.com/512/854/854878.png";
+          const imageSrc =
+            item.tourId?.mainImage ||
+            item.mainImage ||
+            "https://cdn-icons-png.flaticon.com/512/854/854878.png";
 
           return (
             <div
@@ -210,37 +220,48 @@ export default function Cart({ userId }) {
               <div className="flex items-center gap-4">
                 <img
                   src={
-                    item.tourId?.mainImage?.startsWith("http")
-                      ? item.tourId.mainImage
-                      : item.mainImage?.startsWith("http")
-                      ? item.mainImage
-                      : "https://cdn-icons-png.flaticon.com/512/854/854878.png"
+                    imageSrc.startsWith("http")
+                      ? imageSrc
+                      : `https://desetplanner-backend.onrender.com/${imageSrc}`
                   }
                   alt={item.tourId?.title || item.title}
                   className="w-28 h-20 object-cover rounded-xl"
                 />
+
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     {item.tourId?.title || item.title}
                   </h3>
+
                   {item.date && (
                     <p className="text-gray-600 text-sm">
                       Date: {new Date(item.date).toDateString()}
                     </p>
                   )}
-                  {item.guests && (
+
+                  {/* Guests Display */}
+                  <p className="text-gray-600 text-sm">
+                    Adults: {item.guestsAdult || item.guests || 0}
+                  </p>
+
+                  {item.guestsChild > 0 && (
                     <p className="text-gray-600 text-sm">
-                      Guests: {item.guests}
+                      Child: {item.guestsChild}
                     </p>
                   )}
+
+                  {/* Price Calculation */}
                   <p className="text-gray-800 font-bold">
                     AED{" "}
-                    {Number(item.tourId?.price || item.price || 0) *
-                      Number(item.guests || 1)}
+                    {Number(item.adultPrice || item.tourId?.priceAdult || 0) *
+                      Number(item.guestsAdult || item.guests || 0) +
+                      Number(item.childPrice || item.tourId?.priceChild || 0) *
+                        Number(item.guestsChild || 0)}
                   </p>
                 </div>
               </div>
 
+              {/* Remove Button */}
               <button
                 onClick={() =>
                   removeItem(item._id || item.tourId?._id || item.tourId)
@@ -267,9 +288,11 @@ export default function Cart({ userId }) {
         })}
       </div>
 
+      {/* Footer Section */}
       <div className="mt-6 flex flex-col md:flex-row justify-between items-center">
         <p className="text-xl font-bold text-gray-800">
-          Total: <span className="text-[#e82429]">AED {totalPrice}</span>
+          Total:{" "}
+          <span className="text-[#e82429]">AED {totalPrice.toFixed(2)}</span>
         </p>
 
         <div className="flex gap-3 mt-4 md:mt-0">

@@ -97,7 +97,6 @@ export default function TourServiceDetails() {
   };
 
   // Add to Cart
-  // ✅ Inside your component
 const handleAddToCart = async (tour) => {
   try {
     setAddingToCart(true);
@@ -107,69 +106,89 @@ const handleAddToCart = async (tour) => {
       ? formatDateToYYYYMMDD(startDate)
       : new Date().toISOString().split("T")[0];
 
-    const totalGuests = guests ? parseInt(guests) : 1;
+    // Adult = guests, Child = 0 (for now)
+    const adults = Number(guests) || 1;
+    const children = 0;
 
-    // ======================
-    // 🔐 1️⃣ Logged-in User
-    // ======================
+    const adultPrice = Number(tour.priceAdult || tour.price || 0);
+    const childPrice = Number(tour.priceChild || 0);
+
+    // ======================================================
+    // 🔐 1️⃣ LOGGED-IN USER
+    // ======================================================
     if (user?._id) {
-      // 🧹 Clear guest cart if user is logged in (important fix)
       localStorage.removeItem("guestCart");
 
       const api = DataService("user");
+
       const payload = {
         userId: user._id,
         tourId: tour._id,
         date: formattedDate,
-        guests: totalGuests,
+
+        guestsAdult: adults,
+        guestsChild: children,
+
+        adultPrice,
+        childPrice,
       };
 
-      console.log("📤 Sending to backend:", payload);
+      console.log("📤 Cart Payload:", payload);
 
       const res = await api.post(API.ADD_TO_CART, payload);
 
       if (res.data?.success) {
-        toast.success("✅ Added to your cart!");
-        // redirect to cart with updated data
+        toast.success("Added to cart!");
         navigate("/cart", { state: { newCart: res.data.cart } });
       } else {
-        toast.error("❌ Something went wrong!");
+        toast.error("Something went wrong!");
       }
 
-      return; // stop here if logged-in user
+      return;
     }
 
-    // ======================
-    // 🧳 2️⃣ Guest User Flow
-    // ======================
+    // ======================================================
+    // 🧳 2️⃣ GUEST USER FLOW
+    // ======================================================
     let localCart = JSON.parse(localStorage.getItem("guestCart")) || [];
 
-    // Avoid duplicate tours in cart
-    const existing = localCart.find((item) => item._id === tour._id);
+    // guestCart me item compare always id se karna
+    const existing = localCart.find((item) => item.tourId === tour._id);
+
     if (existing) {
-      existing.guests = totalGuests;
+      existing.guestsAdult = adults;
+      existing.guestsChild = children;
       existing.date = formattedDate;
+      existing.adultPrice = adultPrice;
+      existing.childPrice = childPrice;
     } else {
       localCart.push({
-        ...tour,
-        guests: totalGuests,
+        tourId: tour._id,
+        title: tour.title,
+        mainImage: tour.mainImage, // safe fallback handled in cart
         date: formattedDate,
+
+        guestsAdult: adults,
+        guestsChild: children,
+
+        adultPrice,
+        childPrice,
         quantity: 1,
       });
     }
 
     localStorage.setItem("guestCart", JSON.stringify(localCart));
-    toast.success("✅ Added to your cart!");
+
+    toast.success("Added to cart!");
     navigate("/cart", { state: { newCart: localCart } });
 
   } catch (error) {
     console.error("Add to cart error:", error.response?.data || error.message);
-    toast.error("❌ Error adding to cart!");
+    toast.error("Error adding to cart!");
   } finally {
     setAddingToCart(false);
   }
 };
-
 
 
   // Yeh function component ke bahar add karo (file ke end mein)
@@ -355,17 +374,34 @@ const handleAddToCart = async (tour) => {
               </div>
 
               <div className="flex flex-col items-start md:items-end gap-2 mt-3 md:mt-0">
-                <p className="text-2xl md:text-2xl font-bold text-[#e82429]">
-                  AED {tour.price || "—"}
+                {/* Adult Price */}
+                <p className="text-3xl md:text-4xl font-extrabold text-[#e82429] leading-tight">
+                  AED {tour.priceAdult || tour.price || "—"}
                 </p>
-                <p className="text-gray-500 text-sm md:text-base font-medium">
-                  per person
+
+                {/* Child Price Beautiful Tag */}
+                {tour.priceChild && (
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-gradient-to-r from-[#ffe5e5] to-[#ffd6d6] text-[#721011] font-semibold text-sm rounded-full shadow-sm border border-[#e82429]/30">
+                      Child Price: AED {tour.priceChild}
+                    </span>
+                  </div>
+                )}
+
+                {/* Per Person */}
+                <p className="text-gray-500 text-xs md:text-sm font-medium -mt-1">
+                  (Per Person)
                 </p>
-                <div className="flex items-center gap-2 mt-2">
+
+                {/* Rating Section */}
+                <div className="flex items-center gap-2 mt-1">
                   {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className="text-yellow-500" />
+                    <FaStar
+                      key={i}
+                      className="text-yellow-500 drop-shadow-sm"
+                    />
                   ))}
-                  <span className="text-gray-600 text-sm">
+                  <span className="text-gray-600 text-sm font-medium">
                     4.9 / 5 (134 reviews)
                   </span>
                 </div>
@@ -562,7 +598,8 @@ const handleAddToCart = async (tour) => {
           {tour.cancellationPolicy && (
             <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300">
               <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2 flex items-center gap-2">
-                <FaTimesCircle className="text-[#e82429]" /> Cancellation & Refund Policy
+                <FaTimesCircle className="text-[#e82429]" /> Cancellation &
+                Refund Policy
               </h2>
 
               <div className="bg-[#fff4f4] rounded-2xl p-6 border border-[#e82429]/20">
@@ -702,7 +739,7 @@ const handleAddToCart = async (tour) => {
                         <p className="text-gray-600">
                           Starting from{" "}
                           <span className="font-semibold text-[#721011]">
-                            AED {t.price}
+                            AED {t.priceAdult || t.price}
                           </span>
                         </p>
                       </div>
