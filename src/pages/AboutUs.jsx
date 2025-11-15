@@ -11,36 +11,45 @@ export default function AboutUs() {
   return (
     <div className="bg-white">
       {/* ⭐ HERO BANNER */}
-      <section className="relative h-[45vh] flex items-center justify-center overflow-hidden p-0 m-0 bg-[#7a0f13]">
+   <section
+  className="relative h-[45vh] flex items-center justify-center overflow-hidden p-0 m-0"
+  style={{
+    backgroundImage:
+      "url('/about-banner.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
+  {/* Dark Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-transparent"></div>
 
-        {/* Gradient Overlay (Better visibility) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent"></div>
+  {/* Floating Blurs */}
+  <div className="absolute w-64 h-40 bg-[#e82429]/30 rounded-full blur-3xl top-10 left-10 animate-pulse"></div>
+  <div className="absolute w-56 h-46 bg-white/10 rounded-full blur-3xl bottom-10 right-10 animate-pulse"></div>
 
-        {/* Floating Blurs */}
-        <div className="absolute w-64 h-40 bg-[#e82429]/30 rounded-full blur-3xl top-10 left-10 animate-pulse"></div>
-        <div className="absolute w-56 h-46 bg-white/10 rounded-full blur-3xl bottom-10 right-10 animate-pulse"></div>
+  {/* Content */}
+  <div className="relative text-center px-4 z-10 -mt-6">
+    <motion.h1
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="text-5xl font-extrabold text-white tracking-tight drop-shadow-xl"
+    >
+      About Us
+    </motion.h1>
 
-        {/* Content */}
-        <div className="relative text-center px-4 z-10 -mt-6">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-5xl font-extrabold text-white tracking-tight drop-shadow-xl"
-          >
-            About Us
-          </motion.h1>
+    <motion.p
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2, duration: 0.5 }}
+      className="text-white/90 max-w-2xl mx-auto mt-3 text-lg leading-relaxed"
+    >
+      Discover the story, passion, and vision behind Desert Planners Tourism LLC - your trusted partner for unforgettable UAE travel experiences.
+    </motion.p>
+  </div>
+</section>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-white/90 max-w-2xl mx-auto mt-3 text-lg leading-relaxed"
-          >
-            Discover the story, passion, and vision behind Desert Planners Tourism LLC - your trusted partner for unforgettable UAE travel experiences.
-          </motion.p>
-        </div>
-      </section>
 
       {/* ⭐ INTRO SECTION */}
       <section className="max-w-6xl mx-auto px-6 py-12">
@@ -113,6 +122,44 @@ export default function AboutUs() {
               service to ensure smooth and memorable journeys.
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ⭐ MISSION & VISION — NEW SECTION */}
+      <section className="py-12 bg-gray-50 border-y">
+        <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-8">
+
+          {/* Mission */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white p-8 rounded-3xl shadow-md border"
+          >
+            <h3 className="text-2xl font-bold text-[#721011] mb-3">Our Mission</h3>
+            <p className="text-gray-700 leading-relaxed">
+              To provide travelers with smooth, enjoyable, and memorable UAE
+              experiences through reliable services, curated tours, and
+              world-class hospitality.
+            </p>
+          </motion.div>
+
+          {/* Vision */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="bg-white p-8 rounded-3xl shadow-md border"
+          >
+            <h3 className="text-2xl font-bold text-[#721011] mb-3">Our Vision</h3>
+            <p className="text-gray-700 leading-relaxed">
+              To become one of the UAE’s most trusted and customer-preferred
+              tourism companies, delivering excellence across all services.
+            </p>
+          </motion.div>
+
         </div>
       </section>
 
