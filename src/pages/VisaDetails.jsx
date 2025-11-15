@@ -88,7 +88,7 @@ export default function VisaDetails() {
           >
             {visa.title}
           </motion.h1>
-          
+
           <a
             href="#apply-now"
             className="mt-6 bg-[#e82429] hover:bg-[#721011] text-white px-6 py-3 rounded-full font-semibold transition"
@@ -105,12 +105,36 @@ export default function VisaDetails() {
           {/* QUICK FACTS */}
           <section className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
             {[
-              { icon: <FaClock />, label: "Processing Time", value: visa.processingTime },
-              { icon: <FaPassport />, label: "Visa Type", value: visa.visaType },
-              { icon: <FaListUl />, label: "Entry Type", value: visa.entryType },
-              { icon: <FaCheckCircle />, label: "Validity", value: visa.validity },
-              { icon: <FaTimesCircle />, label: "Stay Duration", value: visa.stayDuration },
-              { icon: <FaInfoCircle />, label: "Fees", value: `AED ${visa.price}` },
+              {
+                icon: <FaClock />,
+                label: "Processing Time",
+                value: visa.processingTime,
+              },
+              {
+                icon: <FaPassport />,
+                label: "Visa Type",
+                value: visa.visaType,
+              },
+              {
+                icon: <FaListUl />,
+                label: "Entry Type",
+                value: visa.entryType,
+              },
+              {
+                icon: <FaCheckCircle />,
+                label: "Validity",
+                value: visa.validity,
+              },
+              {
+                icon: <FaTimesCircle />,
+                label: "Stay Duration",
+                value: visa.stayDuration,
+              },
+              {
+                icon: <FaInfoCircle />,
+                label: "Fees",
+                value: `AED ${visa.price}`,
+              },
             ].map((fact, i) => (
               <motion.div
                 key={i}
@@ -141,7 +165,9 @@ export default function VisaDetails() {
                 <div className="p-3 bg-[#e82429]/10 rounded-full">
                   <FaInfoCircle className="text-[#e82429] text-2xl" />
                 </div>
-                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">Overview</h2>
+                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">
+                  Overview
+                </h2>
               </div>
               <ul className="space-y-4">
                 {visa.overview.map((item, idx) => (
@@ -174,7 +200,9 @@ export default function VisaDetails() {
                 <div className="p-3 bg-[#e82429]/10 rounded-full">
                   <FaPassport className="text-[#e82429] text-2xl" />
                 </div>
-                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">How to Apply</h2>
+                <h2 className="text-3xl font-extrabold text-[#2e2e2e]">
+                  How to Apply
+                </h2>
               </div>
 
               <ol className="relative border-l-2 border-[#e82429]/30 ml-6 space-y-8">
@@ -265,6 +293,79 @@ export default function VisaDetails() {
               </ul>
             </motion.section>
           )}
+          {relatedVisas?.length > 0 && (
+            <div className="mt-10">
+              <h3 className="font-bold text-xl text-[#2e2e2e] mb-4">
+                Related Visa Options
+              </h3>
+
+              <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
+                {relatedVisas.slice(0, 4).map((rv, i) => (
+                  <motion.div
+                    key={rv._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Link
+                      to={`/visa/${rv.visaCategory?.slug}/${rv.slug}`}
+                      className="block bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all overflow-hidden border border-gray-200"
+                    >
+                      {/* IMAGE */}
+                     <div className="relative h-48 w-full overflow-hidden rounded-t-3xl">
+  <img
+    src={
+      rv.gallery?.[0] ||
+      rv.img ||
+      rv.image ||
+      rv.thumbnail ||
+      (rv.images?.length > 0 ? rv.images[0] : "/visa-card.jpg")
+    }
+    alt={rv.title}
+    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+  />
+
+  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+  {rv.processingTime && (
+    <span className="absolute top-3 left-3 bg-[#e82429] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+      <FaClock className="inline-block mr-1 text-[10px]" />
+      {rv.processingTime}
+    </span>
+  )}
+</div>
+
+                      {/* CONTENT */}
+                      <div className="p-5 space-y-3">
+                        <h4 className="text-lg font-semibold text-[#404041] line-clamp-2">
+                          {rv.title}
+                        </h4>
+
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {rv.overview}
+                        </p>
+
+                        <div className="flex items-center justify-between mt-3">
+                          <div>
+                            <div className="text-[#e82429] font-bold text-lg">
+                              AED {rv.price}
+                            </div>
+                            <p className="text-gray-500 text-xs">
+                              per application
+                            </p>
+                          </div>
+
+                          <span className="text-[#721011] font-bold text-sm flex items-center gap-1">
+                            View Details <FaInfoCircle />
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT SIDEBAR */}
@@ -306,28 +407,6 @@ export default function VisaDetails() {
             >
               <FaWhatsapp /> Need Help? Chat on WhatsApp
             </a>
-
-            {relatedVisas?.length > 0 && (
-              <div className="mt-4">
-                <h3 className="font-semibold text-gray-800 mb-2">
-                  You may also need
-                </h3>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {relatedVisas.slice(0, 5).map((rv) => (
-                    <Link
-                      key={rv._id}
-                      to={`/visa/${rv.visaCategory?.slug || "uae"}/${rv.slug}`}
-                      className="flex justify-between items-center text-sm text-gray-600 hover:text-[#e82429]"
-                    >
-                      <span>{rv.title}</span>
-                      <span className="font-semibold text-gray-800">
-                        AED {rv.price}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
