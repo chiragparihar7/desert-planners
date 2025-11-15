@@ -23,6 +23,7 @@ import TermsAndConditions from "./components/TermsAndConditions";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import CancellationPolicy from "./components/CancellationPolicy";
 import BookingSuccess from "./components/BookingSuccess";
+import GuestBookingLookup from "./components/GuestBookingLookup";
 const AppRouter = () => (
   <>
     <ScrollToTop />
@@ -51,6 +52,8 @@ const AppRouter = () => (
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/cancellation-policy" element={<CancellationPolicy />} />
       <Route path="/booking-success" element={<BookingSuccess />} />
+      <Route path="/check-booking" element={<GuestBookingLookup />} />
+
       <Route
         path="/admin/dashboard"
         element={

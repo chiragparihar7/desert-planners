@@ -74,6 +74,9 @@ export const API = {
   GET_BOOKING_BY_ID: (id) => `${bookings}/${id}`,
   UPDATE_BOOKING_STATUS: (id) => `${bookings}/${id}/status`,
   GET_MY_BOOKINGS: `${bookings}/my`,
+  LOOKUP_BOOKING: (bookingId, email) =>
+  `${bookings}/lookup?bookingId=${bookingId}&email=${email}`,
+INVOICE_DOWNLOAD: (id) => `${bookings}/${id}/invoice`,
 
   // ---- Payment (💳 NEW) ----
   CREATE_PAYMENT: `${payment}/create`,       

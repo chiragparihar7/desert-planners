@@ -147,6 +147,21 @@ export default function BookingSuccess() {
       </div>
 
       <div className="text-center mt-8">
+        {/* 🔥 DOWNLOAD INVOICE BUTTON */}
+        <button
+          onClick={() =>
+            window.open(
+              `${import.meta.env.VITE_API_URL}/api/bookings/invoice/${
+                booking._id
+              }`,
+              "_blank"
+            )
+          }
+          className="bg-gradient-to-r from-[#721011] to-[#e82429] text-white px-6 py-3 rounded-xl mr-3 hover:scale-105 transition"
+        >
+          Download Invoice
+        </button>
+
         <button
           onClick={() => navigate("/my-orders")}
           className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-6 py-3 rounded-xl hover:scale-105 transition"

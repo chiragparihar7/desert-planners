@@ -8,7 +8,7 @@ export default function ProfileMenu() {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  // ✅ Check login state + listen for updates
+  // ✅ Check login state on load + listen for changes
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = localStorage.getItem("userToken");
@@ -17,11 +17,9 @@ export default function ProfileMenu() {
 
     checkLoginStatus();
 
-    // Listen for login/logout events or localStorage changes
     window.addEventListener("storage", checkLoginStatus);
     window.addEventListener("userLoginChange", checkLoginStatus);
 
-    // Close dropdown if clicked outside
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
@@ -36,14 +34,14 @@ export default function ProfileMenu() {
     };
   }, []);
 
-  // ✅ Handle logout
+  // ✅ Logout
   const handleLogout = () => {
     localStorage.removeItem("userToken");
     localStorage.removeItem("userName");
+
     setIsLoggedIn(false);
     setOpen(false);
 
-    // Notify other components
     window.dispatchEvent(new Event("userLoginChange"));
     navigate("/login");
   };
@@ -64,16 +62,29 @@ export default function ProfileMenu() {
         <span className="hidden md:inline">Profile</span>
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown */}
       <div
-        className={`absolute right-0 top-full mt-2 w-44 bg-white shadow-xl rounded-xl border border-gray-200 
-        transition-all duration-300 z-[9999] ${
-          open
-            ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible -translate-y-2"
-        }`}
+        className={`absolute right-0 top-full mt-2 w-48 bg-white shadow-xl rounded-xl border border-gray-200 
+          transition-all duration-300 z-[9999] ${
+            open
+              ? "opacity-100 visible translate-y-0"
+              : "opacity-0 invisible -translate-y-2"
+          }`}
       >
         <ul className="py-2 text-sm font-medium text-[#404041]">
+
+          {/* ⭐ ALWAYS SHOW — Check Booking (Guest + User both) */}
+          <li>
+            <Link
+              to="/check-booking"
+              className="block px-4 py-2 hover:bg-[#e82429]/10 hover:text-[#e82429] rounded-md transition-all duration-200"
+              onClick={() => setOpen(false)}
+            >
+              Check Booking
+            </Link>
+          </li>
+
+          {/* ⭐ IF LOGGED IN */}
           {isLoggedIn ? (
             <>
               <li>
@@ -85,6 +96,7 @@ export default function ProfileMenu() {
                   My Profile
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/my-orders"
@@ -94,6 +106,7 @@ export default function ProfileMenu() {
                   My Orders
                 </Link>
               </li>
+
               <li>
                 <button
                   onClick={handleLogout}
@@ -105,6 +118,7 @@ export default function ProfileMenu() {
             </>
           ) : (
             <>
+              {/* ⭐ Guest Menu */}
               <li>
                 <Link
                   to="/login"
@@ -114,6 +128,7 @@ export default function ProfileMenu() {
                   Sign In
                 </Link>
               </li>
+
               <li>
                 <Link
                   to="/register"
