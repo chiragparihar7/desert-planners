@@ -15,9 +15,9 @@ const visas = "/api/visas";
 const sections = "/api/sections";
 const visaCategories = "/api/visa-categories";
 const payment = "/api/payment";
-const banners = "/api/banner"; 
+const banners = "/api/banner";
 const visaBookings = "/api/visa-bookings";
-const visaPayment = "/api/visa-payment";   // ✅ NEW
+const visaPayment = "/api/visa-payment"; // ✅ NEW
 
 export const API = {
   BASE_URL: isLocalhost
@@ -83,7 +83,8 @@ export const API = {
   CREATE_PAYMENT: `${payment}/create`,
   CONFIRM_PAYMENT: (bookingId) => `${payment}/confirm/${bookingId}`,
   WEBHOOK_PAYMENT: `${payment}/webhook`,
-
+  GET_ALL_PAYMENTS: `${payment}/all`,
+  
   // ---- Enquiries ----
   CREATE_ENQUIRY: `${enquiries}`,
   GET_ALL_ENQUIRIES: `${enquiries}`,
@@ -98,7 +99,6 @@ export const API = {
   UPDATE_VISA: (id) => `${visas}/${id}`,
   DELETE_VISA: (id) => `${visas}/${id}`,
   GET_VISA_BY_ID: (id) => `${visas}/id/${id}`,
-
 
   // ---- Sections ----
   GET_SECTIONS: `${sections}`,

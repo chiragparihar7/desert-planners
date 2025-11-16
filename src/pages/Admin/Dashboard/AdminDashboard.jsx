@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 
-// Import all sections (add BannerManagement file in same folder)
+// Import all sections
 import Overview from "./Overview";
 import ToursManagement from "./ToursManagement";
 import TourCategory from "./TourCategory";
@@ -13,10 +13,10 @@ import Enquiries from "./Enquiries";
 import Settings from "./Settings";
 import Visa from "./Visa";
 import SectionsManagement from "./SectionsManagement";
-import BannerManagement from "./BannerManagement"; // <-- new banner tab
+import BannerManagement from "./BannerManagement";
+import VisaBookings from "./VisaBookings"; // 👈 NEW ADDED
 
 export default function AdminDashboard() {
-  // default activeTab can be changed to "banner" if you want banner open by default
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -27,11 +27,12 @@ export default function AdminDashboard() {
     visaCategory: VisaCategory,
     category: TourCategory,
     sections: SectionsManagement,
-    bookings: Bookings,
+    bookings: Bookings,           // Tour bookings
+    visaBookings: VisaBookings,   // 👈 NEW Visa bookings section
     payments: Payments,
     users: Users,
     enquiries: Enquiries,
-    banner: BannerManagement, // <-- added
+    banner: BannerManagement,
     settings: Settings,
   };
 

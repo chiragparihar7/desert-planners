@@ -16,13 +16,6 @@ import {
   ImageIcon,
 } from "lucide-react";
 
-/*
-  NOTE:
-  - FileSpreadsheet used for Visa Categories
-  - ImageIcon used for Banners (if your lucide version does not have ImageIcon,
-    replace with any available icon import like "Image" or use a string emoji)
-*/
-
 const ITEMS = [
   { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { tab: "tours", label: "Tours", icon: <Briefcase size={18} /> },
@@ -30,11 +23,17 @@ const ITEMS = [
   { tab: "visaCategory", label: "Visa Categories", icon: <FileSpreadsheet size={18} /> },
   { tab: "category", label: "Tour Categories", icon: <Grid size={18} /> },
   { tab: "sections", label: "Sections", icon: <Layers size={18} /> },
-  { tab: "bookings", label: "Bookings", icon: <CalendarCheck size={18} /> },
+
+  // Existing Tour Bookings
+  { tab: "bookings", label: "Tour Bookings", icon: <CalendarCheck size={18} /> },
+
+  // ⭐ NEW Visa Bookings
+  { tab: "visaBookings", label: "Visa Bookings", icon: <CalendarCheck size={18} /> },
+
   { tab: "payments", label: "Payments", icon: <CreditCard size={18} /> },
   { tab: "users", label: "Users", icon: <Users size={18} /> },
   { tab: "enquiries", label: "Enquiries", icon: <Mail size={18} /> },
-  { tab: "banner", label: "Banners", icon: <ImageIcon size={18} /> }, // new banner tab
+  { tab: "banner", label: "Banners", icon: <ImageIcon size={18} /> },
   { tab: "settings", label: "Settings", icon: <Settings size={18} /> },
 ];
 
@@ -52,12 +51,16 @@ export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSideb
         <div className="flex items-center gap-3">
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
-              sidebarOpen ? "bg-gradient-to-r from-[#e82429] to-[#721011]" : "bg-[#e82429]"
+              sidebarOpen
+                ? "bg-gradient-to-r from-[#e82429] to-[#721011]"
+                : "bg-[#e82429]"
             }`}
           >
             DP
           </div>
-          {sidebarOpen && <h1 className="font-bold text-lg text-[#721011]">Admin Panel</h1>}
+          {sidebarOpen && (
+            <h1 className="font-bold text-lg text-[#721011]">Admin Panel</h1>
+          )}
         </div>
 
         <button
@@ -69,7 +72,7 @@ export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSideb
         </button>
       </div>
 
-      {/* Nav Items */}
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
         {ITEMS.map((item) => {
           const active = activeTab === item.tab;
@@ -77,16 +80,22 @@ export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSideb
             <button
               key={item.tab}
               onClick={() => setActiveTab(item.tab)}
-              className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200
-                ${active ? "bg-gradient-to-r from-[#e82429] to-[#721011] text-white shadow" : "text-[#404041] hover:bg-[#f9e9e9]"}
-              `}
+              className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
+                active
+                  ? "bg-gradient-to-r from-[#e82429] to-[#721011] text-white shadow"
+                  : "text-[#404041] hover:bg-[#f9e9e9]"
+              }`}
             >
-              <div className={`flex-shrink-0 ${active ? "text-white" : "text-[#e82429]"}`}>
+              <div className={`${active ? "text-white" : "text-[#e82429]"}`}>
                 {item.icon}
               </div>
 
               {sidebarOpen && (
-                <span className={`text-sm font-medium ${active ? "text-white" : "text-[#404041]"}`}>
+                <span
+                  className={`text-sm font-medium ${
+                    active ? "text-white" : "text-[#404041]"
+                  }`}
+                >
                   {item.label}
                 </span>
               )}
@@ -95,7 +104,7 @@ export default function Sidebar({ activeTab, setActiveTab, sidebarOpen, setSideb
         })}
       </nav>
 
-      {/* Footer / Branding */}
+      {/* Footer */}
       <div className="mt-auto p-3 border-t border-gray-200 text-center">
         {sidebarOpen ? (
           <div className="text-xs text-gray-400">

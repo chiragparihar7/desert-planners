@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import DataService from "../../config/DataService";
 import { API } from "../../config/API";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -18,7 +20,7 @@ export default function AdminLogin() {
       const res = await api.post(API.ADMIN_LOGIN, { email, password });
       localStorage.setItem("adminToken", res.data.token);
       alert("Admin logged in successfully!");
-      navigate("/admin/dashboard"); // Redirect after login
+      navigate("/admin/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");
     }
@@ -40,14 +42,24 @@ export default function AdminLogin() {
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             required
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-            required
-          />
+
+          {/* PASSWORD WITH EYE */}
+          <div className="relative">
+            <input
+              type={showPass ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              required
+            />
+            <span
+              className="absolute right-4 top-3 text-xl cursor-pointer text-gray-600"
+              onClick={() => setShowPass(!showPass)}
+            >
+              {showPass ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
 
           <button
             type="submit"
@@ -56,6 +68,13 @@ export default function AdminLogin() {
             Login
           </button>
         </form>
+
+        <p className="text-center mt-4 text-sm">
+          Don't have an admin account?{" "}
+          <Link to="/admin/register" className="text-red-600 font-semibold">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );
