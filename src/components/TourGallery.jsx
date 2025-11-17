@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Lightbox from "react-18-image-lightbox";
 import "react-18-image-lightbox/style.css";
 
+// Top section are here 
 const TourGallery = ({ tour }) => {
   if (!tour) {
     return (
