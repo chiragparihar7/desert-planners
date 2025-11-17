@@ -5,13 +5,11 @@ export default function BookingSuccess() {
   const navigate = useNavigate();
   const search = new URLSearchParams(window.location.search);
 
-  // 🔥 Only bookingId — NOT reference
   const bookingId = search.get("bookingId");
-
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch booking details from backend
+  // Fetch booking details
   useEffect(() => {
     if (!bookingId) return;
 
@@ -47,9 +45,7 @@ export default function BookingSuccess() {
         <h2 className="text-3xl font-bold text-[#721011] mb-2">
           Booking Confirmed 🎉
         </h2>
-        <p className="text-gray-600">
-          Your payment has been received successfully.
-        </p>
+        <p className="text-gray-600">Your payment has been received successfully.</p>
       </div>
 
       {/* Booking Info */}
@@ -59,26 +55,29 @@ export default function BookingSuccess() {
         </h3>
 
         <div className="grid grid-cols-2 gap-3 text-gray-700">
+          <p><b>Booking ID:</b> {booking._id}</p>
           <p>
-            <b>Booking ID:</b> {booking._id}
+            <b>Status:</b> <span className="text-green-600 font-semibold">{booking.status}</span>
           </p>
           <p>
-            <b>Status:</b>{" "}
-            <span className="text-green-600 font-semibold">
-              {booking.status}
-            </span>
+            <b>Payment:</b> <span className="text-green-600 font-semibold">{booking.paymentStatus}</span>
           </p>
+
+          {/* SUBTOTAL */}
           <p>
-            <b>Payment:</b>{" "}
-            <span className="text-green-600 font-semibold">
-              {booking.paymentStatus}
-            </span>
+            <b>Subtotal:</b> <span className="font-semibold">AED {booking.subtotal}</span>
           </p>
+
+          {/* FEE */}
+          <p>
+            <b>Transaction Fee (3.75%):</b>{" "}
+            <span className="font-semibold">AED {booking.transactionFee}</span>
+          </p>
+
+          {/* TOTAL */}
           <p>
             <b>Total Amount:</b>{" "}
-            <span className="text-[#e82429] font-bold">
-              AED {booking.totalPrice}
-            </span>
+            <span className="text-[#e82429] font-bold">AED {booking.totalPrice}</span>
           </p>
         </div>
       </div>
@@ -90,24 +89,15 @@ export default function BookingSuccess() {
         </h3>
 
         <div className="text-gray-700">
-          <p>
-            <b>Name:</b> {booking.guestName || booking.userName}
-          </p>
-          <p>
-            <b>Email:</b> {booking.guestEmail || booking.userEmail}
-          </p>
-          <p>
-            <b>Contact:</b> {booking.guestContact || "---"}
-          </p>
-          <p>
-            <b>Pickup:</b> {booking.pickupPoint}
-          </p>
-          <p>
-            <b>Drop:</b> {booking.dropPoint}
-          </p>
-          <p>
-            <b>Special Request:</b> {booking.specialRequest || "None"}
-          </p>
+          <p><b>Name:</b> {booking.guestName || booking.userName}</p>
+          <p><b>Email:</b> {booking.guestEmail || booking.userEmail}</p>
+          <p><b>Contact:</b> {booking.guestContact || "---"}</p>
+
+          {/* FIXED PICKUP / DROP */}
+          <p><b>Pickup:</b> {booking.pickupPoint || "N/A"}</p>
+          <p><b>Drop:</b> {booking.dropPoint || "N/A"}</p>
+
+          <p><b>Special Request:</b> {booking.specialRequest || "None"}</p>
         </div>
       </div>
 
@@ -118,28 +108,15 @@ export default function BookingSuccess() {
         </h3>
 
         {booking.items.map((item, index) => (
-          <div
-            key={index}
-            className="p-4 border rounded-lg mb-3 bg-gray-50 shadow-sm"
-          >
-            <p>
-              <b>Tour:</b> {item.tourId?.title}
-            </p>
-            <p>
-              <b>Date:</b> {item.date}
-            </p>
-            <p>
-              <b>Adults:</b> {item.adultCount} × {item.adultPrice}
-            </p>
-            <p>
-              <b>Child:</b> {item.childCount} × {item.childPrice}
-            </p>
+          <div key={index} className="p-4 border rounded-lg mb-3 bg-gray-50 shadow-sm">
+            <p><b>Tour:</b> {item.tourId?.title}</p>
+            <p><b>Date:</b> {item.date}</p>
+            <p><b>Adults:</b> {item.adultCount} × {item.adultPrice}</p>
+            <p><b>Children:</b> {item.childCount} × {item.childPrice}</p>
             <p>
               <b>Tour Total:</b>{" "}
               <b className="text-[#e82429]">
-                AED{" "}
-                {item.adultCount * item.adultPrice +
-                  item.childCount * item.childPrice}
+                AED {item.adultCount * item.adultPrice + item.childCount * item.childPrice}
               </b>
             </p>
           </div>
@@ -147,13 +124,10 @@ export default function BookingSuccess() {
       </div>
 
       <div className="text-center mt-8">
-        {/* 🔥 DOWNLOAD INVOICE BUTTON */}
         <button
           onClick={() =>
             window.open(
-              `${import.meta.env.VITE_API_URL}/api/bookings/invoice/${
-                booking._id
-              }`,
+              `${import.meta.env.VITE_API_URL}/api/bookings/invoice/${booking._id}`,
               "_blank"
             )
           }

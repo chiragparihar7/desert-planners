@@ -89,6 +89,12 @@ export default function Checkout() {
     return sum + adultPrice * adultCount + childPrice * childCount;
   }, 0);
 
+  // 🔥 TRANSACTION FEE 3.75%
+  const fee = Number((totalPrice * 0.0375).toFixed(2));
+
+  // 🔥 FINAL PAYABLE AMOUNT
+  const finalAmount = Number((totalPrice + fee).toFixed(2));
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -162,7 +168,9 @@ export default function Checkout() {
         pickupPoint: form.pickupPoint,
         dropPoint: form.dropPoint,
         specialRequest: form.specialRequest,
-        totalPrice,
+
+        // IMPORTANT: Final amount with fees
+        totalPrice: finalAmount,
         items,
       };
 
@@ -179,10 +187,10 @@ export default function Checkout() {
       const bookingId =
         bookingRes.data.booking?._id || bookingRes.data.bookingId;
 
-      // PAYMENT
+      // PAYMENT — SEND FINAL AMOUNT
       const paymentRes = await api.post(
         API.CREATE_PAYMENT,
-        { bookingId },
+        { bookingId, amount: finalAmount },
         { headers }
       );
 
@@ -213,13 +221,14 @@ export default function Checkout() {
 
       <div className="grid md:grid-cols-2 gap-10">
         {/* SUMMARY */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
           <h3 className="text-2xl font-semibold mb-5 text-[#721011] flex items-center gap-2">
             <FaCalendarAlt className="text-[#e82429]" /> Booking Summary
           </h3>
 
           {cart.length > 0 ? (
             <div className="space-y-5">
+              {/* ITEMS */}
               {cart.map((item, i) => {
                 const t = item.tourId || item;
 
@@ -238,12 +247,13 @@ export default function Checkout() {
 
                 const adultTotal = adultUnitPrice * adultCount;
                 const childTotal = childUnitPrice * childCount;
+
                 const total = adultTotal + childTotal;
 
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-5 border-b pb-4 border-gray-200 hover:bg-gray-50 rounded-xl transition-all p-2"
+                    className="flex items-center gap-5 border-b pb-4 border-gray-200"
                   >
                     <img
                       src={
@@ -261,33 +271,26 @@ export default function Checkout() {
                       </h4>
 
                       <p className="text-gray-600 text-sm">
-                        <FaCalendarAlt className="inline text-[#e82429] mr-1" />
+                        <FaCalendarAlt className="inline text-[#e82429]" />{" "}
                         {item.date
                           ? new Date(item.date).toDateString()
                           : "Not selected"}
                       </p>
 
-                      {/* Adult Breakdown */}
                       {adultCount > 0 && (
                         <p className="text-gray-700 text-sm">
                           Adults: {adultCount} × AED {adultUnitPrice} ={" "}
-                          <span className="font-semibold text-[#e82429]">
-                            AED {adultTotal}
-                          </span>
+                          <b>AED {adultTotal}</b>
                         </p>
                       )}
 
-                      {/* Child Breakdown */}
                       {childCount > 0 && (
                         <p className="text-gray-700 text-sm">
                           Children: {childCount} × AED {childUnitPrice} ={" "}
-                          <span className="font-semibold text-[#e82429]">
-                            AED {childTotal}
-                          </span>
+                          <b>AED {childTotal}</b>
                         </p>
                       )}
 
-                      {/* Total */}
                       <p className="text-[#e82429] font-bold mt-1">
                         Total: AED {total}
                       </p>
@@ -296,9 +299,28 @@ export default function Checkout() {
                 );
               })}
 
+              {/* TOTALS */}
               <div className="flex justify-between pt-4 border-t border-gray-200 text-lg">
-                <span className="font-bold text-gray-800">Total Price:</span>
-                <span className="font-bold text-[#e82429]">AED {totalPrice}</span>
+                <span className="font-bold text-gray-800">Subtotal:</span>
+                <span className="font-bold text-[#e82429]">
+                  AED {totalPrice}
+                </span>
+              </div>
+
+              <div className="flex justify-between text-lg">
+                <span className="font-bold text-gray-800">
+                  Transaction Fee (3.75%):
+                </span>
+                <span className="font-bold text-[#e82429]">AED {fee}</span>
+              </div>
+
+              <div className="flex justify-between text-xl pt-3 border-t">
+                <span className="font-extrabold text-gray-900">
+                  Final Payable:
+                </span>
+                <span className="font-extrabold text-green-700">
+                  AED {finalAmount}
+                </span>
               </div>
             </div>
           ) : (
@@ -307,7 +329,7 @@ export default function Checkout() {
         </div>
 
         {/* FORM */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
           <h3 className="text-2xl font-semibold mb-5 text-[#721011] flex items-center gap-2">
             <FaUser className="text-[#e82429]" /> Traveler Information
           </h3>
@@ -321,7 +343,7 @@ export default function Checkout() {
                 value={form.guestName}
                 onChange={handleChange}
                 placeholder="Full Name"
-                className="w-full pl-10 border p-3 rounded-xl focus:ring-2 focus:ring-[#e82429] outline-none"
+                className="w-full pl-10 border p-3 rounded-xl"
                 required
               />
             </div>
@@ -335,20 +357,18 @@ export default function Checkout() {
                 value={form.guestEmail}
                 onChange={handleChange}
                 placeholder="Email Address"
-                className="w-full pl-10 border p-3 rounded-xl focus:ring-2 focus:ring-[#e82429] outline-none"
+                className="w-full pl-10 border p-3 rounded-xl"
                 required
               />
             </div>
 
             {/* Phone */}
-            <div className="relative">
-              <PhoneInput
-                value={form.guestContact}
-                onChange={(val) =>
-                  setForm((prev) => ({ ...prev, guestContact: val }))
-                }
-              />
-            </div>
+            <PhoneInput
+              value={form.guestContact}
+              onChange={(val) =>
+                setForm((prev) => ({ ...prev, guestContact: val }))
+              }
+            />
 
             {/* Pickup */}
             <div className="relative">
@@ -358,7 +378,7 @@ export default function Checkout() {
                 value={form.pickupPoint}
                 onChange={handleChange}
                 placeholder="Pickup Point"
-                className="w-full pl-10 border p-3 rounded-xl focus:ring-2 focus:ring-[#e82429] outline-none"
+                className="w-full pl-10 border p-3 rounded-xl"
                 required
               />
             </div>
@@ -371,7 +391,7 @@ export default function Checkout() {
                 value={form.dropPoint}
                 onChange={handleChange}
                 placeholder="Drop Point"
-                className="w-full pl-10 border p-3 rounded-xl focus:ring-2 focus:ring-[#e82429] outline-none"
+                className="w-full pl-10 border p-3 rounded-xl"
                 required
               />
             </div>
@@ -382,16 +402,18 @@ export default function Checkout() {
               value={form.specialRequest}
               onChange={handleChange}
               placeholder="Special Request (Optional)"
-              className="w-full border p-3 rounded-xl h-24 focus:ring-2 focus:ring-[#e82429] outline-none"
+              className="w-full border p-3 rounded-xl h-24"
             />
 
-            {/* Button */}
+            {/* BUTTON */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#e82429] to-[#721011] text-white py-3 rounded-xl font-semibold text-lg hover:scale-[1.03] transition-transform"
+              className="w-full bg-gradient-to-r from-[#e82429] to-[#721011] text-white py-3 rounded-xl text-lg font-bold hover:scale-[1.03] transition-transform"
             >
-              {loading ? "Processing..." : "Confirm Booking"}
+              {loading
+                ? "Processing..."
+                : `Confirm & Pay AED ${finalAmount}`}
             </button>
           </form>
         </div>
