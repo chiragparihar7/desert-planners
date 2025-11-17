@@ -336,7 +336,7 @@ export default function Checkout() {
 
               <div className="flex justify-between text-lg">
                 <span className="font-bold text-gray-800">
-                  Transaction Fee (3.75%):
+                  Transaction Fee:
                 </span>
                 <span className="font-bold text-[#e82429]">AED {fee}</span>
               </div>

@@ -70,7 +70,7 @@ export default function BookingSuccess() {
 
           {/* FEE */}
           <p>
-            <b>Transaction Fee (3.75%):</b>{" "}
+            <b>Transaction Fee:</b>{" "}
             <span className="font-semibold">AED {booking.transactionFee}</span>
           </p>
 
