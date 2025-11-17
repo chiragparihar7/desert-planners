@@ -135,13 +135,6 @@ export default function BookingSuccess() {
         >
           Download Invoice
         </button>
-
-        <button
-          onClick={() => navigate("/my-orders")}
-          className="bg-gradient-to-r from-[#e82429] to-[#721011] text-white px-6 py-3 rounded-xl hover:scale-105 transition"
-        >
-          View My Bookings
-        </button>
       </div>
     </div>
   );
