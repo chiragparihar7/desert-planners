@@ -18,6 +18,7 @@ const payment = "/api/payment";
 const banners = "/api/banner";
 const visaBookings = "/api/visa-bookings";
 const visaPayment = "/api/visa-payment"; // ✅ NEW
+const holidayCategories = "/api/holiday-categories";
 
 export const API = {
   BASE_URL: isLocalhost
@@ -136,4 +137,11 @@ export const API = {
   CREATE_VISA_PAYMENT: `${visaPayment}/create`,
   CONFIRM_VISA_PAYMENT: (id) => `${visaPayment}/confirm/${id}`,
   WEBHOOK_VISA_PAYMENT: `${visaPayment}/webhook`,
+
+  // ---- Holiday Categories ----
+  ADD_HOLIDAY_CATEGORY: `${holidayCategories}`,
+  GET_HOLIDAY_CATEGORIES: `${holidayCategories}`,
+  DELETE_HOLIDAY_CATEGORY: (id) => `${holidayCategories}/${id}`,
+  UPDATE_HOLIDAY_CATEGORY: (id) => `${holidayCategories}/${id}`,
+  GET_PACKAGES_BY_CATEGORY: (slug) => `${holidayCategories}/category/${slug}`,
 };

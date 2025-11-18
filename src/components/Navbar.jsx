@@ -8,14 +8,19 @@ import ProfileMenu from "./ProfileMenu";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
   const [tourCategories, setTourCategories] = useState([]);
-  const [holidayCategory, setHolidayCategory] = useState(null);
+  const [holidayCategories, setHolidayCategories] = useState([]);
   const [visaCategories, setVisaCategories] = useState([]);
+
   const [openIndex, setOpenIndex] = useState(null);
   const [openSubIndex, setOpenSubIndex] = useState(null);
+
   const [userLoggedIn, setUserLoggedIn] = useState(false);
 
-  // ✅ Check if user logged in
+  // ------------------------------------------------------------------
+  // CHECK IF USER LOGGED IN
+  // ------------------------------------------------------------------
   useEffect(() => {
     const checkLogin = () => {
       const token = localStorage.getItem("userToken");
@@ -31,22 +36,23 @@ export default function Navbar() {
     };
   }, []);
 
-  // ✅ Fetch Tours + Visa Categories
+  // ------------------------------------------------------------------
+  // FETCH ALL CATEGORIES
+  // ------------------------------------------------------------------
   useEffect(() => {
     const api = DataService();
 
-    // ---- Fetch Tour Categories ----
-    const fetchCategories = async () => {
+    // ⭐ 1. Fetch Tour Categories
+    const getTourCategories = async () => {
       try {
         const res = await api.get(API.GET_CATEGORIES);
         const categories = res.data || [];
 
+        // Fetch tours inside each category
         const formatted = await Promise.all(
           categories.map(async (cat) => {
             const slug =
-              cat.slug ||
-              cat.categorySlug ||
-              cat.name?.toLowerCase().replace(/\s+/g, "-");
+              cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-");
 
             try {
               const toursRes = await api.get(API.GET_TOURS_BY_CATEGORY(slug));
@@ -57,58 +63,71 @@ export default function Navbar() {
           })
         );
 
-        const holiday = formatted.find(
-          (cat) =>
-            cat.name.toLowerCase().includes("holiday") ||
-            cat.slug === "holiday-packages"
-        );
-
-        const otherCategories = formatted.filter(
-          (cat) =>
-            !cat.name.toLowerCase().includes("holiday") &&
-            cat.slug !== "holiday-packages"
-        );
-
-        setTourCategories(otherCategories);
-        setHolidayCategory(holiday);
+        setTourCategories(formatted);
       } catch (err) {
-        console.error("Error fetching categories:", err);
+        console.log("Error fetching tour categories:", err);
       }
     };
 
-    // ---- Fetch Visa Categories ----
-    const fetchVisas = async () => {
+    // ⭐ 2. Fetch Holiday Categories
+    const getHolidayCategories = async () => {
       try {
-        const visaCatRes = await api.get(API.GET_VISA_CATEGORIES);
-        const visaCats = visaCatRes.data || [];
+        const res = await api.get(API.GET_HOLIDAY_CATEGORIES);
+        const holidayCats = res.data || [];
+
+        // Fetch holiday packages by category
+        const formatted = await Promise.all(
+          holidayCats.map(async (cat) => {
+            try {
+              const packages = await api.get(
+                API.GET_HOLIDAY_PACKAGES_BY_CATEGORY(cat.slug)
+              );
+              return { ...cat, packages: packages.data || [] };
+            } catch {
+              return { ...cat, packages: [] };
+            }
+          })
+        );
+
+        setHolidayCategories(formatted);
+      } catch (err) {
+        console.log("Error fetching holiday categories:", err);
+      }
+    };
+
+    // ⭐ 3. Fetch Visa Categories
+    const getVisaCategories = async () => {
+      try {
+        const visaRes = await api.get(API.GET_VISA_CATEGORIES);
+        const visaCats = visaRes.data || [];
 
         const formatted = await Promise.all(
           visaCats.map(async (vCat) => {
-            const slug =
-              vCat.slug ||
-              vCat.categorySlug ||
-              vCat.name?.toLowerCase().replace(/\s+/g, "-");
-
             try {
-              const visasRes = await api.get(`${API.GET_VISAS}?category=${vCat._id}`);
-              return { ...vCat, slug, visas: visasRes.data || [] };
+              const visasRes = await api.get(
+                `${API.GET_VISAS}?category=${vCat._id}`
+              );
+              return { ...vCat, visas: visasRes.data || [] };
             } catch {
-              return { ...vCat, slug, visas: [] };
+              return { ...vCat, visas: [] };
             }
           })
         );
 
         setVisaCategories(formatted);
       } catch (err) {
-        console.error("Error fetching visa categories:", err);
+        console.log("Error fetching visa categories:", err);
       }
     };
 
-    fetchCategories();
-    fetchVisas();
+    getTourCategories();
+    getHolidayCategories();
+    getVisaCategories();
   }, []);
 
-  // ✅ Navigation structure
+  // ------------------------------------------------------------------
+  // NAV STRUCTURE
+  // ------------------------------------------------------------------
   const navLinks = [
     {
       title: "Tours",
@@ -124,17 +143,23 @@ export default function Navbar() {
             })) || [],
         })) || [],
     },
+
+    // ⭐ NEW — Holiday Packages
     {
       title: "Holiday Packages",
-      path: holidayCategory?.slug
-        ? `/tours/${holidayCategory.slug}`
-        : "/holidays",
+      path: "/holidays",
       subLinks:
-        holidayCategory?.tours?.map((tour) => ({
-          name: tour.title,
-          path: `/tours/${holidayCategory.slug}/${tour.slug}`,
+        holidayCategories.map((cat) => ({
+          name: cat.name,
+          path: `/holidays/${cat.slug}`,
+          subSubLinks:
+            cat.packages?.map((pkg) => ({
+              name: pkg.title,
+              path: `/holidays/${cat.slug}/${pkg.slug}`,
+            })) || [],
         })) || [],
     },
+
     {
       title: "Visa Services",
       path: "/visa",
@@ -152,24 +177,17 @@ export default function Navbar() {
     { title: "Contact Us", path: "/contact-us" },
   ];
 
+  // ------------------------------------------------------------------
+  // UI HANDLERS
+  // ------------------------------------------------------------------
   const handleSearch = (e) => {
     e.preventDefault();
-    alert(`Searching for: ${searchQuery}`);
-  };
-
-  const handleMainClick = (i, link) => {
-    const isAlreadyOpen = openIndex === i;
-    setOpenIndex(isAlreadyOpen ? null : i);
-    if (!isAlreadyOpen && link.subLinks?.length > 0) {
-      setOpenSubIndex(0);
-    } else {
-      setOpenSubIndex(null);
-    }
   };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
       <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-4">
+        
         {/* Logo */}
         <Link to="/" onClick={() => setMenuOpen(false)}>
           <img
@@ -185,34 +203,36 @@ export default function Navbar() {
             <div key={i} className="relative group">
               <Link
                 to={link.path}
-                className="flex items-center gap-1 font-medium text-[#404041] hover:text-[#e82429] transition-colors duration-300"
+                className="flex items-center gap-1 font-medium text-[#404041] hover:text-[#e82429]"
               >
                 {link.title}
                 {link.subLinks?.length > 0 && <FiChevronDown size={16} />}
               </Link>
 
+              {/* Dropdown */}
               {link.subLinks?.length > 0 && (
-                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 invisible group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-300 z-[9999]">
+                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all">
                   <ul className="py-3">
                     {link.subLinks.map((sublink, j) => (
                       <li key={j} className="relative group/sub">
                         <Link
                           to={sublink.path}
-                          className="flex justify-between items-center px-5 py-2 text-sm font-medium text-[#404041] hover:bg-[#e82429]/10 hover:text-[#e82429] rounded-md transition-all duration-300"
+                          className="flex justify-between items-center px-5 py-2 text-sm text-[#404041] hover:bg-[#f7e6e6]"
                         >
                           {sublink.name}
                           {sublink.subSubLinks?.length > 0 && (
-                            <FiChevronDown className="ml-2 transform group-hover/sub:rotate-90 transition-transform duration-200" />
+                            <FiChevronDown className="ml-2" />
                           )}
                         </Link>
 
+                        {/* Nested */}
                         {sublink.subSubLinks?.length > 0 && (
-                          <ul className="absolute left-full top-0 ml-2 w-56 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible translate-x-3 group-hover/sub:translate-x-0 transition-all duration-300 z-[9999]">
+                          <ul className="absolute left-full top-0 ml-2 w-56 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all">
                             {sublink.subSubLinks.map((sub, k) => (
                               <li key={k}>
                                 <Link
                                   to={sub.path}
-                                  className="block px-4 py-2 text-sm text-[#404041] hover:bg-[#e82429]/10 hover:text-[#e82429] rounded-md transition-all duration-300"
+                                  className="block px-4 py-2 text-sm hover:bg-[#f7e6e6]"
                                 >
                                   {sub.name}
                                 </Link>
@@ -229,29 +249,28 @@ export default function Navbar() {
           ))}
 
           {/* Search */}
-          <form onSubmit={handleSearch} className="ml-6 relative">
+          <form onSubmit={handleSearch} className="relative ml-4">
             <input
               type="text"
+              className="pl-10 pr-4 py-2 rounded-lg border border-gray-300"
               placeholder="Search..."
-              value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#e82429] transition w-44"
             />
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </form>
 
-          {/* Contact Button */}
+          {/* Contact */}
           <Link
             to="/contact"
-            className="ml-4 px-6 py-2 rounded-lg font-semibold text-white bg-[#e82429] hover:bg-[#c51b22] transition-transform duration-300 hover:scale-105 shadow-md"
+            className="ml-4 px-6 py-2 rounded-lg bg-[#e82429] text-white shadow hover:bg-[#c51b22]"
           >
             Contact Us
           </Link>
 
-          <ProfileMenu key={userLoggedIn ? "loggedIn" : "loggedOut"} />
+          <ProfileMenu />
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Button */}
         <button
           className="lg:hidden text-[#404041]"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -266,10 +285,10 @@ export default function Navbar() {
           <ul className="flex flex-col p-4 space-y-2">
             {navLinks.map((link, i) => (
               <li key={i}>
-                <div className="flex justify-between items-center font-medium text-[#404041] py-2">
+                <div className="flex justify-between items-center">
                   <Link
                     to={link.path}
-                    className="flex-1 hover:text-[#e82429] transition-colors"
+                    className="flex-1 font-medium"
                     onClick={() => setMenuOpen(false)}
                   >
                     {link.title}
@@ -277,66 +296,31 @@ export default function Navbar() {
 
                   {link.subLinks?.length > 0 && (
                     <button
-                      onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                      className="p-1 text-[#404041] hover:text-[#e82429] transition-transform"
+                      onClick={() =>
+                        setOpenIndex(openIndex === i ? null : i)
+                      }
                     >
                       <FiChevronDown
-                        className={`transform transition-transform duration-300 ${
-                          openIndex === i ? "rotate-180 text-[#e82429]" : ""
+                        className={`transition ${
+                          openIndex === i ? "rotate-180" : ""
                         }`}
                       />
                     </button>
                   )}
                 </div>
 
+                {/* Submenu */}
                 {openIndex === i && link.subLinks?.length > 0 && (
-                  <ul className="pl-4 mt-1 space-y-1">
+                  <ul className="pl-4 mt-2 space-y-1">
                     {link.subLinks.map((sublink, j) => (
                       <li key={j}>
-                        <div className="flex justify-between items-center text-sm text-gray-700 py-1">
-                          <Link
-                            to={sublink.path}
-                            className="flex-1 hover:text-[#e82429] transition-colors"
-                            onClick={() => setMenuOpen(false)}
-                          >
-                            {sublink.name}
-                          </Link>
-
-                          {sublink.subSubLinks?.length > 0 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenSubIndex(openSubIndex === j ? null : j);
-                              }}
-                              className="p-1 text-[#404041] hover:text-[#e82429] transition-transform"
-                            >
-                              <FiChevronDown
-                                className={`transform transition-transform duration-300 ${
-                                  openSubIndex === j
-                                    ? "rotate-180 text-[#e82429]"
-                                    : ""
-                                }`}
-                              />
-                            </button>
-                          )}
-                        </div>
-
-                        {openSubIndex === j &&
-                          sublink.subSubLinks?.length > 0 && (
-                            <ul className="pl-4 mt-1 space-y-1">
-                              {sublink.subSubLinks.map((sub, k) => (
-                                <li key={k}>
-                                  <Link
-                                    to={sub.path}
-                                    className="block text-sm text-gray-600 hover:text-[#e82429] py-1"
-                                    onClick={() => setMenuOpen(false)}
-                                  >
-                                    {sub.name}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                        <Link
+                          to={sublink.path}
+                          className="block py-1 text-sm"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          {sublink.name}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -344,52 +328,31 @@ export default function Navbar() {
               </li>
             ))}
 
-            {/* Profile Options */}
-            <li className="mt-3 border-t pt-3">
+            {/* Profile */}
+            <li className="border-t pt-3">
               {userLoggedIn ? (
                 <>
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-2 text-gray-700 hover:text-[#e82429] py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FiUser /> My Profile
-                  </Link>
-                  <Link
-                    to="/my-orders"
-                    className="flex items-center gap-2 text-gray-700 hover:text-[#e82429] py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FiUser /> My Orders
+                  <Link to="/profile" className="block py-2">
+                    Profile
                   </Link>
                   <button
                     onClick={() => {
-                      localStorage.removeItem("userToken");
-                      localStorage.removeItem("userName");
+                      localStorage.clear();
                       window.dispatchEvent(new Event("userLoginChange"));
-                      setUserLoggedIn(false);
                       setMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 text-gray-700 hover:text-red-600 py-2 w-full text-left"
+                    className="block py-2 text-left w-full"
                   >
-                    <FiUser /> Logout
+                    Logout
                   </button>
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    className="flex items-center gap-2 text-gray-700 hover:text-[#e82429] py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FiUser /> Sign In
+                  <Link to="/login" className="block py-2">
+                    Sign In
                   </Link>
-                  <Link
-                    to="/register"
-                    className="flex items-center gap-2 text-gray-700 hover:text-[#e82429] py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FiUser /> Sign Up
+                  <Link to="/register" className="block py-2">
+                    Sign Up
                   </Link>
                 </>
               )}

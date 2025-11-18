@@ -18,22 +18,42 @@ import {
 
 const ITEMS = [
   { tab: "overview", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+
+  // Tours Section
   { tab: "tours", label: "Tours", icon: <Briefcase size={18} /> },
+
+  // Visa Section
   { tab: "visa", label: "Visa", icon: <Plane size={18} /> },
   { tab: "visaCategory", label: "Visa Categories", icon: <FileSpreadsheet size={18} /> },
+
+  // ⭐ NEW Holiday Categories
+  { tab: "holidayCategory", label: "Holiday Categories", icon: <Grid size={18} /> },
+
+  // Tour Categories
   { tab: "category", label: "Tour Categories", icon: <Grid size={18} /> },
+
+  // Sections
   { tab: "sections", label: "Sections", icon: <Layers size={18} /> },
 
-  // Existing Tour Bookings
+  // Bookings
   { tab: "bookings", label: "Tour Bookings", icon: <CalendarCheck size={18} /> },
 
   // ⭐ NEW Visa Bookings
   { tab: "visaBookings", label: "Visa Bookings", icon: <CalendarCheck size={18} /> },
 
+  // Payments
   { tab: "payments", label: "Payments", icon: <CreditCard size={18} /> },
+
+  // Users
   { tab: "users", label: "Users", icon: <Users size={18} /> },
+
+  // Enquiries
   { tab: "enquiries", label: "Enquiries", icon: <Mail size={18} /> },
+
+  // Banners
   { tab: "banner", label: "Banners", icon: <ImageIcon size={18} /> },
+
+  // Settings
   { tab: "settings", label: "Settings", icon: <Settings size={18} /> },
 ];
 

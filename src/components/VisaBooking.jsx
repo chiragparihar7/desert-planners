@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import DataService from "../config/DataService";
 import { API } from "../config/API";
 import toast from "react-hot-toast";
+import PhoneInput from "../components/PhoneInput";
 
 // ------------------------------------------------------------------
 // MODERN DATE PICKER WITH MONTH + YEAR DROPDOWN
@@ -489,25 +490,33 @@ export default function VisaBooking() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Personal Info */}
               <div className="space-y-4">
-                <FormInput label="Full Name" name="fullName" value={fields.fullName} onChange={handleChange} />
-                <FormInput label="Email" name="email" type="email" value={fields.email} onChange={handleChange} />
-                <FormInput label="Phone Number" name="phone" value={fields.phone} onChange={handleChange} />
-                <FormSelect
-                  label="Gender"
-                  name="gender"
-                  value={fields.gender}
-                  onChange={handleChange}
-                  options={["Male", "Female", "Other"]}
-                />
-                <DateInput label="Date of Birth" name="dob" value={fields.dob} onChange={handleChange} />
-              </div>
+  <FormInput label="Full Name" name="fullName" value={fields.fullName} onChange={handleChange} />
+  <FormInput label="Email" name="email" type="email" value={fields.email} onChange={handleChange} />
+
+  {/* NEW PHONE INPUT WITH COUNTRY CODE */}
+  <PhoneInput
+    value={fields.phone}
+    onChange={(val) => handleChange("phone", val)}
+  />
+
+  <FormSelect
+    label="Gender"
+    name="gender"
+    value={fields.gender}
+    onChange={handleChange}
+    options={["Male", "Female", "Other"]}
+  />
+
+  <DateInput label="Date of Birth" name="dob" value={fields.dob} onChange={handleChange} />
+</div>
+
 
               {/* Passport Info */}
               <div className="space-y-4">
                 <FormInput label="Passport Number" name="passportNumber" value={fields.passportNumber} onChange={handleChange} />
                 <FormInput label="Issue Place" name="issuePlace" value={fields.issuePlace} onChange={handleChange} />
-                <DateInput label="Issue Date" name="issueDate" value={fields.issueDate} onChange={handleChange} />
-                <DateInput label="Expiry Date" name="expiryDate" value={fields.expiryDate} onChange={handleChange} />
+                <DateInput label="Passport Issue Date" name="issueDate" value={fields.issueDate} onChange={handleChange} />
+                <DateInput label="Passport Expiry Date" name="expiryDate" value={fields.expiryDate} onChange={handleChange} />
               </div>
             </div>
 

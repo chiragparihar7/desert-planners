@@ -6,6 +6,7 @@ import Overview from "./Overview";
 import ToursManagement from "./ToursManagement";
 import TourCategory from "./TourCategory";
 import VisaCategory from "./VisaCategory";
+import HolidayCategory from "./HolidayCategory"; // ⭐ NEW
 import Bookings from "./Bookings";
 import Payments from "./Payments";
 import Users from "./Users";
@@ -14,7 +15,7 @@ import Settings from "./Settings";
 import Visa from "./Visa";
 import SectionsManagement from "./SectionsManagement";
 import BannerManagement from "./BannerManagement";
-import VisaBookings from "./VisaBookings"; // 👈 NEW ADDED
+import VisaBookings from "./VisaBookings";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -25,10 +26,13 @@ export default function AdminDashboard() {
     tours: ToursManagement,
     visa: Visa,
     visaCategory: VisaCategory,
+
+    holidayCategory: HolidayCategory, // ⭐ NEW
+
     category: TourCategory,
     sections: SectionsManagement,
-    bookings: Bookings,           // Tour bookings
-    visaBookings: VisaBookings,   // 👈 NEW Visa bookings section
+    bookings: Bookings,
+    visaBookings: VisaBookings,
     payments: Payments,
     users: Users,
     enquiries: Enquiries,
