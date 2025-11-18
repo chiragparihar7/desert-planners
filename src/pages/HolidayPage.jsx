@@ -170,13 +170,9 @@ export default function HolidayPage() {
 
             {/* PRICE */}
             <div className="flex flex-col items-start md:items-end">
-              <p className="text-5xl font-black text-[#e82429]">
+              <p className="text-4xl font-black text-[#e82429]">
                 AED {tour.priceAdult}
               </p>
-
-              <span className="px-3 py-1 bg-[#ffe0e0] rounded-full text-sm font-semibold">
-                Child Price: AED {tour.priceChild}
-              </span>
 
               <p className="text-gray-500 text-sm">(Per Person)</p>
 
@@ -195,27 +191,39 @@ export default function HolidayPage() {
         {/* ⭐ MODERN TAB SYSTEM */}
         <div className="bg-white rounded-3xl shadow-lg p-6 border border-[#e82429]/20">
           {/* TABS */}
-          <div className="flex flex-wrap gap-3 border-b pb-3">
-            {[
-              ["highlights", "Highlights"],
-              ["itinerary", "Itinerary"],
-              ["know", "Need to Know"],
-              ["cancel", "Cancellation & Refund"],
-              ["terms", "Terms & Conditions"],
-            ].map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                  activeTab === key
-                    ? "bg-[#e82429] text-white shadow"
-                    : "bg-[#fff4f4] text-[#721011]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          {/* TABS */}
+<div
+  className="
+    flex gap-3 border-b pb-3 
+    overflow-x-auto no-scrollbar
+    whitespace-nowrap
+  "
+>
+  {[
+    ["highlights", "Highlights"],
+    ["itinerary", "Itinerary"],
+    ["know", "Need to Know"],
+    ["cancel", "Cancellation & Refund"],
+    ["terms", "Terms & Condition"],
+  ].map(([key, label]) => (
+    <button
+      key={key}
+      onClick={() => setActiveTab(key)}
+      className={`
+        px-3 md:px-4 py-2 rounded-lg text-sm md:text-[0.95rem] font-semibold
+        transition-all shrink-0
+        ${
+          activeTab === key
+            ? "bg-[#e82429] text-white shadow"
+            : "bg-[#fff4f4] text-[#721011]"
+        }
+      `}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+
 
           {/* ----------------------------- TAB CONTENT AREA ----------------------------- */}
 
@@ -374,98 +382,9 @@ export default function HolidayPage() {
           </div>
         </div>
       </div>
-
       {/* RIGHT SIDE */}
       <aside className="md:col-span-1 space-y-8">
-        {/* ENQUIRY FORM */}
-        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20">
-          <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
-            Enquire Now
-          </h3>
-
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-                placeholder="First Name"
-                className="p-3 border rounded-xl w-full"
-              />
-              <input
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                placeholder="Last Name"
-                className="p-3 border rounded-xl w-full"
-              />
-            </div>
-
-            <input
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email"
-              className="p-3 border rounded-xl w-full"
-            />
-
-            <input
-              name="contact"
-              value={form.contact}
-              onChange={handleChange}
-              placeholder="Contact Number"
-              className="p-3 border rounded-xl w-full"
-            />
-
-            <select
-              name="selectedTour"
-              value={form.selectedTour}
-              onChange={handleChange}
-              className="p-3 border rounded-xl w-full"
-            >
-              {sampleTours.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-
-            <input
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              placeholder="Your Location"
-              className="p-3 border rounded-xl w-full"
-            />
-
-            <textarea
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              placeholder="Message"
-              className="p-3 border rounded-xl w-full h-28"
-            ></textarea>
-
-            <button className="w-full py-3 bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-bold rounded-xl">
-              Submit Enquiry
-            </button>
-          </form>
-        </div>
-
-        {/* NEED HELP */}
-        <div className="bg-white rounded-3xl shadow-xl p-5 border border-[#e82429]/20">
-          <h3 className="text-lg font-bold text-[#721011] mb-3">
-            🆘 Need Help?
-          </h3>
-
-          <div className="p-3 bg-[#fff4f4] rounded-xl mb-3 border">
-            📞 <b>+971 50 000 0000</b>
-          </div>
-
-          <div className="p-3 bg-[#fff4f4] rounded-xl border">
-            📧 support@desertplanners.com
-          </div>
-        </div>
-
-        {/* WHY BOOK WITH US */}
+        {/* ⭐ WHY BOOK WITH US */}
         <div className="bg-white rounded-3xl shadow-xl p-5 border border-[#e82429]/20">
           <h3 className="text-lg font-bold text-[#721011] mb-4">
             ⭐ Why Book With Us?
@@ -491,7 +410,76 @@ export default function HolidayPage() {
             ))}
           </div>
         </div>
+
+        {/* ⭐ STATIC ENQUIRY FORM */}
+        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20">
+          <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
+            Enquire Now
+          </h3>
+
+          <form className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                placeholder="First Name"
+                className="p-3 border rounded-xl w-full"
+              />
+              <input
+                placeholder="Last Name"
+                className="p-3 border rounded-xl w-full"
+              />
+            </div>
+
+            <input
+              placeholder="Email"
+              className="p-3 border rounded-xl w-full"
+            />
+            <input
+              placeholder="Contact Number"
+              className="p-3 border rounded-xl w-full"
+            />
+
+            <select className="p-3 border rounded-xl w-full">
+              <option>Dubai Highlights</option>
+              <option>Desert Adventure</option>
+              <option>Luxury Dubai Stay</option>
+              <option>Family Fun Package</option>
+            </select>
+
+            <input
+              placeholder="Your Location"
+              className="p-3 border rounded-xl w-full"
+            />
+
+            <textarea
+              placeholder="Message / Enquiry"
+              className="p-3 border rounded-xl w-full h-28"
+            ></textarea>
+
+            <button
+              type="button"
+              className="w-full py-3 bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-bold rounded-xl"
+            >
+              Submit Enquiry
+            </button>
+          </form>
+        </div>
+
+        {/* ⭐ STATIC NEED HELP SECTION */}
+        <div className="bg-white rounded-3xl shadow-xl p-5 border border-[#e82429]/20">
+          <h3 className="text-lg font-bold text-[#721011] mb-3">
+            🆘 Need Help?
+          </h3>
+
+          <div className="p-3 bg-[#fff4f4] rounded-xl mb-3 border">
+            📞 <b>+971 50 000 0000</b>
+          </div>
+
+          <div className="p-3 bg-[#fff4f4] rounded-xl border">
+            📧 support@desertplanners.com
+          </div>
+        </div>
       </aside>
+      >
     </div>
   );
 }
