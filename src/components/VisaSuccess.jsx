@@ -35,8 +35,15 @@ export default function VisaSuccess() {
       </div>
     );
 
+  // Format number
+  const format = (n) =>
+    Number(n || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white mt-8 shadow-lg rounded-xl border">
+    <div className="max-w-3xl mx-auto p-6 bg-white mt-8 shadow-xl rounded-2xl border border-gray-200">
       <div className="text-center">
         <img
           src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
@@ -52,34 +59,83 @@ export default function VisaSuccess() {
       </div>
 
       {/* Booking Details */}
-      <div className="mt-6 border-t pt-4">
-        <h3 className="text-xl font-semibold mb-2 text-[#721011]">
+      <div className="mt-8 border-t pt-6">
+        <h3 className="text-xl font-semibold mb-3 text-[#721011]">
           Visa Booking Details
         </h3>
 
-        <div className="grid grid-cols-2 gap-3 text-gray-700">
+        <div className="grid grid-cols-2 gap-3 text-gray-800">
           <p><b>Booking ID:</b> {booking._id}</p>
-          <p><b>Status:</b> <span className="text-green-600">{booking.status}</span></p>
-          <p><b>Total Amount:</b> <span className="text-[#e82429] font-bold">AED {booking.totalPrice}</span></p>
+          <p>
+            <b>Status:</b>{" "}
+            <span className="text-green-600 font-semibold">
+              {booking.status}
+            </span>
+          </p>
+
           <p><b>Visa Type:</b> {booking.visaTitle}</p>
+          <p><b>Processing:</b> {booking.processingTime}</p>
+        </div>
+      </div>
+
+      {/* Payment Breakdown */}
+      <div className="mt-8 border-t pt-6">
+        <h3 className="text-xl font-semibold mb-3 text-[#721011]">
+          Payment Summary
+        </h3>
+
+        <div className="bg-gray-50 p-5 rounded-xl border">
+          <div className="flex justify-between text-gray-700 mb-2">
+            <span>Base Price</span>
+            <span className="font-semibold">AED {format(booking.basePrice)}</span>
+          </div>
+
+          <div className="flex justify-between text-gray-700 mb-2">
+            <span>Transaction Fee (3.75%)</span>
+            <span className="font-semibold">
+              AED {format(booking.transactionFee)}
+            </span>
+          </div>
+
+          <div className="flex justify-between mt-3 pt-3 border-t text-lg">
+            <span className="font-bold">Total Paid</span>
+            <span className="font-bold text-[#e82429]">
+              AED {format(booking.finalAmount)}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* User Info */}
-      <div className="mt-6 border-t pt-4">
-        <h3 className="text-xl font-semibold mb-2 text-[#721011]">Applicant Information</h3>
+      <div className="mt-8 border-t pt-6">
+        <h3 className="text-xl font-semibold mb-3 text-[#721011]">
+          Applicant Information
+        </h3>
 
-        <div className="text-gray-700">
+        <div className="text-gray-800 space-y-1">
           <p><b>Name:</b> {booking.fullName}</p>
           <p><b>Email:</b> {booking.email}</p>
           <p><b>Phone:</b> {booking.phone}</p>
         </div>
       </div>
 
-      <div className="text-center mt-8">
+      {/* Buttons */}
+      <div className="text-center mt-10 flex justify-center gap-4 flex-wrap">
+
+        {/* Download Invoice */}
+        <a
+          href={`${import.meta.env.VITE_API_URL}/api/visa-bookings/invoice/${booking._id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition shadow-md"
+        >
+          Download Invoice
+        </a>
+
+        {/* Go Home */}
         <button
           onClick={() => navigate("/")}
-          className="bg-gradient-to-r from-[#721011] to-[#e82429] text-white px-6 py-3 rounded-xl hover:scale-105 transition"
+          className="bg-gradient-to-r from-[#721011] to-[#e82429] text-white px-6 py-3 rounded-xl hover:scale-105 transition shadow-md"
         >
           Go to Home
         </button>
