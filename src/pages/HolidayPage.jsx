@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaClock,
   FaStar,
   FaCalendarAlt,
   FaBed,
   FaUtensils,
-  FaMapMarkerAlt,
   FaUser,
 } from "react-icons/fa";
 
 export default function HolidayPage() {
+  const [activeTab, setActiveTab] = useState("highlights");
+
+  // 🟢 TOP QUALITY UNSPLASH DIRECT IMAGES (guaranteed load)
   const tour = {
     title: "Winter Escape: Dubai Highlights",
     duration: "3N - 4D",
@@ -35,10 +37,27 @@ export default function HolidayPage() {
     ],
 
     itinerary: [
-      "DUBAI AIRPORT ARRIVAL TRANSFERS",
-      "DUBAI HALF DAY CITY TOUR + DUBAI FRAME + MARINA DHOW CRUISE (DINNER ON SHARING BASIS)",
-      "DESERT SAFARI WITH BBQ DINNER BY 4 X 4 VEHICLE ON SHARING BASIS",
-      "DUBAI AIRPORT DEPARTURE",
+      {
+        title: "DUBAI AIRPORT ARRIVAL TRANSFERS",
+        image:
+          "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1200&q=80",
+      },
+      {
+        title:
+          "DUBAI HALF DAY CITY TOUR + DUBAI FRAME + MARINA DHOW CRUISE WITH DINNER",
+        image:
+          "https://images.unsplash.com/photo-1504805572947-34fad45aed93?auto=format&fit=crop&w=1200&q=80",
+      },
+      {
+        title: "DESERT SAFARI WITH BBQ DINNER (4x4 Jeep Experience)",
+        image:
+          "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+      },
+      {
+        title: "DUBAI AIRPORT DEPARTURE",
+        image:
+          "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+      },
     ],
 
     knowBefore: [
@@ -49,12 +68,12 @@ export default function HolidayPage() {
       "Guided tours with professional staff",
     ],
 
-    terms: `• The Quote is valid only for the above mentioned no of passengers and Any change in the number of passengers will lead to a revision of the Price.
-• Vehicle type and cost are considered based on guests arriving and departing together as a unified group on the same flight.
-• Hotels may require mandatory refundable deposits at check-in.
-• Standard Check-In Time @ 02.00 pm & Check-Out Time @ 12.00 pm.
-• Rooms and rates are subject to availability during booking.
-• From 01st March 2025, Burj Khalifa tickets are non-refundable & require 100% payment.`,
+    terms: `• Quote valid only for above mentioned pax count.
+• Any change in pax count affects pricing.
+• Hotels may require mandatory refundable deposits.
+• Check-In 2:00 PM, Check-Out 12:00 PM.
+• Rooms & rates subject to availability during booking.
+• Burj Khalifa tickets from March 2025 are non-refundable.`,
   };
 
   const [form, setForm] = useState({
@@ -82,397 +101,397 @@ export default function HolidayPage() {
     alert("Enquiry submitted successfully!");
   };
 
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 4);
+    }, 4000); // auto slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="max-w-[1200px] mx-auto py-10 px-4 grid grid-cols-1 md:grid-cols-3 gap-10">
-      {/* LEFT CONTENT */}
+      {/* LEFT SIDE */}
       <div className="md:col-span-2 space-y-10">
-        {/* Image */}
-        <div className="rounded-3xl overflow-hidden shadow-xl">
-          <img
-            src="https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=1200&q=80"
-            alt="Holiday"
-            className="w-full h-[420px] md:h-[480px] object-cover hover:scale-105 transition-all duration-700"
-          />
+        {/* MAIN IMAGE */}
+        {/* 🔥 AUTO SLIDER HERO IMAGE */}
+        <div className="rounded-3xl overflow-hidden shadow-xl relative h-[420px] md:h-[480px]">
+          {[
+            "https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=1200&q=80",
+          ].map((src, index) => (
+            <img
+              key={index}
+              src={src}
+              className={`
+      absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ease-in-out
+      ${activeSlide === index ? "opacity-100" : "opacity-0"}
+    `}
+            />
+          ))}
+
+          {/* DOTS INDICATORS */}
+          <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-2">
+            {[0, 1, 2, 3].map((i) => (
+              <button
+                key={i}
+                onClick={() => setActiveSlide(i)}
+                className={`
+        w-3 h-3 rounded-full transition-all
+        ${activeSlide === i ? "bg-[#e82429] scale-125" : "bg-white/60"}
+      `}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Hero Card (Updated & Modern) */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-lg p-7 border border-[#e82429]/10 hover:shadow-2xl transition-all duration-400">
+        {/* HERO CARD */}
+        <div className="bg-white rounded-3xl shadow-lg p-7 border border-[#e82429]/10">
           <div className="flex flex-col md:flex-row justify-between gap-8">
-            {/* Title Section */}
             <div className="flex-1">
-              <h1 className="text-3xl md:text-[2.3rem] leading-tight font-extrabold text-[#721011] drop-shadow-sm">
+              <h1 className="text-4xl font-extrabold text-[#721011]">
                 {tour.title}
               </h1>
 
-              {/* Badges */}
               <div className="mt-4 flex flex-wrap gap-3">
-                {/* Duration */}
-                <span className="bg-[#ffe4e4] px-4 py-1.5 rounded-full text-sm md:text-base font-semibold text-[#721011] flex items-center gap-2 shadow-sm border border-[#e82429]/20">
-                  <FaClock className="text-[#e82429]" />
-                  {tour.duration}
+                <span className="bg-[#ffe4e4] px-4 py-1.5 rounded-full flex items-center gap-2 font-semibold">
+                  <FaClock className="text-[#e82429]" /> {tour.duration}
                 </span>
 
-                {/* Category */}
-                <span className="bg-[#fff4f4] px-4 py-1.5 rounded-full text-sm md:text-base font-semibold text-[#721011] shadow-sm border border-[#e82429]/20">
+                <span className="bg-[#fff4f4] px-4 py-1.5 rounded-full font-semibold">
                   {tour.category.name}
                 </span>
               </div>
             </div>
 
-            {/* Price Section */}
+            {/* PRICE */}
             <div className="flex flex-col items-start md:items-end">
-              <p className="text-4xl md:text-[3rem] font-black text-[#e82429] leading-tight drop-shadow-sm tracking-tight">
+              <p className="text-5xl font-black text-[#e82429]">
                 AED {tour.priceAdult}
               </p>
 
-              {tour.priceChild && (
-                <span className="mt-1 px-3 py-1 bg-[#ffe0e0] rounded-full text-xs md:text-sm font-semibold text-[#721011] border border-[#e82429]/20 shadow-sm">
-                  Child Price: AED {tour.priceChild}
-                </span>
-              )}
+              <span className="px-3 py-1 bg-[#ffe0e0] rounded-full text-sm font-semibold">
+                Child Price: AED {tour.priceChild}
+              </span>
 
-              <p className="text-gray-500 text-xs md:text-sm mt-1">
-                (Per Person)
-              </p>
+              <p className="text-gray-500 text-sm">(Per Person)</p>
 
-              {/* Rating */}
               <div className="flex items-center gap-1 mt-2">
                 {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className="text-yellow-500 drop-shadow-sm text-lg"
-                  />
+                  <FaStar key={i} className="text-yellow-500" />
                 ))}
-                <span className="text-gray-600 text-sm md:text-base font-medium">
-                  4.9 • 134 reviews
-                </span>
+                <span className="text-gray-600 text-sm">4.9 • 134 reviews</span>
               </div>
             </div>
           </div>
 
-          {/* Description */}
-          <p className="mt-5 text-gray-700 text-[0.95rem] md:text-base leading-relaxed">
-            {tour.description}
-          </p>
+          <p className="mt-5 text-gray-700">{tour.description}</p>
         </div>
 
-        {/* HIGHLIGHTS */}
-        <div className="bg-white shadow-xl rounded-3xl p-6 border border-[#e82429]/20">
-          <h3 className="text-2xl font-bold text-[#721011] mb-4">
-            Package Highlights
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="flex gap-3">
-              <FaCalendarAlt className="text-[#e82429] text-xl" />
-              <div>
-                <p className="font-semibold">NO OF NIGHT</p>
-                <p>3N - 4D</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <FaUser className="text-[#e82429] text-xl" />
-              <div>
-                <p className="font-semibold">NO OF PERSON</p>
-                <p>02 ADULTS (MIN)</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <FaBed className="text-[#e82429] text-xl" />
-              <div>
-                <p className="font-semibold">NO OF ROOM</p>
-                <p>01 STANDARD DOUBLE ROOM</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <FaUtensils className="text-[#e82429] text-xl" />
-              <div>
-                <p className="font-semibold">MEAL PLAN</p>
-                <p>Bed & Breakfast</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* NEED TO KNOW */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border border-[#e82429]/20">
-          <h2 className="text-2xl font-bold text-[#404041] mb-4 border-b pb-2">
-            Need to Know
-          </h2>
-
-          <ul className="space-y-3">
-            <li className="flex gap-3 bg-[#fff4f4] p-3 rounded-xl border border-[#e82429]/20 hover:bg-[#ffeaea] transition">
-              <span className="text-xl">⏰</span>
-              <span className="font-medium text-gray-700">
-                Timings: {tour.timings}
-              </span>
-            </li>
-          </ul>
-
-          {/* Inclusions */}
-          <h3 className="text-xl font-semibold text-[#e82429] mt-6 mb-2">
-            Inclusions
-          </h3>
-          <ul className="space-y-2">
-            {tour.inclusions.map((x, i) => (
-              <li
-                key={i}
-                className="flex gap-2 p-2 bg-[#fff4f4] rounded-md border border-[#e82429]/20"
+        {/* ⭐ MODERN TAB SYSTEM */}
+        <div className="bg-white rounded-3xl shadow-lg p-6 border border-[#e82429]/20">
+          {/* TABS */}
+          <div className="flex flex-wrap gap-3 border-b pb-3">
+            {[
+              ["highlights", "Highlights"],
+              ["itinerary", "Itinerary"],
+              ["know", "Need to Know"],
+              ["cancel", "Cancellation & Refund"],
+              ["terms", "Terms & Conditions"],
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  activeTab === key
+                    ? "bg-[#e82429] text-white shadow"
+                    : "bg-[#fff4f4] text-[#721011]"
+                }`}
               >
-                <span>✅</span> {x}
-              </li>
-            ))}
-          </ul>
-
-          {/* Exclusions */}
-          <h3 className="text-xl font-semibold text-[#e82429] mt-6 mb-2">
-            Exclusions
-          </h3>
-          <ul className="space-y-2">
-            {tour.exclusions.map((x, i) => (
-              <li
-                key={i}
-                className="flex gap-2 p-2 bg-[#fff4f4] rounded-md border border-[#e82429]/20"
-              >
-                <span>❌</span> {x}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* ITINERARY SECTION - Modern Timeline */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 border border-[#e82429]/20">
-          <h2 className="text-2xl font-bold text-[#404041] mb-6">
-            Suggested Itinerary
-          </h2>
-
-          <div className="relative border-l-4 border-[#e82429]/30 pl-6 space-y-8">
-            {tour.itinerary.map((item, index) => (
-              <div key={index} className="relative">
-                {/* Gradient Dot */}
-                <div className="absolute -left-3 top-1.5 w-5 h-5 rounded-full bg-gradient-to-br from-[#e82429] to-[#791418] shadow-md border-2 border-white"></div>
-
-                {/* Card */}
-                <div className="bg-[#fff6f6] hover:bg-[#ffeaea] transition-all rounded-xl shadow-md p-4 border border-[#e82429]/10">
-                  <h3 className="text-lg font-bold text-[#721011] mb-1">
-                    DAY {index + 1}
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                    {item}
-                  </p>
-                </div>
-              </div>
+                {label}
+              </button>
             ))}
           </div>
-        </div>
 
-        {/* CANCELLATION & REFUND POLICY – Modern Section */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 space-y-6 hover:shadow-2xl transition-shadow duration-300 border border-[#e82429]/20">
-          {/* Heading */}
-          <h2 className="text-2xl font-bold text-[#404041] mb-3 border-b border-[#e82429]/30 pb-2 flex items-center gap-2">
-            <span className="text-[#e82429] text-2xl">❌</span>
-            Cancellation & Refund Policy
-          </h2>
+          {/* ----------------------------- TAB CONTENT AREA ----------------------------- */}
 
-          {/* Content Box */}
-          <div className="bg-[#fff4f4] rounded-2xl p-6 border border-[#e82429]/20 text-gray-700 text-sm md:text-base leading-relaxed space-y-3">
-            <p>• Free cancellation up to 24 hours before the tour date.</p>
-            <p>
-              • 50% refund applicable if cancelled between 24 - 48 hours before
-              service.
-            </p>
-            <p>
-              • No refund applicable for cancellations made within 24 hours of
-              travel.
-            </p>
-            <p>
-              • Certain activities such as Burj Khalifa, theme parks or special
-              events may be fully non-refundable.
-            </p>
-            <p>
-              • Refunds may take 7–14 business days to reflect in your account.
-            </p>
-            <p>
-              • Any changes in booking are subject to availability and may incur
-              charges.
-            </p>
-          </div>
-        </div>
+          <div className="mt-6">
+            {/* ⭐ HIGHLIGHTS */}
+            {activeTab === "highlights" && (
+              <div className="space-y-5">
+                <h3 className="text-xl font-bold text-[#721011]">
+                  Package Highlights
+                </h3>
 
-        {/* TERMS */}
-        {/* TERMS & CONDITIONS – Modern Design */}
-        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20 relative overflow-hidden">
-          {/* Decorative Top Gradient Line */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#e82429] via-[#ff8a8a] to-[#721011]"></div>
-
-          {/* Heading */}
-          <h2 className="text-2xl font-bold text-[#404041] mb-5 flex items-center gap-2">
-            <span className="text-[#e82429] text-3xl">📄</span>
-            Terms & Conditions
-          </h2>
-
-          {/* Content */}
-          <div className="space-y-4 text-gray-700 text-sm md:text-base leading-relaxed">
-            {tour.terms
-              .split("•")
-              .filter((line) => line.trim())
-              .map((line, index) => (
-                <div
-                  key={index}
-                  className="flex gap-4 bg-[#fff7f7] p-4 rounded-xl border border-[#e82429]/10 hover:bg-[#ffecec] transition-all duration-200"
-                >
-                  {/* Number Bubble */}
-                  <div className="min-w-[32px] h-[32px] flex items-center justify-center bg-gradient-to-br from-[#e82429] to-[#721011] text-white font-bold rounded-full shadow">
-                    {index + 1}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="flex gap-3">
+                    <FaCalendarAlt className="text-[#e82429] text-xl" />
+                    <div>
+                      <p className="font-semibold">NO OF NIGHT</p>
+                      <p>{tour.duration}</p>
+                    </div>
                   </div>
 
-                  {/* Text */}
-                  <p className="flex-1">{line.trim()}</p>
+                  <div className="flex gap-3">
+                    <FaUser className="text-[#e82429] text-xl" />
+                    <div>
+                      <p className="font-semibold">NO OF PERSON</p>
+                      <p>02 Adults</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <FaBed className="text-[#e82429] text-xl" />
+                    <div>
+                      <p className="font-semibold">NO OF ROOM</p>
+                      <p>01 Standard Double Room</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <FaUtensils className="text-[#e82429] text-xl" />
+                    <div>
+                      <p className="font-semibold">MEAL PLAN</p>
+                      <p>Bed & Breakfast</p>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* ⭐ ITINERARY — THE NEW MODERN SECTION */}
+            {activeTab === "itinerary" && (
+              <div className="space-y-16">
+                {tour.itinerary.map((d, i) => (
+                  <div
+                    key={i}
+                    className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#e82429]/20 group"
+                  >
+                    {/* IMAGE */}
+                    <div className="relative">
+                      <img
+                        src={d.image}
+                        className="w-full h-[380px] md:h-[450px] object-cover transform group-hover:scale-105 transition-all duration-700"
+                      />
+
+                      {/* BLACK GRADIENT OVERLAY */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                      {/* FLOATING DAY TAG */}
+                      <div className="absolute top-5 left-5 bg-white/90 backdrop-blur-md px-5 py-2 rounded-full shadow-xl border border-white">
+                        <p className="text-[#721011] font-bold text-lg">
+                          DAY {i + 1}
+                        </p>
+                      </div>
+
+                      {/* FLOATING TITLE BOX */}
+                      <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-lg p-6 rounded-2xl shadow-2xl border border-[#e82429]/20">
+                        <h3 className="text-2xl font-bold text-[#721011] mb-2">
+                          {d.title}
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ⭐ NEED TO KNOW */}
+            {activeTab === "know" && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-[#721011]">
+                  Need to Know
+                </h3>
+
+                <ul className="space-y-3">
+                  {tour.knowBefore.map((x, i) => (
+                    <li
+                      key={i}
+                      className="bg-[#fff4f4] p-3 rounded-xl border flex gap-3"
+                    >
+                      <span className="text-xl">ℹ️</span> {x}
+                    </li>
+                  ))}
+                </ul>
+
+                <h3 className="text-xl font-bold text-[#e82429] mt-5">
+                  Inclusions
+                </h3>
+                <ul className="space-y-2">
+                  {tour.inclusions.map((x, i) => (
+                    <li key={i} className="bg-[#fff4f4] p-2 rounded-lg border">
+                      ✅ {x}
+                    </li>
+                  ))}
+                </ul>
+
+                <h3 className="text-xl font-bold text-[#e82429] mt-5">
+                  Exclusions
+                </h3>
+                <ul className="space-y-2">
+                  {tour.exclusions.map((x, i) => (
+                    <li key={i} className="bg-[#fff4f4] p-2 rounded-lg border">
+                      ❌ {x}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* ⭐ CANCELLATION */}
+            {activeTab === "cancel" && (
+              <div className="bg-[#fff4f4] p-6 rounded-2xl border space-y-3">
+                <p>• Free cancellation up to 24 hours before the tour date.</p>
+                <p>• 50% refund if cancelled 24–48 hours before service.</p>
+                <p>• No refund within 24 hours of travel.</p>
+                <p>• Theme park & Burj Khalifa tickets non-refundable.</p>
+              </div>
+            )}
+
+            {/* ⭐ TERMS */}
+            {activeTab === "terms" && (
+              <div className="space-y-4">
+                {tour.terms
+                  .split("•")
+                  .filter((x) => x.trim())
+                  .map((line, index) => (
+                    <div
+                      key={index}
+                      className="bg-[#fff7f7] p-4 rounded-xl border flex gap-4"
+                    >
+                      <div className="w-8 h-8 bg-[#e82429] text-white flex items-center justify-center rounded-full">
+                        {index + 1}
+                      </div>
+                      <p>{line.trim()}</p>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* RIGHT STICKY FORM */}
-      <aside className="md:col-span-1">
-  <div className="sticky top-24 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl p-7 border border-[#e82429]/20 hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
+      {/* RIGHT SIDE */}
+      <aside className="md:col-span-1 space-y-8">
+        {/* ENQUIRY FORM */}
+        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20">
+          <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
+            Enquire Now
+          </h3>
 
-    {/* Decorative top line */}
-    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#e82429] via-[#ff8484] to-[#721011]"></div>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                placeholder="First Name"
+                className="p-3 border rounded-xl w-full"
+              />
+              <input
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                placeholder="Last Name"
+                className="p-3 border rounded-xl w-full"
+              />
+            </div>
 
-    {/* Heading */}
-    <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
-      Enquire Now
-    </h3>
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Email"
+              className="p-3 border rounded-xl w-full"
+            />
 
-    {/* FORM START */}
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      
-      {/* First / Last Name */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative">
-          <input
-            name="firstName"
-            value={form.firstName}
-            onChange={handleChange}
-            placeholder=" "
-            className="peer p-3 border rounded-xl w-full focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-          />
-          <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-            First Name
-          </label>
+            <input
+              name="contact"
+              value={form.contact}
+              onChange={handleChange}
+              placeholder="Contact Number"
+              className="p-3 border rounded-xl w-full"
+            />
+
+            <select
+              name="selectedTour"
+              value={form.selectedTour}
+              onChange={handleChange}
+              className="p-3 border rounded-xl w-full"
+            >
+              {sampleTours.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+
+            <input
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Your Location"
+              className="p-3 border rounded-xl w-full"
+            />
+
+            <textarea
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              placeholder="Message"
+              className="p-3 border rounded-xl w-full h-28"
+            ></textarea>
+
+            <button className="w-full py-3 bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-bold rounded-xl">
+              Submit Enquiry
+            </button>
+          </form>
         </div>
 
-        <div className="relative">
-          <input
-            name="lastName"
-            value={form.lastName}
-            onChange={handleChange}
-            placeholder=" "
-            className="peer p-3 border rounded-xl w-full focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-          />
-          <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-            Last Name
-          </label>
+        {/* NEED HELP */}
+        <div className="bg-white rounded-3xl shadow-xl p-5 border border-[#e82429]/20">
+          <h3 className="text-lg font-bold text-[#721011] mb-3">
+            🆘 Need Help?
+          </h3>
+
+          <div className="p-3 bg-[#fff4f4] rounded-xl mb-3 border">
+            📞 <b>+971 50 000 0000</b>
+          </div>
+
+          <div className="p-3 bg-[#fff4f4] rounded-xl border">
+            📧 support@desertplanners.com
+          </div>
         </div>
-      </div>
 
-      {/* Email */}
-      <div className="relative">
-        <input
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder=" "
-          className="peer p-3 border rounded-xl w-full focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-        />
-        <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-          Email
-        </label>
-      </div>
+        {/* WHY BOOK WITH US */}
+        <div className="bg-white rounded-3xl shadow-xl p-5 border border-[#e82429]/20">
+          <h3 className="text-lg font-bold text-[#721011] mb-4">
+            ⭐ Why Book With Us?
+          </h3>
 
-      {/* Contact Number */}
-      <div className="relative">
-        <input
-          name="contact"
-          value={form.contact}
-          onChange={handleChange}
-          placeholder=" "
-          className="peer p-3 border rounded-xl w-full focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-        />
-        <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-          Contact Number
-        </label>
-      </div>
-
-      {/* Select Tour */}
-      <div className="relative">
-        <select
-          name="selectedTour"
-          value={form.selectedTour}
-          onChange={handleChange}
-          className="peer p-3 border rounded-xl w-full bg-white focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-        >
-          {sampleTours.map((t) => (
-            <option key={t}>{t}</option>
-          ))}
-        </select>
-        <label className="absolute left-3 -top-2 text-xs text-[#e82429] bg-white px-1">
-          Select Tour
-        </label>
-      </div>
-
-      {/* Location */}
-      <div className="relative">
-        <input
-          name="location"
-          value={form.location}
-          onChange={handleChange}
-          placeholder=" "
-          className="peer p-3 border rounded-xl w-full focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-        />
-        <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-          Your Location
-        </label>
-      </div>
-
-      {/* Message */}
-      <div className="relative">
-        <textarea
-          name="message"
-          value={form.message}
-          onChange={handleChange}
-          placeholder=" "
-          className="peer p-3 border rounded-xl w-full h-28 focus:border-[#e82429] focus:ring-2 focus:ring-[#e82429]/40 transition-all outline-none"
-        ></textarea>
-        <label className="absolute left-3 top-3 text-gray-500 pointer-events-none transition-all peer-placeholder-shown:top-3 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-[#e82429] bg-white px-1">
-          Message / Enquiry
-        </label>
-      </div>
-
-      {/* Submit Button */}
-      <button
-        type="submit"
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-bold shadow-lg hover:shadow-xl transition-all tracking-wide"
-      >
-        Submit Enquiry
-      </button>
-    </form>
-
-    {/* Contact Footer */}
-    <div className="mt-6 bg-[#fff5f5] border border-[#e82429]/20 p-4 rounded-xl text-sm text-gray-700">
-      📞 Need help?  
-      <span className="font-bold text-[#721011]"> +971 50 000 0000</span>
-      <br />
-      Our team will contact you within minutes.
-    </div>
-  </div>
-</aside>
-
+          <div className="grid grid-cols-2 gap-3 text-center">
+            {[
+              ["⚡", "Instant", "Confirmation"],
+              ["🎓", "Trained", "Team"],
+              ["💰", "Best", "Price"],
+              ["🕒", "24/7", "Support"],
+              ["🏆", "Quality", "Service"],
+              ["😊", "Happy", "Clients"],
+            ].map(([icon, title, sub], idx) => (
+              <div
+                key={idx}
+                className="p-4 bg-[#fff4f4] rounded-xl border border-[#e82429]/20"
+              >
+                <div className="text-2xl mb-1">{icon}</div>
+                <p className="font-semibold">{title}</p>
+                <p className="text-xs text-gray-600">{sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
