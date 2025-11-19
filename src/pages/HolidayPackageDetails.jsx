@@ -206,6 +206,82 @@ export default function HolidayPage() {
           <p className="mt-5 text-gray-700">{description}</p>
         </div>
 
+        {/* ⭐ MOBILE ENQUIRY FORM HERE */}
+        <div className="block md:hidden">
+          <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20 mt-5">
+            <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
+              Enquire Now
+            </h3>
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  name="firstName"
+                  value={form.firstName}
+                  onChange={handleChange}
+                  placeholder="First Name"
+                  className="p-3 border rounded-xl w-full"
+                />
+                <input
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  placeholder="Last Name"
+                  className="p-3 border rounded-xl w-full"
+                />
+              </div>
+
+              <input
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className="p-3 border rounded-xl w-full"
+              />
+
+              <input
+                name="contact"
+                value={form.contact}
+                onChange={handleChange}
+                placeholder="Contact Number"
+                className="p-3 border rounded-xl w-full"
+              />
+
+              <select
+                name="selectedTour"
+                value={form.selectedTour}
+                onChange={handleChange}
+                className="p-3 border rounded-xl w-full"
+              >
+                <option>{title}</option>
+              </select>
+
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                placeholder="Your Location"
+                className="p-3 border rounded-xl w-full"
+              />
+
+              <textarea
+                name="message"
+                value={form.message}
+                onChange={handleChange}
+                placeholder="Message / Enquiry"
+                className="p-3 border rounded-xl w-full h-28"
+              />
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-[#e82429] to-[#721011] text-white font-bold rounded-xl"
+              >
+                Submit Enquiry
+              </button>
+            </form>
+          </div>
+        </div>
+
         {/* TABS BLOCK (keeps exact same design) */}
         <div className="bg-white rounded-3xl shadow-lg p-6 border border-[#e82429]/20">
           <TabsArea
@@ -250,7 +326,7 @@ export default function HolidayPage() {
         </div>
 
         {/* ENQUIRY FORM (STATIC layout but selected tour filled dynamically) */}
-        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20">
+        <div className="bg-white rounded-3xl shadow-xl p-7 border border-[#e82429]/20 hidden md:block">
           <h3 className="text-2xl font-extrabold text-[#721011] mb-6">
             Enquire Now
           </h3>
@@ -328,13 +404,21 @@ export default function HolidayPage() {
             🆘 Need Help?
           </h3>
 
-          <div className="p-3 bg-[#fff4f4] rounded-xl mb-3 border">
-            📞 <b>+97143546677</b>
-          </div>
+          {/* Phone Clickable */}
+          <a
+            href="tel:+97143546677"
+            className="p-3 bg-[#fff4f4] rounded-xl mb-3 border flex items-center gap-2 hover:bg-[#ffe9e9] transition"
+          >
+            📞 <b>+971 4 354 6677</b>
+          </a>
 
-          <div className="p-3 bg-[#fff4f4] rounded-xl border">
+          {/* Email Clickable */}
+          <a
+            href="mailto:info@desertplanners.net"
+            className="p-3 bg-[#fff4f4] rounded-xl border flex items-center gap-2 hover:bg-[#ffe9e9] transition"
+          >
             📧 info@desertplanners.net
-          </div>
+          </a>
         </div>
       </aside>
     </div>
@@ -491,12 +575,12 @@ function TabsArea({
                     {/* Modern Title */}
                     <h3
                       className="
-      text-xl md:text-2xl 
-      font-extrabold 
-      text-[#2a2a2a]
-      tracking-wide
-      leading-snug
-    "
+    text-lg md:text-xl      /* smaller font */
+    font-bold               /* little softer than extrabold */
+    text-[#2a2a2a]
+    tracking-normal         /* reduced tracking */
+    leading-snug
+  "
                     >
                       {d.title || `Day ${i + 1}`}
                     </h3>

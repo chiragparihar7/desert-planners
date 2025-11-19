@@ -18,7 +18,6 @@ export default function HolidayCategoryPage() {
 
   return (
     <div className="w-full">
-
       {/* TOP BANNER */}
       <div className="relative w-full h-44 sm:h-52 md:h-60 lg:h-64 mb-10 rounded-xl overflow-hidden">
         <img
@@ -35,7 +34,9 @@ export default function HolidayCategoryPage() {
       {/* CARDS */}
       <div className="max-w-[1200px] mx-auto px-4 pb-16">
         {packages.length === 0 ? (
-          <p className="text-gray-600 text-lg text-center">No holiday tours found.</p>
+          <p className="text-gray-600 text-lg text-center">
+            No holiday tours found.
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {packages.map((pkg) => (
@@ -58,9 +59,7 @@ function ImageCard({ pkg, categorySlug }) {
     if (!pkg.sliderImages || pkg.sliderImages.length <= 1) return;
 
     const interval = setInterval(() => {
-      setIndex((prev) =>
-        prev + 1 < pkg.sliderImages.length ? prev + 1 : 0
-      );
+      setIndex((prev) => (prev + 1 < pkg.sliderImages.length ? prev + 1 : 0));
     }, 2500);
 
     return () => clearInterval(interval);
@@ -78,17 +77,31 @@ function ImageCard({ pkg, categorySlug }) {
           alt={pkg.title}
           className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
         />
-
-        {/* ⭐ DURATION BADGE (right-bottom) */}
         {pkg.duration && (
-          <div className="
-            absolute bottom-3 right-3 
-            bg-black/55 backdrop-blur-md 
-            text-white text-xs font-semibold 
-            px-3 py-1.5 rounded-full 
-            shadow-lg border border-white/20
-          ">
-            {pkg.duration}
+          <div
+            className="
+      absolute bottom-3 right-3
+      px-4 py-1.5
+      rounded-full
+      flex items-center gap-2
+
+      /* ⭐ Premium Gradient */
+      bg-gradient-to-r from-[#FFB457] via-[#FF8A34] to-[#E82429]
+
+      /* Text */
+      text-white text-[12.5px] font-bold tracking-wide
+
+      /* Glow & Border */
+      shadow-[0_4px_18px_rgba(0,0,0,0.35)]
+      border border-white/20
+
+      /* Slight Lift */
+      hover:brightness-110 hover:scale-[1.03]
+      transition-all duration-300
+    "
+          >
+            <span className="text-sm">🗓️</span>
+            <span>{pkg.duration}</span>
           </div>
         )}
 
@@ -109,7 +122,6 @@ function ImageCard({ pkg, categorySlug }) {
 
       {/* CONTENT */}
       <div className="p-5 space-y-4">
-
         {/* TITLE + PRICE */}
         <div className="flex items-start justify-between">
           <h3 className="text-lg font-bold text-[#404041] group-hover:text-[#e82429] transition w-[70%] leading-snug">
@@ -130,7 +142,6 @@ function ImageCard({ pkg, categorySlug }) {
             View Details →
           </span>
         </div>
-
       </div>
     </Link>
   );
