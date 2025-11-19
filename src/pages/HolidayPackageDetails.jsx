@@ -70,12 +70,43 @@ export default function HolidayPage() {
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Keeping enquiry static — just show confirmation for now
-    alert("Enquiry submitted successfully!");
-    // optionally: send to backend if you have an enquiries endpoint
+  
+    const api = DataService();
+  
+    // convert form to backend required structure
+    const payload = {
+      name: `${form.firstName} ${form.lastName}`,
+      email: form.email,
+      contactNumber: form.contact,
+      services: form.selectedTour || title,
+      message: `Location: ${form.location} , \nMessage: ${form.message}`,
+    };
+  
+    try {
+      const res = await api.post(API.CREATE_ENQUIRY, payload);
+  
+      if (res.status === 200 || res.status === 201) {
+        alert("Enquiry submitted successfully!");
+  
+        // Reset form
+        setForm({
+          firstName: "",
+          lastName: "",
+          email: "",
+          contact: "",
+          selectedTour: title,
+          location: "",
+          message: "",
+        });
+      }
+    } catch (err) {
+      console.log("Enquiry error:", err);
+      alert("Failed to submit enquiry!");
+    }
   };
+  
 
   if (loading)
     return (

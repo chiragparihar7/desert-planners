@@ -85,8 +85,8 @@ function ImageCard({ pkg, categorySlug }) {
       rounded-full
       flex items-center gap-2
 
-      /* ⭐ Premium Gradient */
-      bg-gradient-to-r from-[#FFB457] via-[#FF8A34] to-[#E82429]
+      /* ⭐ Solid Color */
+      bg-[#e82429]
 
       /* Text */
       text-white text-[12.5px] font-bold tracking-wide
