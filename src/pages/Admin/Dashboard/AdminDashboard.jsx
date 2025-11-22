@@ -9,7 +9,7 @@ import VisaCategory from "./VisaCategory";
 import HolidayCategory from "./HolidayCategory"; // ⭐ NEW
 import Bookings from "./Bookings";
 import Payments from "./Payments";
-import Users from "./Users";
+// import Users from "./Users";
 import Enquiries from "./Enquiries";
 import Settings from "./Settings";
 import Visa from "./Visa";
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
     bookings: Bookings,
     visaBookings: VisaBookings,
     payments: Payments,
-    users: Users,
+    // users: Users,
     enquiries: Enquiries,
     banner: BannerManagement,
     settings: Settings,

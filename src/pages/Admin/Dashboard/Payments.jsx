@@ -46,7 +46,6 @@ export default function Payments() {
                   <th className="p-3 border">Amount</th>
                   <th className="p-3 border">Status</th>
                   <th className="p-3 border">Date</th>
-                  <th className="p-3 border">Action</th>
                 </tr>
               </thead>
 
@@ -84,15 +83,6 @@ export default function Payments() {
 
                     <td className="p-3">
                       {new Date(p.createdAt).toLocaleDateString()}
-                    </td>
-
-                    <td className="p-3">
-                      <a
-                        href={`/admin?tab=bookings&id=${p.bookingId?._id}`}
-                        className="text-blue-600 hover:underline"
-                      >
-                        View Booking
-                      </a>  
                     </td>
 
                   </tr>

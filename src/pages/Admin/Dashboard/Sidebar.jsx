@@ -68,7 +68,7 @@ const ITEMS = [
   { tab: "payments", label: "Payments", icon: <CreditCard size={18} /> },
 
   // Users
-  { tab: "users", label: "Users", icon: <Users size={18} /> },
+  // { tab: "users", label: "Users", icon: <Users size={18} /> },
 
   // Enquiries
   { tab: "enquiries", label: "Enquiries", icon: <Mail size={18} /> },
